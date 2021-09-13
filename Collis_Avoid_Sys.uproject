@@ -7,7 +7,10 @@
 		{
 			"Name": "Collis_Avoid_Sys",
 			"Type": "Runtime",
-			"LoadingPhase": "Default"
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": [
+				"PhysXVehicles"
+			]
 		}
 	]
 }
