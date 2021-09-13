@@ -24,7 +24,7 @@ public:
 private:
 	void GetInput();
 
-	USceneComponent* SensorPosition;
+	UStaticMeshComponent* SensorPosition;
 
-	static const int NumberSensor = 32;
+	static const int NumberSensor = 16;
 };

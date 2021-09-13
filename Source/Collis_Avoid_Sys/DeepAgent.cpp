@@ -13,13 +13,13 @@ void ADeepAgent::BeginPlay() {
 
 	TArray<USceneComponent*> Childrens;
 	this->GetMesh()->GetChildrenComponents(true, Childrens);
-	/*UE_LOG(LogTemp, Error, TEXT("Number Children %d"), acc.Num());
-	for (int i = 0; i < acc.Num(); i++)
+	UE_LOG(LogTemp, Error, TEXT("Number Children %d"), Childrens.Num());
+	for (int i = 0; i < Childrens.Num(); i++)
 	{
-		UE_LOG(LogTemp, Error, TEXT("Children name %d %s"),i, *acc[i]->GetName());
-	}*/
+		UE_LOG(LogTemp, Error, TEXT("Children name %d %s"),i, *Childrens[i]->GetName());
+	}
 	if (Childrens.Num() > 0)
-		ADeepAgent::SensorPosition = Childrens[1];
+		ADeepAgent::SensorPosition = Cast<UStaticMeshComponent>(Childrens[0]);
 }
 
 void ADeepAgent::Tick(float DeltaTime) {
@@ -32,24 +32,23 @@ void ADeepAgent::GetInput() {
 	FVector Start;
 	FRotator Rot;
 
-	//GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(Start, Rot);
 	Start = ADeepAgent::SensorPosition->GetComponentLocation();
 	Rot = ADeepAgent::SensorPosition->GetComponentRotation();
 
-	float AngleExtension = 90;
-	TArray<FHitResult,TFixedAllocator<ADeepAgent::NumberSensor>> Hit;
+	TArray<FHitResult, TFixedAllocator<ADeepAgent::NumberSensor>> Hit;
 	for (int i = 0; i < ADeepAgent::NumberSensor; i++)
 	{
 		FHitResult hit;
 		Hit.Init(hit, ADeepAgent::NumberSensor);
 	}
+	float AngleExtension = 90;
 	FCollisionQueryParams FParams;
 
 	for (int i = 0; i < ADeepAgent::NumberSensor; i++)
 	{
 		FRotator angle = FRotator::ZeroRotator; 
-		angle.Yaw = -AngleExtension + AngleExtension * 2 / (ADeepAgent::NumberSensor-1) * i;
-		FVector End = Start + (Rot.Vector()+angle.Vector()) * 2000;
+		angle.Yaw = -AngleExtension/2 + AngleExtension / (ADeepAgent::NumberSensor-1) * i;
+		FVector End = Start + (Rot+angle).Vector() * 1000;
 		GetWorld()->LineTraceSingleByChannel(Hit[i], Start, End, ECollisionChannel::ECC_Visibility, FParams);
 
 
@@ -57,11 +56,11 @@ void ADeepAgent::GetInput() {
 
 		float lifeTime = 0.3;
 		if (ActorHit) {
-			DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, lifeTime, 0, 10);
+			DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, lifeTime, 0, 5);
 			//UE_LOG(LogTemp, Error, TEXT("Line trace has hit: %d %s"),i, *(ActorHit->GetName()));
 		}
 		else {
-			DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, lifeTime, 0, 10);
+			DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, lifeTime, 0, 5);
 		}
 	}
 }
