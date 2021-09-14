@@ -20,6 +20,7 @@ void AClient::BeginPlay()
 	AClient::UrlAddress = "http://127.0.0.1:8080";
 }
 
+
 // Called every frame
 void AClient::Tick(float DeltaTime)
 {
@@ -27,15 +28,15 @@ void AClient::Tick(float DeltaTime)
 
 }
 
-void AClient::SendData()
+void AClient::SendExperience(TArray<int> currentState, int action, TArray<int> nextState, float reward, bool endGame)
 {
-	TArray<int> currentState = { 1,2,3,4,5,6 };
+	/*TArray<int> currentState = { 1,2,3,4,5,6 };
 	int action = 1;
-	TArray<int> nexState = { 10,20,30,40,50,60 };
+	TArray<int> nextState = { 10,20,30,40,50,60 };
 	float reward = 0.1;
-	bool endGame = false;
+	bool endGame = false;*/
 
-	FString data = currentState.ToString() + action;
+	FString data = AClient::ConstructData(currentState,action,nextState,reward,endGame);
 	FHttpModule* Http = &FHttpModule::Get();
 	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> HttpRequest = Http->CreateRequest();
 	HttpRequest->SetVerb("Post");
@@ -45,3 +46,38 @@ void AClient::SendData()
 	HttpRequest->ProcessRequest();
 }
 
+
+FString AClient::ConstructData(TArray<int> currentState, int action, TArray<int> nextState, float reward, bool endGame)
+{
+	FString result;
+	//CURRENT STATE
+	for (int i = 0; i < currentState.Num(); i++)
+	{
+		if (i > 0)
+			result.Append(".");
+		result.Append(FString::FromInt(currentState[i]));
+	}
+	result.Append(";");
+
+	//ACTION CHOSEN
+	result.Append(FString::SanitizeFloat(action));
+	result.Append(";");
+
+	//NEXT STATE
+	for (int i = 0; i < nextState.Num(); i++)
+	{
+		if (i > 0)
+			result.Append(".");
+		result.Append(FString::FromInt(nextState[i]));
+	}
+	result.Append(";");
+
+
+	//REWARD GOT
+	result.Append(FString::FromInt(reward));
+	result.Append(";");
+
+	//THE GAME ENDED OR NOT (0 false, 1 true)
+	result.Append(FString::FromInt(endGame));
+	return result;
+}

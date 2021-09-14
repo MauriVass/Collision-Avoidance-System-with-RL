@@ -29,5 +29,5 @@ private:
 	static const int NumberSensor = 16;
 
 	class AClient* Client;
-	void SendData();
+	void SendExperience();
 };

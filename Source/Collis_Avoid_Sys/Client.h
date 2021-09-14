@@ -21,10 +21,13 @@ protected:
 
 	FString UrlAddress;
 
+	FString ConstructData(TArray<int> currentState, int action, TArray<int> nextState, float reward, bool EndGame );
+	//FString ConstructData(State state);
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	void SendData();
+	void SendExperience(TArray<int> currentState, int action, TArray<int> nextState, float reward, bool endGame);
 
 };

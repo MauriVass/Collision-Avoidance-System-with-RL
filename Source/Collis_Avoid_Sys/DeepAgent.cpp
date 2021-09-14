@@ -22,7 +22,7 @@ void ADeepAgent::BeginPlay() {
 		ADeepAgent::SensorPosition = Cast<UStaticMeshComponent>(Childrens[0]);
 
 	ADeepAgent::Client = GetWorld()->SpawnActor<AClient>();
-	ADeepAgent::Client->SetActorLabel("Controller");
+	ADeepAgent::Client->SetActorLabel("Client");
 }
 
 void ADeepAgent::Tick(float DeltaTime) {
@@ -68,15 +68,18 @@ void ADeepAgent::GetInput() {
 	}
 }
 
-void ADeepAgent::SendData()
+void ADeepAgent::SendExperience()
 {
-	FString string = "ciaooo";
-	UE_LOG(LogTemp, Error, TEXT("Sending %s"), *string );
-	ADeepAgent::Client->SendData();
+	TArray<int> currentState = { 1,2,3,4,5,6 };
+	int action = 1;
+	TArray<int> nextState = { 10,20,30,40,50,60 };
+	float reward = 0.1;
+	bool endGame = false;
+	ADeepAgent::Client->SendExperience(currentState, action, nextState, reward, endGame);
 }
 
 void ADeepAgent::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	InputComponent->BindAction("Input", IE_Pressed, this, &ADeepAgent::SendData);
+	InputComponent->BindAction("Input", IE_Pressed, this, &ADeepAgent::SendExperience);
 }
