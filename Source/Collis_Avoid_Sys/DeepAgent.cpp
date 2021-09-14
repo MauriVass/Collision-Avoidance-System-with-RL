@@ -2,8 +2,8 @@
 
 
 #include "DrawDebugHelpers.h"
+#include "Client.h"
 #include "DeepAgent.h"
-
 
 void ADeepAgent::BeginPlay() {
 	Super::BeginPlay();
@@ -13,13 +13,16 @@ void ADeepAgent::BeginPlay() {
 
 	TArray<USceneComponent*> Childrens;
 	this->GetMesh()->GetChildrenComponents(true, Childrens);
-	UE_LOG(LogTemp, Error, TEXT("Number Children %d"), Childrens.Num());
+	/*UE_LOG(LogTemp, Error, TEXT("Number Children %d"), Childrens.Num());
 	for (int i = 0; i < Childrens.Num(); i++)
 	{
 		UE_LOG(LogTemp, Error, TEXT("Children name %d %s"),i, *Childrens[i]->GetName());
-	}
+	}*/
 	if (Childrens.Num() > 0)
 		ADeepAgent::SensorPosition = Cast<UStaticMeshComponent>(Childrens[0]);
+
+	ADeepAgent::Client = GetWorld()->SpawnActor<AClient>();
+	ADeepAgent::Client->SetActorLabel("Controller");
 }
 
 void ADeepAgent::Tick(float DeltaTime) {
@@ -54,7 +57,7 @@ void ADeepAgent::GetInput() {
 
 		AActor* ActorHit = Hit[i].GetActor();
 
-		float lifeTime = 0.3;
+		float lifeTime = 0.1;
 		if (ActorHit) {
 			DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, lifeTime, 0, 5);
 			//UE_LOG(LogTemp, Error, TEXT("Line trace has hit: %d %s"),i, *(ActorHit->GetName()));
@@ -65,8 +68,15 @@ void ADeepAgent::GetInput() {
 	}
 }
 
+void ADeepAgent::SendData()
+{
+	FString string = "ciaooo";
+	UE_LOG(LogTemp, Error, TEXT("Sending %s"), *string );
+	ADeepAgent::Client->SendData();
+}
+
 void ADeepAgent::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	InputComponent->BindAction("Input", IE_Pressed, this, &ADeepAgent::GetInput);
+	InputComponent->BindAction("Input", IE_Pressed, this, &ADeepAgent::SendData);
 }
