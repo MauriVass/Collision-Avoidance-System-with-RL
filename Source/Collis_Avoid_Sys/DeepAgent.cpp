@@ -4,6 +4,7 @@
 #include "DrawDebugHelpers.h"
 #include "Client.h"
 #include "DeepAgent.h"
+#include "WheeledVehicleMovementComponent.h"
 
 void ADeepAgent::BeginPlay() {
 	Super::BeginPlay();
@@ -55,9 +56,9 @@ void ADeepAgent::GetInput() {
 		FHitResult hit;
 		Hit.Init(hit, ADeepAgent::NumberSensor);
 	}
-	float AngleExtension = 90;
+	float AngleExtension = 120;
 	FCollisionQueryParams FParams;
-
+	
 	for (int i = 0; i < ADeepAgent::NumberSensor; i++)
 	{
 		FRotator angle = FRotator::ZeroRotator; 
