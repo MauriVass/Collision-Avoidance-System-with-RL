@@ -1,9 +1,11 @@
 import string
-import cherrypy
+from flask import Flask, request, abort, Response, send_file
 import json
 import numpy as np
 # import tensorflow as tf
 import time
+
+app = Flask(__name__)
 
 # class Network():
 # 	def __init__(self,num_actions):
@@ -99,38 +101,39 @@ import time
 # 		self.targetNetwork.set_weights(self.policyNetwork.get_weights())
 
 
+@app.route('/')
+def home():
+	print('home')
+	return 'bella';
 
+@app.route('/experience', methods=['POST'])
+def GetExperience():
+	input = request.data.decode("utf-8") 
+	# input = json.loads(input)
 
-class Server(object):
-	#Required to be accessable online
-	exposed=True
+	print(input)
 
-	def GET(self,*path,**query):
-		return 'bella';
-		
-	def POST(self,*path,**query):
-		input = cherrypy.request.body.read()
-		# input = json.loads(input)
+	return ''
 
-		print(input)
+# def __init__(self):
 
-	# def __init__(self):
+# def FIT(self):
+# 	msg = cherrypy.request.body.readline().decode("utf-8")
+# 	exp = self.decodeMsg(msg)
+# 	self.net.fit(exp)
 
-	# def FIT(self):
-	# 	msg = cherrypy.request.body.readline().decode("utf-8")
-	# 	exp = self.decodeMsg(msg)
-	# 	self.net.fit(exp)
-
-	# def PREDICT_PN(self):
-	# 	msg = cherrypy.request.body.readline().decode("utf-8")
-	# 	input = np.array(msg.split('.')).astype(int)
-	# 	# print('PREDICT')
-	# 	# print(input)
-	# 	output = self.net.predictPN(input)
-	# 	# print('pred net', output)
-	# 	# print('target net', self.net.predictTN(input))
-	# 	out = '/'.join([str(o) for o in output.numpy()[0]])
-	# 	return out
+@app.route('/predict', methods=['POST'])
+def PREDICT():
+	msg = request.data.decode("utf-8") 
+	print(type(msg),msg)
+	input = np.array(msg.split('.')).astype(int)
+	# print('PREDICT')
+	print(input)
+	# output = self.net.predictPN(input)
+	# # print('pred net', output)
+	# # print('target net', self.net.predictTN(input))
+	# out = '/'.join([str(o) for o in output.numpy()[0]])
+	return '1;0.4'
 
 	# def PREDICT_TN(self):
 	# 	output = self.net.predictTN(values[0])
@@ -160,14 +163,6 @@ class Server(object):
 	# 	self.net = Network(input)
 	# 	print('Reset')
 
-#'request.dispatch': cherrypy.dispatch.MethodDispatcher() => switch from default URL to HTTP compliant approch
-conf = { '/': {	'request.dispatch': cherrypy.dispatch.MethodDispatcher(),
-								'tools.sessions.on':True} 
-					}
-cherrypy.tree.mount(Server(), '/', conf)
+if __name__ == "__main__":
 
-cherrypy.config.update({'servet.socket_host':'0.0.0.0'})
-cherrypy.config.update({'servet.socket_port':'8080'})
-
-cherrypy.engine.start()
-cherrypy.engine.block()
+    app.run(host='0.0.0.0')

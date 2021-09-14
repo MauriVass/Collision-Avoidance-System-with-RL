@@ -23,12 +23,23 @@ void ADeepAgent::BeginPlay() {
 
 	ADeepAgent::Client = GetWorld()->SpawnActor<AClient>();
 	ADeepAgent::Client->SetActorLabel("Client");
+	ADeepAgent::Client->SetDeepAgent(this);
 }
 
 void ADeepAgent::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
 
 	ADeepAgent::GetInput();
+}
+
+void ADeepAgent::SetAction(int action)
+{
+	ADeepAgent::Action = action;
+}
+
+void ADeepAgent::SetConfidence(float confidence)
+{
+	ADeepAgent::Confidence = confidence;
 }
 
 void ADeepAgent::GetInput() {
@@ -78,8 +89,15 @@ void ADeepAgent::SendExperience()
 	ADeepAgent::Client->SendExperience(currentState, action, nextState, reward, endGame);
 }
 
+void ADeepAgent::Predict()
+{
+	TArray<int> currentState = { 1,2,3,4,5,6 };
+	ADeepAgent::Client->Predict(currentState);
+}
+
 void ADeepAgent::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 	InputComponent->BindAction("Input", IE_Pressed, this, &ADeepAgent::SendExperience);
+	InputComponent->BindAction("Input1", IE_Pressed, this, &ADeepAgent::Predict);
 }

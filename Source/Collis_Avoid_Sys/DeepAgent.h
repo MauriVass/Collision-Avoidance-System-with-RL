@@ -15,11 +15,17 @@ class COLLIS_AVOID_SYS_API ADeepAgent : public AWheeledVehicle
 	GENERATED_BODY()
 
 protected:
+	int Action;
+	float Confidence;
+
 	virtual void BeginPlay() override;
 	void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent);
 
 public:
 	virtual void Tick(float DeltaTime) override;
+
+	void SetAction(int Action);
+	void SetConfidence(float Confidence);
 
 private:
 	void GetInput();
@@ -30,4 +36,5 @@ private:
 
 	class AClient* Client;
 	void SendExperience();
+	void Predict();
 };

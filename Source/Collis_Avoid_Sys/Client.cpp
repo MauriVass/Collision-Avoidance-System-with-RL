@@ -3,6 +3,7 @@
 
 #include "Client.h"
 #include <Http.h>
+#include <Collis_Avoid_Sys/DeepAgent.h>
 
 // Sets default values
 AClient::AClient()
@@ -17,7 +18,7 @@ void AClient::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	AClient::UrlAddress = "http://127.0.0.1:8080";
+	AClient::UrlAddress = "192.168.1.7:5000/";
 }
 
 
@@ -30,18 +31,13 @@ void AClient::Tick(float DeltaTime)
 
 void AClient::SendExperience(TArray<int> currentState, int action, TArray<int> nextState, float reward, bool endGame)
 {
-	/*TArray<int> currentState = { 1,2,3,4,5,6 };
-	int action = 1;
-	TArray<int> nextState = { 10,20,30,40,50,60 };
-	float reward = 0.1;
-	bool endGame = false;*/
-
 	FString data = AClient::ConstructData(currentState,action,nextState,reward,endGame);
+
 	FHttpModule* Http = &FHttpModule::Get();
 	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> HttpRequest = Http->CreateRequest();
 	HttpRequest->SetVerb("Post");
 	HttpRequest->SetHeader("Content-Type", "text/plain");
-	HttpRequest->SetURL(AClient::UrlAddress);
+	HttpRequest->SetURL(AClient::UrlAddress+"experience");
 	HttpRequest->SetContentAsString(data);
 	HttpRequest->ProcessRequest();
 }
@@ -81,3 +77,46 @@ FString AClient::ConstructData(TArray<int> currentState, int action, TArray<int>
 	result.Append(FString::FromInt(endGame));
 	return result;
 }
+
+void AClient::Predict(TArray<int> currentState)
+{
+	FHttpModule* Http = &FHttpModule::Get();
+	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> HttpRequest = Http->CreateRequest();
+	HttpRequest->SetVerb("POST");
+	HttpRequest->SetHeader("Content-Type", "text/plain");
+	HttpRequest->SetURL(AClient::UrlAddress + "predict");
+
+	FString data;
+	//CURRENT STATE
+	for (int i = 0; i < currentState.Num(); i++)
+	{
+		if (i > 0)
+			data.Append(".");
+		data.Append(FString::FromInt(currentState[i]));
+	}
+	HttpRequest->SetContentAsString(data);
+	UE_LOG(LogTemp, Error, TEXT("Line trace has hit: %s"), *data);
+
+	//HttpRequest->OnProcessRequestComplete().BindUObject(this, &AClient::GetPrediction);
+	HttpRequest->ProcessRequest();
+}
+
+void AClient::GetPrediction(FHttpRequestPtr request, FHttpResponsePtr Response, bool bWasSuccessful)
+{
+	UE_LOG(LogTemp, Error, TEXT("Response"));
+	if (bWasSuccessful)
+	{
+		FString response = Response->GetContentAsString();
+		TArray<FString> result;
+		response.ParseIntoArray(result, TEXT(";"), true);
+
+		AClient::Agent->SetAction(FCString::Atoi(*result[0]));
+		AClient::Agent->SetConfidence(FCString::Atoi(*result[1]));
+	}
+}
+
+void AClient::SetDeepAgent(ADeepAgent* agent)
+{
+	AClient::Agent = agent;
+}
+
