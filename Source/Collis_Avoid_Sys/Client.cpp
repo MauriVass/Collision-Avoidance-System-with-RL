@@ -97,7 +97,7 @@ void AClient::Predict(TArray<int> currentState)
 	HttpRequest->SetContentAsString(data);
 	UE_LOG(LogTemp, Error, TEXT("Line trace has hit: %s"), *data);
 
-	//HttpRequest->OnProcessRequestComplete().BindUObject(this, &AClient::GetPrediction);
+	HttpRequest->OnProcessRequestComplete().BindUObject(this, &AClient::GetPrediction);
 	HttpRequest->ProcessRequest();
 }
 
@@ -111,7 +111,8 @@ void AClient::GetPrediction(FHttpRequestPtr request, FHttpResponsePtr Response, 
 		response.ParseIntoArray(result, TEXT(";"), true);
 
 		AClient::Agent->SetAction(FCString::Atoi(*result[0]));
-		AClient::Agent->SetConfidence(FCString::Atoi(*result[1]));
+		AClient::Agent->SetConfidence(FCString::Atof(*result[1]));
+
 	}
 }
 

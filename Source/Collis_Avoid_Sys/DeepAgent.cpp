@@ -25,12 +25,20 @@ void ADeepAgent::BeginPlay() {
 	ADeepAgent::Client = GetWorld()->SpawnActor<AClient>();
 	ADeepAgent::Client->SetActorLabel("Client");
 	ADeepAgent::Client->SetDeepAgent(this);
+
+	ADeepAgent::MovementComponent = this->GetVehicleMovementComponent();
+
+	ADeepAgent::NumberActions = 4;
+	ADeepAgent::Epsilos = 1.0;
+	ADeepAgent::EpsilonDecay = 0.005;
 }
 
 void ADeepAgent::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
 
 	ADeepAgent::GetInput();
+
+	UE_LOG(LogTemp, Error, TEXT("Line trace has hit: %d"), ADeepAgent::GetGameStatus());
 }
 
 void ADeepAgent::SetAction(int action)
@@ -41,9 +49,23 @@ void ADeepAgent::SetAction(int action)
 void ADeepAgent::SetConfidence(float confidence)
 {
 	ADeepAgent::Confidence = confidence;
+
+	UE_LOG(LogTemp, Error, TEXT("Line trace has hit: %d %f"), ADeepAgent::Action, ADeepAgent::Confidence);
 }
 
-void ADeepAgent::GetInput() {
+void ADeepAgent::SetGameStatus(bool value)
+{
+	ADeepAgent::GameStatus = value;
+}
+
+bool ADeepAgent::GetGameStatus()
+{
+	return ADeepAgent::GameStatus;
+}
+
+TArray<int> ADeepAgent::GetInput() {
+	TArray<int> currentSate;
+
 	FVector Start;
 	FRotator Rot;
 
@@ -72,12 +94,16 @@ void ADeepAgent::GetInput() {
 		float lifeTime = 0.1;
 		if (ActorHit) {
 			DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, lifeTime, 0, 5);
+			currentSate.Add(1);
 			//UE_LOG(LogTemp, Error, TEXT("Line trace has hit: %d %s"),i, *(ActorHit->GetName()));
 		}
 		else {
 			DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, lifeTime, 0, 5);
+			currentSate.Add(0);
 		}
 	}
+
+	return currentSate;
 }
 
 void ADeepAgent::SendExperience()
@@ -94,6 +120,50 @@ void ADeepAgent::Predict()
 {
 	TArray<int> currentState = { 1,2,3,4,5,6 };
 	ADeepAgent::Client->Predict(currentState);
+}
+
+void ADeepAgent::Step()
+{
+	//CURRENT STATE FROM INPUT SENSORS
+	TArray<int> currentState = ADeepAgent::GetInput();
+
+	//EXPLORATION - EXPLOITATION TRADEOFF
+	float exploitation = FMath::SRand();
+	if (exploitation > ADeepAgent::Epsilos) {
+		//chose best action
+		//ADeepAgent::Client->Predict(currentState);
+	}
+	else {
+		//Choose random action
+		ADeepAgent::Action = FMath::RandRange(0,ADeepAgent::NumberActions-1);
+		ADeepAgent::Epsilos -= ADeepAgent::EpsilonDecay;
+	}
+
+	//PERFORM ACTION
+	switch (ADeepAgent::Action)
+	{
+	case 0:
+		ADeepAgent::MovementComponent->SetThrottleInput(1);
+		break;
+	case 1:
+		ADeepAgent::MovementComponent->SetSteeringInput(1);
+		break;
+	case 2:
+		ADeepAgent::MovementComponent->SetThrottleInput(-1);
+		break;
+	case 3:
+		ADeepAgent::MovementComponent->SetSteeringInput(-1);
+		break;
+	default:
+		break;
+	}
+
+	//NEXT STATE
+	TArray<int> nextState = ADeepAgent::GetInput();
+
+	//GAME STATUS
+
+	//REWARD
 }
 
 void ADeepAgent::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) {
