@@ -27,18 +27,22 @@ void ADeepAgent::BeginPlay() {
 	ADeepAgent::Client->SetDeepAgent(this);
 
 	ADeepAgent::MovementComponent = this->GetVehicleMovementComponent();
+	ADeepAgent::initialTransform = this->GetTransform();
 
 	ADeepAgent::NumberActions = 4;
 	ADeepAgent::Epsilos = 1.0;
 	ADeepAgent::EpsilonDecay = 0.005;
+
+	UE_LOG(LogTemp, Error, TEXT("Begin"));
 }
 
 void ADeepAgent::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
 
-	ADeepAgent::GetInput();
+	//ADeepAgent::GetInput();
+	ADeepAgent::Step();
 
-	UE_LOG(LogTemp, Error, TEXT("Line trace has hit: %d"), ADeepAgent::GetGameStatus());
+	//UE_LOG(LogTemp, Error, TEXT("Line trace has hit: %d"), ADeepAgent::GetIsGameEnded());
 }
 
 void ADeepAgent::SetAction(int action)
@@ -53,14 +57,14 @@ void ADeepAgent::SetConfidence(float confidence)
 	UE_LOG(LogTemp, Error, TEXT("Line trace has hit: %d %f"), ADeepAgent::Action, ADeepAgent::Confidence);
 }
 
-void ADeepAgent::SetGameStatus(bool value)
+void ADeepAgent::SetIsGameEnded(bool value)
 {
-	ADeepAgent::GameStatus = value;
+	ADeepAgent::IsGameEnded = value;
 }
 
-bool ADeepAgent::GetGameStatus()
+bool ADeepAgent::GetIsGameEnded()
 {
-	return ADeepAgent::GameStatus;
+	return ADeepAgent::IsGameEnded;
 }
 
 TArray<int> ADeepAgent::GetInput() {
@@ -106,13 +110,8 @@ TArray<int> ADeepAgent::GetInput() {
 	return currentSate;
 }
 
-void ADeepAgent::SendExperience()
+void ADeepAgent::SendExperience(TArray<int> currentState, int action, TArray<int> nextState, float reward, bool endGame)
 {
-	TArray<int> currentState = { 1,2,3,4,5,6 };
-	int action = 1;
-	TArray<int> nextState = { 10,20,30,40,50,60 };
-	float reward = 0.1;
-	bool endGame = false;
 	ADeepAgent::Client->SendExperience(currentState, action, nextState, reward, endGame);
 }
 
@@ -162,13 +161,34 @@ void ADeepAgent::Step()
 	TArray<int> nextState = ADeepAgent::GetInput();
 
 	//GAME STATUS
+	//bool gameStatus = ADeepAgent::GameStatus;
 
 	//REWARD
+	float reward = 0.1;
+	if (ADeepAgent::IsGameEnded) {
+		reward = -10;
+	}
+
+	//SEND EXPERIENCE
+	ADeepAgent::SendExperience(currentState, ADeepAgent::Action, nextState, reward, ADeepAgent::IsGameEnded);
+
+	if (ADeepAgent::IsGameEnded) {
+		ADeepAgent::RestartGame();
+	}
+}
+
+void ADeepAgent::RestartGame()
+{
+	ADeepAgent::MovementComponent->StopMovementImmediately();
+	this->GetMesh()->SetAllPhysicsPosition(ADeepAgent::initialTransform.GetLocation());
+	this->GetMesh()->SetAllPhysicsRotation(ADeepAgent::initialTransform.GetRotation());
+
+	ADeepAgent::IsGameEnded = false;
+	UE_LOG(LogTemp, Error, TEXT("Restart"));
 }
 
 void ADeepAgent::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	InputComponent->BindAction("Input", IE_Pressed, this, &ADeepAgent::SendExperience);
 	InputComponent->BindAction("Input1", IE_Pressed, this, &ADeepAgent::Predict);
 }

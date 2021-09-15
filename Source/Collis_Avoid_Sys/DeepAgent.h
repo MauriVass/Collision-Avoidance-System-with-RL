@@ -25,6 +25,7 @@ public:
 	void SetConfidence(float Confidence);
 
 private:
+
 	TArray<int> GetInput();
 
 	UStaticMeshComponent* SensorPosition;
@@ -32,23 +33,24 @@ private:
 	static const int NumberSensor = 16;
 
 	class AClient* Client;
-	void SendExperience();
+	void SendExperience(TArray<int> currentState, int action, TArray<int> nextState, float reward, bool endGame);
 	void Predict();
-
 	void Step();
+	void RestartGame();
 
 	UWheeledVehicleMovementComponent* MovementComponent;
+	FTransform initialTransform;
 
 	int NumberActions;
 	float Epsilos;
 	float EpsilonDecay;
-	/*bool GameStatus;*/
-	UPROPERTY(BlueprintGetter = GetGameStatus, BlueprintSetter=SetGameStatus)
-		bool GameStatus;
+
+	UPROPERTY(BlueprintGetter = GetIsGameEnded, BlueprintSetter= SetIsGameEnded)
+		bool IsGameEnded;
 	UFUNCTION(BlueprintSetter)
-	void SetGameStatus(bool value);
+	void SetIsGameEnded(bool value);
 	UFUNCTION(BlueprintGetter)
-		bool GetGameStatus();
+		bool GetIsGameEnded();
 
 	int Action;
 	float Confidence;
