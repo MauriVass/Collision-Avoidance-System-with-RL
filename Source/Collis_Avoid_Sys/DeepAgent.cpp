@@ -2,6 +2,7 @@
 
 
 #include "DrawDebugHelpers.h"
+#include <Collis_Avoid_Sys/Experience.h>
 #include "Client.h"
 #include "DeepAgent.h"
 #include "WheeledVehicleMovementComponent.h"
@@ -12,6 +13,7 @@ void ADeepAgent::BeginPlay() {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	GetWorld()->GetFirstPlayerController()->bShowMouseCursor = true;
 	TArray<USceneComponent*> Childrens;
 	this->GetMesh()->GetChildrenComponents(true, Childrens);
 	/*UE_LOG(LogTemp, Error, TEXT("Number Children %d"), Childrens.Num());
@@ -61,11 +63,6 @@ void ADeepAgent::SetConfidence(float confidence)
 void ADeepAgent::SetIsGameEnded(bool value)
 {
 	ADeepAgent::IsGameEnded = value;
-}
-
-bool ADeepAgent::GetIsGameEnded()
-{
-	return ADeepAgent::IsGameEnded;
 }
 
 TArray<int> ADeepAgent::GetInput() {
@@ -167,8 +164,20 @@ void ADeepAgent::Step()
 		reward = -10;
 	}
 
-	//SEND EXPERIENCE
-	ADeepAgent::SendExperience(currentState, ADeepAgent::Action, nextState, reward, ADeepAgent::IsGameEnded);
+	Experience currentExp = Experience(currentState, ADeepAgent::Action, nextState, reward, IsGameEnded);
+	if (!ADeepAgent::PreviousExperience.GetInitilized() || !ADeepAgent::PreviousExperience.CheckEqualExperiences(currentExp)) {
+		//SEND EXPERIENCE
+		counter++;
+		ADeepAgent::SendExperience(currentState, ADeepAgent::Action, nextState, reward, ADeepAgent::IsGameEnded);
+		UE_LOG(LogTemp, Error, TEXT("Sent: %d"), ADeepAgent::counter);
+	}
+
+	if (!ADeepAgent::PreviousExperience.GetInitilized()) {
+		ADeepAgent::PreviousExperience.InitializeExperience(currentState, ADeepAgent::Action, nextState, reward, IsGameEnded);
+	}
+	else{
+		ADeepAgent::PreviousExperience = currentExp;
+	}
 
 	ADeepAgent::NumberSteps++;
 	if (ADeepAgent::IsGameEnded || ADeepAgent::NumberSteps>=ADeepAgent::MaxNumberSteps) {

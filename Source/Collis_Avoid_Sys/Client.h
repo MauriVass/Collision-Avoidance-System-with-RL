@@ -18,7 +18,6 @@ protected:
 
 	FString UrlAddress;
 
-	FString ConstructData(TArray<int> currentState, int action, TArray<int> nextState, float reward, bool EndGame );
 	void GetPrediction(FHttpRequestPtr request, FHttpResponsePtr Response, bool bWasSuccessful);
 
 	class ADeepAgent* Agent;

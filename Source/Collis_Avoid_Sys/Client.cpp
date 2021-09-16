@@ -4,6 +4,7 @@
 #include "Client.h"
 #include <Http.h>
 #include <Collis_Avoid_Sys/DeepAgent.h>
+#include <Collis_Avoid_Sys/Experience.h>
 
 // Sets default values
 AClient::AClient()
@@ -31,7 +32,8 @@ void AClient::Tick(float DeltaTime)
 
 void AClient::SendExperience(TArray<int> currentState, int action, TArray<int> nextState, float reward, bool endGame)
 {
-	FString data = AClient::ConstructData(currentState, action, nextState, reward, endGame);
+	//FString data = AClient::ConstructData(currentState, action, nextState, reward, endGame);
+	FString data = Experience::ConstructData(currentState, action, nextState, reward, endGame);
 
 	FHttpModule* Http = &FHttpModule::Get();
 	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> HttpRequest = Http->CreateRequest();
@@ -40,42 +42,6 @@ void AClient::SendExperience(TArray<int> currentState, int action, TArray<int> n
 	HttpRequest->SetURL(AClient::UrlAddress + "fit");
 	HttpRequest->SetContentAsString(data);
 	HttpRequest->ProcessRequest();
-}
-
-
-FString AClient::ConstructData(TArray<int> currentState, int action, TArray<int> nextState, float reward, bool endGame)
-{
-	FString result;
-	//CURRENT STATE
-	for (int i = 0; i < currentState.Num(); i++)
-	{
-		if (i > 0)
-			result.Append(":");
-		result.Append(FString::FromInt(currentState[i]));
-	}
-	result.Append(";");
-
-	//ACTION CHOSEN
-	result.Append(FString::SanitizeFloat(action));
-	result.Append(";");
-
-	//NEXT STATE
-	for (int i = 0; i < nextState.Num(); i++)
-	{
-		if (i > 0)
-			result.Append(":");
-		result.Append(FString::FromInt(nextState[i]));
-	}
-	result.Append(";");
-
-
-	//REWARD GOT
-	result.Append(FString::SanitizeFloat(reward));
-	result.Append(";");
-
-	//THE GAME ENDED OR NOT (0 false, 1 true)
-	result.Append(FString::FromInt(endGame));
-	return result;
 }
 
 void AClient::Predict(TArray<int> currentState)

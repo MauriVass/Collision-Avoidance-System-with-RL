@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include <Collis_Avoid_Sys/Experience.h>
 #include "WheeledVehicle.h"
 #include "DeepAgent.generated.h"
 
@@ -48,14 +49,16 @@ private:
 	int NumberSteps;
 	int MaxNumberSteps;
 
-	UPROPERTY(BlueprintGetter = GetIsGameEnded, BlueprintSetter= SetIsGameEnded)
+	class Experience PreviousExperience;
+
+	UPROPERTY(BlueprintSetter= SetIsGameEnded)
 		bool IsGameEnded;
 	UFUNCTION(BlueprintSetter)
 	void SetIsGameEnded(bool value);
-	UFUNCTION(BlueprintGetter)
-		bool GetIsGameEnded();
 
 	int Action;
 	float Confidence;
+
+	int counter=0;
 
 };

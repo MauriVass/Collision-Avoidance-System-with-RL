@@ -23,6 +23,7 @@ class Network():
 		self.readExperiencesFromFile()
 
 		self.minNumExperiences = 2000
+		self.maxNumExperiences = 20000
 		self.steps = 0
 		self.copyWeightStepsteps = 24
 
@@ -73,6 +74,8 @@ class Network():
 
 		for i in indices:
 			experience = self.dictFromExperienceRaw(self.experiences_raw[i])
+			if(len(self.experiences_raw)>self.maxNumExperiences):
+				experiences.pop()
 			experiences.append(experience)
 		return experiences
 
@@ -145,7 +148,6 @@ def home():
 @app.route('/fit', methods=['POST'])
 def FIT():
 	input = request.data.decode("utf-8") 
-	# input = json.loads(input)
 
 	network.fit(input)
 
