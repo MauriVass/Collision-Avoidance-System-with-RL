@@ -35,7 +35,6 @@ private:
 
 	class AClient* Client;
 	void SendExperience(TArray<int> currentState, int action, TArray<int> nextState, float reward, bool endGame);
-	void Predict();
 	void Step();
 	void RestartGame();
 
@@ -45,6 +44,7 @@ private:
 	int NumberActions;
 	float Epsilos;
 	float EpsilonDecay;
+	float MinEpsilon;
 
 	int NumberSteps;
 	int MaxNumberSteps;

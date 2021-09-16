@@ -22,10 +22,10 @@ class Network():
 		self.experiences_raw = []
 		self.readExperiencesFromFile()
 
-		self.minNumExperiences = 2000
+		self.minNumExperiences = 200
 		self.maxNumExperiences = 20000
 		self.steps = 0
-		self.copyWeightStepsteps = 24
+		self.copyWeightSteps = 24
 
 		self.policyNetwork = self.ModelTemplate()
 
@@ -61,8 +61,8 @@ class Network():
 
 		currentState = tf.Variable([np.array(elements[0].split(':'), dtype=np.int8)])
 		action = int(elements[1])
-		reward = float(elements[2])
-		nextAction = tf.Variable([np.array(elements[3].split(':'), dtype=np.int8)])
+		nextAction = tf.Variable([np.array(elements[2].split(':'), dtype=np.int8)])
+		reward = float(elements[3])
 		gameEnded = True if elements[4]==1 else False
 		exp = {'s': currentState, 'a': action, 'ns': nextAction, 'r': reward, 'done': gameEnded}
 		return exp
@@ -76,7 +76,9 @@ class Network():
 			experience = self.dictFromExperienceRaw(self.experiences_raw[i])
 			if(len(self.experiences_raw)>self.maxNumExperiences):
 				experiences.pop()
-			experiences.append(experience)
+			# experiences.append(experience)
+			for k,v in experience.items():
+				experiences[k].append(v)
 		return experiences
 
 
@@ -112,7 +114,7 @@ class Network():
 
 			variables = self.policyNetwork.trainable_variables
 			gradients = tape.gradient(loss, variables)
-			print('\n#####\tloss\t#####', loss)
+			# print('\n#####\tloss\t#####', loss)
 			# print('variables', type(variables), np.array(variables).shape)
 			# print('wv', tape.watched_variables())
 			# print('gradients', type(gradients), np.array(gradients).shape)
@@ -156,15 +158,16 @@ def FIT():
 @app.route('/predict', methods=['POST'])
 def PREDICT():
 	msg = request.data.decode("utf-8") 
-	print(type(msg),msg)
+	# print(type(msg),msg)
 	input = np.array(msg.split(':')).astype(int)
 	# print('PREDICT')
-	print(input)
-	# output = self.net.predictPN(input)
-	# # print('pred net', output)
+	#print(input)
+	output = network.predictPN(input)
+	action = np.argmax(output)
+	#print('pred net', output, action)
 	# # print('target net', self.net.predictTN(input))
 	# out = '/'.join([str(o) for o in output.numpy()[0]])
-	return '1;0.4'
+	return f'{action};0.2'
 
 	# def PREDICT_TN(self):
 	# 	output = self.net.predictTN(values[0])

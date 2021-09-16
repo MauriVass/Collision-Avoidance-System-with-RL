@@ -61,7 +61,7 @@ void AClient::Predict(TArray<int> currentState)
 		data.Append(FString::FromInt(currentState[i]));
 	}
 	HttpRequest->SetContentAsString(data);
-	UE_LOG(LogTemp, Error, TEXT("Line trace has hit: %s"), *data);
+	//UE_LOG(LogTemp, Error, TEXT("Data sent (predict): %s"), *data);
 
 	HttpRequest->OnProcessRequestComplete().BindUObject(this, &AClient::GetPrediction);
 	HttpRequest->ProcessRequest();
@@ -69,7 +69,7 @@ void AClient::Predict(TArray<int> currentState)
 
 void AClient::GetPrediction(FHttpRequestPtr request, FHttpResponsePtr Response, bool bWasSuccessful)
 {
-	UE_LOG(LogTemp, Error, TEXT("Response"));
+	//UE_LOG(LogTemp, Error, TEXT("Response"));
 	if (bWasSuccessful)
 	{
 		FString response = Response->GetContentAsString();
@@ -77,7 +77,7 @@ void AClient::GetPrediction(FHttpRequestPtr request, FHttpResponsePtr Response, 
 		response.ParseIntoArray(result, TEXT(";"), true);
 
 		AClient::Agent->SetAction(FCString::Atoi(*result[0]));
-		AClient::Agent->SetConfidence(FCString::Atof(*result[1]));
+		//AClient::Agent->SetConfidence(FCString::Atof(*result[1]));
 
 	}
 }

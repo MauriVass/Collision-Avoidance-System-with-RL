@@ -31,9 +31,10 @@ void ADeepAgent::BeginPlay() {
 	ADeepAgent::MovementComponent = this->GetVehicleMovementComponent();
 	ADeepAgent::initialTransform = this->GetTransform();
 
-	ADeepAgent::NumberActions = 4;
+	ADeepAgent::NumberActions = 3;
 	ADeepAgent::Epsilos = 1.0;
-	ADeepAgent::EpsilonDecay = 0.005;
+	ADeepAgent::EpsilonDecay = 0.0005;
+	ADeepAgent::MinEpsilon = 0.2;
 	ADeepAgent::MaxNumberSteps = 1000;
 
 	ADeepAgent::RestartGame();
@@ -56,8 +57,6 @@ void ADeepAgent::SetAction(int action)
 void ADeepAgent::SetConfidence(float confidence)
 {
 	ADeepAgent::Confidence = confidence;
-
-	UE_LOG(LogTemp, Error, TEXT("Line trace has hit: %d %f"), ADeepAgent::Action, ADeepAgent::Confidence);
 }
 
 void ADeepAgent::SetIsGameEnded(bool value)
@@ -80,14 +79,14 @@ TArray<int> ADeepAgent::GetInput() {
 		FHitResult hit;
 		Hit.Init(hit, ADeepAgent::NumberSensor);
 	}
-	float AngleExtension = 120;
+	float AngleExtension = 160;
 	FCollisionQueryParams FParams;
 	
 	for (int i = 0; i < ADeepAgent::NumberSensor; i++)
 	{
 		FRotator angle = FRotator::ZeroRotator; 
 		angle.Yaw = -AngleExtension/2 + AngleExtension / (ADeepAgent::NumberSensor-1) * i;
-		FVector End = Start + (Rot+angle).Vector() * 1000;
+		FVector End = Start + (Rot+angle).Vector() * 1200;
 		GetWorld()->LineTraceSingleByChannel(Hit[i], Start, End, ECollisionChannel::ECC_Visibility, FParams);
 
 
@@ -113,12 +112,6 @@ void ADeepAgent::SendExperience(TArray<int> currentState, int action, TArray<int
 	ADeepAgent::Client->SendExperience(currentState, action, nextState, reward, endGame);
 }
 
-void ADeepAgent::Predict()
-{
-	TArray<int> currentState = { 1,2,3,4,5,6 };
-	ADeepAgent::Client->Predict(currentState);
-}
-
 void ADeepAgent::Step()
 {
 	//CURRENT STATE FROM INPUT SENSORS
@@ -128,12 +121,15 @@ void ADeepAgent::Step()
 	float exploitation = FMath::SRand();
 	if (exploitation > ADeepAgent::Epsilos) {
 		//chose best action
-		//ADeepAgent::Client->Predict(currentState);
+		ADeepAgent::Client->Predict(currentState);
+		UE_LOG(LogTemp, Error, TEXT("Best Action chosen: %d"), ADeepAgent::Action);
 	}
 	else {
 		//Choose random action
 		ADeepAgent::Action = FMath::RandRange(0,ADeepAgent::NumberActions-1);
-		ADeepAgent::Epsilos -= ADeepAgent::EpsilonDecay;
+		if(ADeepAgent::Epsilos>ADeepAgent::MinEpsilon)
+			ADeepAgent::Epsilos -= ADeepAgent::EpsilonDecay;
+		UE_LOG(LogTemp, Error, TEXT("Random Action chosen: %d"), ADeepAgent::Action);
 	}
 
 	//PERFORM ACTION
@@ -169,7 +165,6 @@ void ADeepAgent::Step()
 		//SEND EXPERIENCE
 		counter++;
 		ADeepAgent::SendExperience(currentState, ADeepAgent::Action, nextState, reward, ADeepAgent::IsGameEnded);
-		UE_LOG(LogTemp, Error, TEXT("Sent: %d"), ADeepAgent::counter);
 	}
 
 	if (!ADeepAgent::PreviousExperience.GetInitilized()) {
@@ -200,5 +195,5 @@ void ADeepAgent::RestartGame()
 void ADeepAgent::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	InputComponent->BindAction("Input1", IE_Pressed, this, &ADeepAgent::Predict);
+	//InputComponent->BindAction("Input1", IE_Pressed, this, &ADeepAgent::Predict);
 }
