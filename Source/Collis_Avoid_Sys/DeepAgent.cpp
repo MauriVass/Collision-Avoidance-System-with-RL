@@ -32,14 +32,15 @@ void ADeepAgent::BeginPlay() {
 	ADeepAgent::NumberActions = 4;
 	ADeepAgent::Epsilos = 1.0;
 	ADeepAgent::EpsilonDecay = 0.005;
+	ADeepAgent::MaxNumberSteps = 1000;
 
+	ADeepAgent::RestartGame();
 	UE_LOG(LogTemp, Error, TEXT("Begin"));
 }
 
 void ADeepAgent::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
 
-	//ADeepAgent::GetInput();
 	ADeepAgent::Step();
 
 	//UE_LOG(LogTemp, Error, TEXT("Line trace has hit: %d"), ADeepAgent::GetIsGameEnded());
@@ -148,9 +149,6 @@ void ADeepAgent::Step()
 		ADeepAgent::MovementComponent->SetSteeringInput(1);
 		break;
 	case 2:
-		ADeepAgent::MovementComponent->SetThrottleInput(-1);
-		break;
-	case 3:
 		ADeepAgent::MovementComponent->SetSteeringInput(-1);
 		break;
 	default:
@@ -172,7 +170,8 @@ void ADeepAgent::Step()
 	//SEND EXPERIENCE
 	ADeepAgent::SendExperience(currentState, ADeepAgent::Action, nextState, reward, ADeepAgent::IsGameEnded);
 
-	if (ADeepAgent::IsGameEnded) {
+	ADeepAgent::NumberSteps++;
+	if (ADeepAgent::IsGameEnded || ADeepAgent::NumberSteps>=ADeepAgent::MaxNumberSteps) {
 		ADeepAgent::RestartGame();
 	}
 }
@@ -182,7 +181,9 @@ void ADeepAgent::RestartGame()
 	ADeepAgent::MovementComponent->StopMovementImmediately();
 	this->GetMesh()->SetAllPhysicsPosition(ADeepAgent::initialTransform.GetLocation());
 	this->GetMesh()->SetAllPhysicsRotation(ADeepAgent::initialTransform.GetRotation());
+	ADeepAgent::MovementComponent->SetThrottleInput(1);
 
+	ADeepAgent::NumberSteps = 0;
 	ADeepAgent::IsGameEnded = false;
 	UE_LOG(LogTemp, Error, TEXT("Restart"));
 }

@@ -45,6 +45,9 @@ private:
 	float Epsilos;
 	float EpsilonDecay;
 
+	int NumberSteps;
+	int MaxNumberSteps;
+
 	UPROPERTY(BlueprintGetter = GetIsGameEnded, BlueprintSetter= SetIsGameEnded)
 		bool IsGameEnded;
 	UFUNCTION(BlueprintSetter)

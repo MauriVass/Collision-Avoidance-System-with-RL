@@ -31,13 +31,13 @@ void AClient::Tick(float DeltaTime)
 
 void AClient::SendExperience(TArray<int> currentState, int action, TArray<int> nextState, float reward, bool endGame)
 {
-	FString data = AClient::ConstructData(currentState,action,nextState,reward,endGame);
+	FString data = AClient::ConstructData(currentState, action, nextState, reward, endGame);
 
 	FHttpModule* Http = &FHttpModule::Get();
 	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> HttpRequest = Http->CreateRequest();
 	HttpRequest->SetVerb("Post");
 	HttpRequest->SetHeader("Content-Type", "text/plain");
-	HttpRequest->SetURL(AClient::UrlAddress+"experience");
+	HttpRequest->SetURL(AClient::UrlAddress + "fit");
 	HttpRequest->SetContentAsString(data);
 	HttpRequest->ProcessRequest();
 }
@@ -50,7 +50,7 @@ FString AClient::ConstructData(TArray<int> currentState, int action, TArray<int>
 	for (int i = 0; i < currentState.Num(); i++)
 	{
 		if (i > 0)
-			result.Append(".");
+			result.Append(":");
 		result.Append(FString::FromInt(currentState[i]));
 	}
 	result.Append(";");
@@ -63,14 +63,14 @@ FString AClient::ConstructData(TArray<int> currentState, int action, TArray<int>
 	for (int i = 0; i < nextState.Num(); i++)
 	{
 		if (i > 0)
-			result.Append(".");
+			result.Append(":");
 		result.Append(FString::FromInt(nextState[i]));
 	}
 	result.Append(";");
 
 
 	//REWARD GOT
-	result.Append(FString::FromInt(reward));
+	result.Append(FString::SanitizeFloat(reward));
 	result.Append(";");
 
 	//THE GAME ENDED OR NOT (0 false, 1 true)
@@ -91,7 +91,7 @@ void AClient::Predict(TArray<int> currentState)
 	for (int i = 0; i < currentState.Num(); i++)
 	{
 		if (i > 0)
-			data.Append(".");
+			data.Append(":");
 		data.Append(FString::FromInt(currentState[i]));
 	}
 	HttpRequest->SetContentAsString(data);
