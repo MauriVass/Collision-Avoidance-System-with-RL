@@ -42,7 +42,7 @@ private:
 	FTransform initialTransform;
 
 	int NumberActions;
-	float Epsilos;
+	float Epsilon;
 	float EpsilonDecay;
 	float MinEpsilon;
 

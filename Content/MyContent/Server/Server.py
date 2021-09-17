@@ -23,7 +23,7 @@ class Network():
 		self.readExperiencesFromFile()
 
 		self.minNumExperiences = 200
-		self.maxNumExperiences = 20000
+		self.maxNumExperiences = 10000
 		self.steps = 0
 		self.copyWeightSteps = 24
 
@@ -149,9 +149,12 @@ def home():
 
 @app.route('/fit', methods=['POST'])
 def FIT():
+	time_start = time.time()
 	input = request.data.decode("utf-8") 
 
 	network.fit(input)
+	time_end = time.time()
+	print(f'elapsed time: {(time_end-time_start):.3f}')
 
 	return ''
 
