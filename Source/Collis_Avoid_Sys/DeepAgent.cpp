@@ -6,6 +6,7 @@
 #include "Client.h"
 #include "DeepAgent.h"
 #include "WheeledVehicleMovementComponent.h"
+#include "TimerManager.h"
 
 void ADeepAgent::BeginPlay() {
 	Super::BeginPlay();
@@ -33,8 +34,8 @@ void ADeepAgent::BeginPlay() {
 
 	ADeepAgent::NumberActions = 3;
 	ADeepAgent::Epsilon = 1.0;
-	ADeepAgent::EpsilonDecay = 1 * FMath::Pow(10,-4);
-	ADeepAgent::MinEpsilon = 0.1;
+	ADeepAgent::EpsilonDecay = 3 * FMath::Pow(10,-4);
+	ADeepAgent::MinEpsilon = 0.2;
 	ADeepAgent::MaxNumberSteps = 10000;
 
 	ADeepAgent::RestartGame();
@@ -46,9 +47,26 @@ void ADeepAgent::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
 
 	timer += DeltaTime;
-	if (timer > 0.05 || true) {
+	if (timer > 0.05) {//16 fps
 		ADeepAgent::Step();
+		//GetWorld()->GetTimerManager().SetTimer(MemberTimerHandle, this, )
 		timer = 0;
+	}
+	switch (ADeepAgent::Action)
+	{
+	case 0:
+		ADeepAgent::MovementComponent->SetThrottleInput(0.5);
+		break;
+	case 1:
+		ADeepAgent::MovementComponent->SetSteeringInput(1);
+		ADeepAgent::MovementComponent->SetThrottleInput(0.2);
+		break;
+	case 2:
+		ADeepAgent::MovementComponent->SetSteeringInput(-1);
+		ADeepAgent::MovementComponent->SetThrottleInput(0.2);
+		break;
+	default:
+		break;
 	}
 
 	//UE_LOG(LogTemp, Error, TEXT("Line trace has hit: %f"), DeltaTime);
@@ -76,7 +94,8 @@ TArray<int> ADeepAgent::GetInput() {
 	FRotator Rot;
 
 	Start = ADeepAgent::SensorPosition->GetComponentLocation();
-	Rot = ADeepAgent::SensorPosition->GetComponentRotation();
+	Rot = ADeepAgent::SensorPosition->GetComponentRotation(); 
+	ADeepAgent::totalDistance = 0;
 
 	TArray<FHitResult, TFixedAllocator<ADeepAgent::NumberSensor>> Hit;
 	for (int i = 0; i < ADeepAgent::NumberSensor; i++)
@@ -84,14 +103,15 @@ TArray<int> ADeepAgent::GetInput() {
 		FHitResult hit;
 		Hit.Init(hit, ADeepAgent::NumberSensor);
 	}
-	float AngleExtension = 160;
+	float AngleExtension = 170;
 	FCollisionQueryParams FParams;
 	
+	float maxDistance = 1000;
 	for (int i = 0; i < ADeepAgent::NumberSensor; i++)
 	{
 		FRotator angle = FRotator::ZeroRotator; 
 		angle.Yaw = -AngleExtension/2 + AngleExtension / (ADeepAgent::NumberSensor-1) * i;
-		FVector End = Start + (Rot+angle).Vector() * 1200;
+		FVector End = Start + (Rot+angle).Vector() * maxDistance;
 		GetWorld()->LineTraceSingleByChannel(Hit[i], Start, End, ECollisionChannel::ECC_WorldStatic, FParams);
 
 
@@ -100,12 +120,14 @@ TArray<int> ADeepAgent::GetInput() {
 		float lifeTime = 0.1;
 		if (ActorHit) {
 			DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, lifeTime, 0, 5);
-			currentSate.Add(1);
+			currentSate.Add(0);
+			ADeepAgent::totalDistance += Hit[i].Distance - maxDistance*3/4;
 			//UE_LOG(LogTemp, Error, TEXT("Line trace has hit: %d %s"),i, *(ActorHit->GetName()));
 		}
 		else {
+			ADeepAgent::totalDistance += maxDistance;
 			DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, lifeTime, 0, 5);
-			currentSate.Add(0);
+			currentSate.Add(1);
 		}
 	}
 
@@ -126,15 +148,16 @@ void ADeepAgent::Step()
 	float exploitation = FMath::SRand();
 	if (exploitation > ADeepAgent::Epsilon) {
 		//chose best action
-		if(counter%2==0)
-			ADeepAgent::Client->Predict(currentState);
+		//if(counter%3==0)
+		ADeepAgent::Client->Predict(currentState);
 		UE_LOG(LogTemp, Error, TEXT("Best Action chosen: %d"), ADeepAgent::Action);
 	}
 	else {
 		//Choose random action
 		ADeepAgent::Action = FMath::RandRange(0,ADeepAgent::NumberActions-1);
-		if(ADeepAgent::Epsilon>ADeepAgent::MinEpsilon)
+		if (ADeepAgent::Epsilon > ADeepAgent::MinEpsilon)
 			ADeepAgent::Epsilon -= ADeepAgent::EpsilonDecay;
+		//else ADeepAgent::Epsilon = 0;
 		if (GEngine)
 			GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Yellow, FString::Printf(TEXT("Epsilon: %f"), ADeepAgent::Epsilon) );
 		UE_LOG(LogTemp, Error, TEXT("Random Action chosen: %d"), ADeepAgent::Action);
@@ -144,13 +167,15 @@ void ADeepAgent::Step()
 	switch (ADeepAgent::Action)
 	{
 	case 0:
-		ADeepAgent::MovementComponent->SetThrottleInput(1);
+		ADeepAgent::MovementComponent->SetThrottleInput(0.7);
 		break;
 	case 1:
 		ADeepAgent::MovementComponent->SetSteeringInput(1);
+		ADeepAgent::MovementComponent->SetThrottleInput(0.4);
 		break;
 	case 2:
 		ADeepAgent::MovementComponent->SetSteeringInput(-1);
+		ADeepAgent::MovementComponent->SetThrottleInput(0.4);
 		break;
 	default:
 		break;
@@ -164,16 +189,21 @@ void ADeepAgent::Step()
 
 	//REWARD
 	//float reward = 0.1;
+	// 
 	//float reward = ADeepAgent::GetMesh()->GetPhysicsLinearVelocity().Size()/10.0;
-	float reward = -1;
+
+	/*float reward = -1;
 	for (int i = 0; i < currentState.Num(); i++)
 	{
-		if (currentState[i]==0)
+		if (currentState[i]==1)
 		{
 			reward++;
 		}
 	}
-	reward /= 10;
+	reward /= 10;*/
+
+	float reward = (ADeepAgent::totalDistance) /10000.0;
+	UE_LOG(LogTemp, Error, TEXT("%f"),reward, ADeepAgent::totalDistance);
 	//UE_LOG(LogTemp, Error, TEXT("%f %f %f"),reward, ADeepAgent::GetMesh()->GetComponentVelocity().Size(), );
 	if (ADeepAgent::IsGameEnded) {
 		reward = -10;
@@ -183,7 +213,7 @@ void ADeepAgent::Step()
 	if (!ADeepAgent::PreviousExperience.GetInitilized() || !ADeepAgent::PreviousExperience.CheckEqualExperiences(currentExp)) {
 		//SEND EXPERIENCE
 		counter++;
-		if(counter%6==0)
+		if(counter%4==0)
 			ADeepAgent::SendExperience(currentState, ADeepAgent::Action, nextState, reward, ADeepAgent::IsGameEnded);
 	}
 
@@ -204,7 +234,16 @@ void ADeepAgent::RestartGame()
 {
 	ADeepAgent::MovementComponent->StopMovementImmediately();
 	this->GetMesh()->SetAllPhysicsPosition(ADeepAgent::initialTransform.GetLocation());
-	this->GetMesh()->SetAllPhysicsRotation(ADeepAgent::initialTransform.GetRotation());
+
+	this->GetMesh()->SetAllPhysicsRotation(ADeepAgent::initialTransform.GetRotation() );
+	//bool changeDirection = true; // FMath::RandBool();
+	//if (changeDirection) {
+	//	FRotator rot;
+	//	rot.Yaw = 180;
+	//	this->GetMesh()->SetAllPhysicsRotation(rot);
+	//}
+	this->GetMesh()->SetAllPhysicsLinearVelocity(FVector::ZeroVector);
+	this->GetMesh()->SetPhysicsAngularVelocityInDegrees(FVector::ZeroVector);
 	ADeepAgent::MovementComponent->SetThrottleInput(1);
 
 	ADeepAgent::NumberSteps = 0;

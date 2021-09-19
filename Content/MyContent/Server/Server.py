@@ -11,7 +11,7 @@ class Network():
 	def __init__(self):
 		self.num_actions = 3
 		self.num_inputs = 16
-		self.batchsize = 16
+		self.batchsize = 24
 		self.discount_rate = 0.75
 		self.lr = 0.01
 		self.gamma = 0.99
@@ -20,7 +20,10 @@ class Network():
 		self.filepath = 'experiences.csv'
 		self.file = '' #initialize after
 		self.experiences_raw = []
+		self.experiences_prepros = []
+		# t1 = time.time()
 		self.readExperiencesFromFile()
+		# print(f'Reading {time.time()-t1}')
 
 		self.minNumExperiences = 200
 		self.maxNumExperiences = 10000
@@ -33,12 +36,14 @@ class Network():
 		self.copyNN()
 		print(self.policyNetwork.summary())
 
+		self.fit_times = []
+
 	def ModelTemplate(self):
 			model = tf.keras.Sequential([
 							tf.keras.layers.Flatten(),
 							# tf.keras.layers.Dense(64, activation='relu'),
 							# tf.keras.layers.Dense(64, activation='relu'),
-							tf.keras.layers.Dense(128, activation='tanh', kernel_initializer='RandomNormal'),
+							tf.keras.layers.Dense(64, activation='tanh', kernel_initializer='RandomNormal'),
 							tf.keras.layers.Dense(self.num_actions, activation='softmax', kernel_initializer='RandomNormal')
 						])
 			model.build(input_shape=(1,self.num_inputs))
@@ -49,10 +54,25 @@ class Network():
 
 		self.file.seek(0)
 		for l in self.file.readlines():
-			self.experiences_raw.append(l)
+			# self.experiences_raw.append(l.strip())
+			self.experiences_prepros.append(self.dictFromExperienceRaw(l.strip()))
+		self.closeFile()
 	def writeExperienceToFile(self,experience):
-		self.experiences_raw.append(experience)
-		self.file.write(experience+'\n')
+		# self.experiences_raw.append(experience)
+		self.experiences_prepros.append(self.dictFromExperienceRaw(experience))
+		# self.file.write(experience+'\n')
+	def writeAllExperiences(self):
+		self.file = open(self.filepath,'w')
+		# for e in self.experiences_raw:
+		for e in self.experiences_prepros:
+			cs = ':'.join( [str(x) for x in e['s'].numpy()[0]] )
+			a = str(e['a'])
+			ns = ':'.join( [str(x) for x in e['ns'].numpy()[0]] )
+			r = str(e['r'])
+			end = str(int(e['done']))
+
+			self.file.write( ';'.join([cs,a,ns,r,end]) +'\n')
+		self.file.close()
 	def closeFile(self):
 		self.file.close()
 
@@ -70,22 +90,39 @@ class Network():
 	def getBatchExperiences(self):
 		experiences = {'s': [], 'a': [], 'r': [], 'ns': [], 'done': []}
 
-		indices = np.random.randint(len(self.experiences_raw), size=self.batchsize)
+		# t1 = time.time()
+		# indices = np.random.randint(len(self.experiences_raw), size=self.batchsize)
+		indices = np.random.randint(len(self.experiences_prepros), size=self.batchsize)
+		# print(f'\t getBatchExperiences: 1 rand: {(time.time()-t1):.3f}')
 
+		# t_fetch = 0
+		# t_append = 0
 		for i in indices:
-			experience = self.dictFromExperienceRaw(self.experiences_raw[i])
-			if(len(self.experiences_raw)>self.maxNumExperiences):
-				experiences.pop()
+			# t1 = time.time()
+			# experience = self.dictFromExperienceRaw(self.experiences_raw[i])
+			experience = self.experiences_prepros[i]
+			# t_fetch += time.time()-t1
+			# if(len(self.experiences_raw)>self.maxNumExperiences):
+			# 	experiences.pop()
 			# experiences.append(experience)
+			# t1 = time.time()
 			for k,v in experience.items():
 				experiences[k].append(v)
+			# t_append += time.time()-t1
+		# print(f'\t getBatchExperiences: 2 fetch: {(t_fetch):.3f}')
+		# print(f'\t getBatchExperiences: 3 append: {(t_append):.3f}')
 		return experiences
 
 
 	def fit(self, exp):
-		if(len(self.experiences_raw)>=self.minNumExperiences):
+		# if(len(self.experiences_raw)>=self.minNumExperiences):
+		if(len(self.experiences_prepros)>=self.minNumExperiences):
 
+			# t1 = time.time()
 			experiences = self.getBatchExperiences()
+			# print(f'Fit: 1 getbatch: {(time.time()-t1):.3f}')
+
+			# t1 = time.time()
 			states = tf.convert_to_tensor(experiences['s'], dtype=tf.float32) #The current state
 			# print('states', states.shape, states)
 			actions = np.asarray(experiences['a']) #The action performed (chosen randomly or by net)
@@ -100,7 +137,9 @@ class Network():
 			# print('value_next', value_next.shape, value_next)
 			actual_values = np.where(dones, rewards, rewards+self.gamma*value_next)
 			# print('actual_values', actual_values.shape, actual_values)
+			# print(f'Fit: 2 generate tensors: {(time.time()-t1):.3f}')
 
+			# t1 = time.time()
 			with tf.GradientTape() as tape:
 				tape.watch(states)
 				
@@ -109,12 +148,12 @@ class Network():
 
 				loss = tf.math.reduce_mean(tf.square(actual_values - selected_action_values))
 				tape.watch(loss)
+				print('#####\tloss\t#####', loss)
+			# print(f'Fit: 3 gradient: {(time.time()-t1):.3f}')
 
-
-
+			# t1 = time.time()
 			variables = self.policyNetwork.trainable_variables
 			gradients = tape.gradient(loss, variables)
-			# print('\n#####\tloss\t#####', loss)
 			# print('variables', type(variables), np.array(variables).shape)
 			# print('wv', tape.watched_variables())
 			# print('gradients', type(gradients), np.array(gradients).shape)
@@ -122,13 +161,20 @@ class Network():
 			# time.sleep(3)
 
 			self.optimizer.apply_gradients(zip(gradients, variables))
+			# print(f'Fit: 4 backprog: {(time.time()-t1):.3f}')
 
 			self.steps+=1
 			if(self.steps>=self.copyWeightSteps):
+				# t1 = time.time()
 				self.copyNN()
 				self.counter=0
+				self.counter=0
+				# print(f'Fit: 5 copy weights: {(time.time()-t1):.3f}')
+
 		
+		# t1 = time.time()
 		self.writeExperienceToFile(exp)
+		# print(f'Fit: 6 write to file: {(time.time()-t1):.3f}')
 
 	def predictPN(self, input):
 		return self.policyNetwork(np.atleast_2d(input))
@@ -153,13 +199,15 @@ def FIT():
 	input = request.data.decode("utf-8") 
 
 	network.fit(input)
-	time_end = time.time()
-	print(f'elapsed time: {(time_end-time_start):.3f}')
+	time_elaps = time.time()-time_start
+	network.fit_times.append(time_elaps)
+	print(f'Fit: elapsed time: {(time_elaps):.3f}\n')
 
-	return ''
+	return 'a'
 
 @app.route('/predict', methods=['POST'])
 def PREDICT():
+	time_start = time.time()
 	msg = request.data.decode("utf-8") 
 	# print(type(msg),msg)
 	input = np.array(msg.split(':')).astype(int)
@@ -170,6 +218,8 @@ def PREDICT():
 	#print('pred net', output, action)
 	# # print('target net', self.net.predictTN(input))
 	# out = '/'.join([str(o) for o in output.numpy()[0]])
+	time_end = time.time()
+	print(f'Predict: elapsed time: {(time_end-time_start):.3f}')
 	return f'{action};0.2'
 
 	# def PREDICT_TN(self):
@@ -186,4 +236,11 @@ def PREDICT():
 	# 	print('Reset')
 
 app.run(host='0.0.0.0')
-network.closeFile()
+# network.closeFile()
+network.writeAllExperiences()
+
+file = open('time_elapsed','w')
+for i in network.fit_times:
+	file.write(str(i)+'\n')
+file.close()
+

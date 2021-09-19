@@ -61,4 +61,6 @@ private:
 
 	int counter=0;
 
+	float totalDistance;
+
 };
