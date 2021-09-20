@@ -9,8 +9,8 @@ app = Flask(__name__)
 
 class Network():
 	def __init__(self):
-		self.num_actions = 3
-		self.num_inputs = 16
+		self.num_actions = 5
+		self.num_inputs = 32
 		self.batchsize = 24
 		self.discount_rate = 0.75
 		self.lr = 0.01
@@ -26,7 +26,7 @@ class Network():
 		# print(f'Reading {time.time()-t1}')
 
 		self.minNumExperiences = 200
-		self.maxNumExperiences = 10000
+		self.maxNumExperiences = 20000
 		self.steps = 0
 		self.copyWeightSteps = 24
 
@@ -42,17 +42,16 @@ class Network():
 			model = tf.keras.Sequential([
 							tf.keras.layers.Flatten(),
 							# tf.keras.layers.Dense(64, activation='relu'),
-							# tf.keras.layers.Dense(64, activation='relu'),
-							tf.keras.layers.Dense(64, activation='tanh', kernel_initializer='RandomNormal'),
+							tf.keras.layers.Dense(64, activation='relu', kernel_initializer='RandomNormal'),
+							tf.keras.layers.Dense(64, activation='relu', kernel_initializer='RandomNormal'),
 							tf.keras.layers.Dense(self.num_actions, activation='softmax', kernel_initializer='RandomNormal')
 						])
 			model.build(input_shape=(1,self.num_inputs))
 			return model
 
 	def readExperiencesFromFile(self):
-		self.file = open(self.filepath,'a+')
+		self.file = open(self.filepath,'r')
 
-		self.file.seek(0)
 		for l in self.file.readlines():
 			# self.experiences_raw.append(l.strip())
 			self.experiences_prepros.append(self.dictFromExperienceRaw(l.strip()))
@@ -63,6 +62,11 @@ class Network():
 		# self.file.write(experience+'\n')
 	def writeAllExperiences(self):
 		self.file = open(self.filepath,'w')
+
+		diff = len(self.experiences_prepros) - self.maxNumExperiences
+		if(diff>0):
+			inds = np.random.randint(len(self.experiences_prepros), size=diff)
+			self.experiences_prepros = np.delete(self.experiences_prepros, inds)
 		# for e in self.experiences_raw:
 		for e in self.experiences_prepros:
 			cs = ':'.join( [str(x) for x in e['s'].numpy()[0]] )

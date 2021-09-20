@@ -32,11 +32,13 @@ void ADeepAgent::BeginPlay() {
 	ADeepAgent::MovementComponent = this->GetVehicleMovementComponent();
 	ADeepAgent::initialTransform = this->GetTransform();
 
-	ADeepAgent::NumberActions = 3;
+	ADeepAgent::NumberActions = 5;
 	ADeepAgent::Epsilon = 1.0;
-	ADeepAgent::EpsilonDecay = 3 * FMath::Pow(10,-4);
-	ADeepAgent::MinEpsilon = 0.2;
+	ADeepAgent::EpsilonDecay = 1 * FMath::Pow(10,-4);
+	ADeepAgent::MinEpsilon = 0.1;
 	ADeepAgent::MaxNumberSteps = 10000;
+
+	ADeepAgent::TickTime = 0.045;
 
 	ADeepAgent::RestartGame();
 	UE_LOG(LogTemp, Error, TEXT("Begin"));
@@ -47,27 +49,12 @@ void ADeepAgent::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
 
 	timer += DeltaTime;
-	if (timer > 0.05) {//16 fps
+	if (timer > ADeepAgent::TickTime) {//20 fps
 		ADeepAgent::Step();
 		//GetWorld()->GetTimerManager().SetTimer(MemberTimerHandle, this, )
 		timer = 0;
 	}
-	switch (ADeepAgent::Action)
-	{
-	case 0:
-		ADeepAgent::MovementComponent->SetThrottleInput(0.5);
-		break;
-	case 1:
-		ADeepAgent::MovementComponent->SetSteeringInput(1);
-		ADeepAgent::MovementComponent->SetThrottleInput(0.2);
-		break;
-	case 2:
-		ADeepAgent::MovementComponent->SetSteeringInput(-1);
-		ADeepAgent::MovementComponent->SetThrottleInput(0.2);
-		break;
-	default:
-		break;
-	}
+	ADeepAgent::PerformAction(ADeepAgent::Action);
 
 	//UE_LOG(LogTemp, Error, TEXT("Line trace has hit: %f"), DeltaTime);
 }
@@ -103,7 +90,7 @@ TArray<int> ADeepAgent::GetInput() {
 		FHitResult hit;
 		Hit.Init(hit, ADeepAgent::NumberSensor);
 	}
-	float AngleExtension = 170;
+	float AngleExtension = 230;
 	FCollisionQueryParams FParams;
 	
 	float maxDistance = 1000;
@@ -117,11 +104,11 @@ TArray<int> ADeepAgent::GetInput() {
 
 		AActor* ActorHit = Hit[i].GetActor();
 
-		float lifeTime = 0.1;
+		float lifeTime = 0.06;
 		if (ActorHit) {
 			DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, lifeTime, 0, 5);
 			currentSate.Add(0);
-			ADeepAgent::totalDistance += Hit[i].Distance - maxDistance*3/4;
+			//ADeepAgent::totalDistance += Hit[i].Distance - maxDistance*3/4;
 			//UE_LOG(LogTemp, Error, TEXT("Line trace has hit: %d %s"),i, *(ActorHit->GetName()));
 		}
 		else {
@@ -139,6 +126,64 @@ void ADeepAgent::SendExperience(TArray<int> currentState, int action, TArray<int
 	ADeepAgent::Client->SendExperience(currentState, action, nextState, reward, endGame);
 }
 
+void ADeepAgent::PerformAction(int action)
+{
+	//1) 3 actions
+	/*switch (ADeepAgent::Action)
+	{
+	case 0:
+		break;
+	case 1:
+		ADeepAgent::MovementComponent->SetSteeringInput(1);
+		ADeepAgent::MovementComponent->SetThrottleInput(0.2);
+		break;
+	case 2:
+		ADeepAgent::MovementComponent->SetSteeringInput(-1);
+		ADeepAgent::MovementComponent->SetThrottleInput(0.2);
+		break;
+	default:
+		break;
+	}*/
+
+	//2) 2 actions
+	//ADeepAgent::MovementComponent->SetThrottleInput(0.6);
+	/*switch (ADeepAgent::Action)
+	{
+	case 0:
+		ADeepAgent::MovementComponent->SetSteeringInput(1);
+		break;
+	case 1:
+		ADeepAgent::MovementComponent->SetSteeringInput(-1);
+		break;
+	default:
+		break;
+	}*/
+
+	//3) 5 Actions
+	switch (ADeepAgent::Action)
+	{
+	case 0:
+		ADeepAgent::MovementComponent->SetSteeringInput(-1);
+		break;
+	case 1:
+		ADeepAgent::MovementComponent->SetThrottleInput(0.5);
+		ADeepAgent::MovementComponent->SetSteeringInput(-0.5);
+		break;
+	case 2:
+		ADeepAgent::MovementComponent->SetThrottleInput(1);
+		break;
+	case 3:
+		ADeepAgent::MovementComponent->SetThrottleInput(0.5);
+		ADeepAgent::MovementComponent->SetSteeringInput(0.5);
+		break;
+	case 4:
+		ADeepAgent::MovementComponent->SetSteeringInput(1);
+		break;
+	default:
+		break;
+	}
+}
+
 void ADeepAgent::Step()
 {
 	//CURRENT STATE FROM INPUT SENSORS
@@ -147,8 +192,7 @@ void ADeepAgent::Step()
 	//EXPLORATION - EXPLOITATION TRADEOFF
 	float exploitation = FMath::SRand();
 	if (exploitation > ADeepAgent::Epsilon) {
-		//chose best action
-		//if(counter%3==0)
+		//Chose best action
 		ADeepAgent::Client->Predict(currentState);
 		UE_LOG(LogTemp, Error, TEXT("Best Action chosen: %d"), ADeepAgent::Action);
 	}
@@ -157,6 +201,8 @@ void ADeepAgent::Step()
 		ADeepAgent::Action = FMath::RandRange(0,ADeepAgent::NumberActions-1);
 		if (ADeepAgent::Epsilon > ADeepAgent::MinEpsilon)
 			ADeepAgent::Epsilon -= ADeepAgent::EpsilonDecay;
+		else
+			ADeepAgent::TickTime = 0.015;
 		//else ADeepAgent::Epsilon = 0;
 		if (GEngine)
 			GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Yellow, FString::Printf(TEXT("Epsilon: %f"), ADeepAgent::Epsilon) );
@@ -164,22 +210,7 @@ void ADeepAgent::Step()
 	}
 
 	//PERFORM ACTION
-	switch (ADeepAgent::Action)
-	{
-	case 0:
-		ADeepAgent::MovementComponent->SetThrottleInput(0.7);
-		break;
-	case 1:
-		ADeepAgent::MovementComponent->SetSteeringInput(1);
-		ADeepAgent::MovementComponent->SetThrottleInput(0.4);
-		break;
-	case 2:
-		ADeepAgent::MovementComponent->SetSteeringInput(-1);
-		ADeepAgent::MovementComponent->SetThrottleInput(0.4);
-		break;
-	default:
-		break;
-	}
+	ADeepAgent::PerformAction(ADeepAgent::Action);
 
 	//NEXT STATE
 	TArray<int> nextState = ADeepAgent::GetInput();
@@ -189,10 +220,11 @@ void ADeepAgent::Step()
 
 	//REWARD
 	//float reward = 0.1;
-	// 
+	
 	//float reward = ADeepAgent::GetMesh()->GetPhysicsLinearVelocity().Size()/10.0;
 
-	/*float reward = -1;
+	//Reward by number of green rays
+	float reward = -1;
 	for (int i = 0; i < currentState.Num(); i++)
 	{
 		if (currentState[i]==1)
@@ -200,20 +232,27 @@ void ADeepAgent::Step()
 			reward++;
 		}
 	}
-	reward /= 10;*/
+	reward = reward / 10;
+	// multiplied by velocity
+	reward *= ADeepAgent::GetMesh()->GetPhysicsLinearVelocity().Size() / 200;
 
-	float reward = (ADeepAgent::totalDistance) /10000.0;
+	//No reward (inly negative reward when hitting a wall)
+	//float reward = 0;
+
+	//Distance from walls reward
+	//float reward = (ADeepAgent::totalDistance) /10000.0;
 	UE_LOG(LogTemp, Error, TEXT("%f"),reward, ADeepAgent::totalDistance);
+
 	//UE_LOG(LogTemp, Error, TEXT("%f %f %f"),reward, ADeepAgent::GetMesh()->GetComponentVelocity().Size(), );
 	if (ADeepAgent::IsGameEnded) {
-		reward = -10;
+		reward = -100;
 	}
 
 	Experience currentExp = Experience(currentState, ADeepAgent::Action, nextState, reward, IsGameEnded);
 	if (!ADeepAgent::PreviousExperience.GetInitilized() || !ADeepAgent::PreviousExperience.CheckEqualExperiences(currentExp)) {
 		//SEND EXPERIENCE
 		counter++;
-		if(counter%4==0)
+		if(counter%4==0 )//&& (ADeepAgent::Epsilon > ADeepAgent::MinEpsilon)
 			ADeepAgent::SendExperience(currentState, ADeepAgent::Action, nextState, reward, ADeepAgent::IsGameEnded);
 	}
 
@@ -233,15 +272,19 @@ void ADeepAgent::Step()
 void ADeepAgent::RestartGame()
 {
 	ADeepAgent::MovementComponent->StopMovementImmediately();
-	this->GetMesh()->SetAllPhysicsPosition(ADeepAgent::initialTransform.GetLocation());
+	FVector pos = ADeepAgent::initialTransform.GetLocation();
+	float offset = 200;
+	pos.X += FMath::FRandRange(-offset*2, offset);
+	pos.Y += FMath::FRandRange(-offset, offset);
+	this->GetMesh()->SetAllPhysicsPosition(pos);
 
-	this->GetMesh()->SetAllPhysicsRotation(ADeepAgent::initialTransform.GetRotation() );
-	//bool changeDirection = true; // FMath::RandBool();
-	//if (changeDirection) {
-	//	FRotator rot;
-	//	rot.Yaw = 180;
-	//	this->GetMesh()->SetAllPhysicsRotation(rot);
-	//}
+	//bool changeDirection = FMath::RandBool();
+	FQuat rot = ADeepAgent::initialTransform.GetRotation();
+	/*if (changeDirection) {
+		rot += FQuat::Rotator(FRotator(0,180,0));
+	}*/
+	this->GetMesh()->SetAllPhysicsRotation( rot );
+
 	this->GetMesh()->SetAllPhysicsLinearVelocity(FVector::ZeroVector);
 	this->GetMesh()->SetPhysicsAngularVelocityInDegrees(FVector::ZeroVector);
 	ADeepAgent::MovementComponent->SetThrottleInput(1);

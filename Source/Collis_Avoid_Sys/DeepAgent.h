@@ -31,10 +31,11 @@ private:
 
 	UStaticMeshComponent* SensorPosition;
 
-	static const int NumberSensor = 16;
+	static const int NumberSensor = 32;
 
 	class AClient* Client;
 	void SendExperience(TArray<int> currentState, int action, TArray<int> nextState, float reward, bool endGame);
+	void PerformAction(int action);
 	void Step();
 	void RestartGame();
 
@@ -62,5 +63,6 @@ private:
 	int counter=0;
 
 	float totalDistance;
+	float TickTime;
 
 };
