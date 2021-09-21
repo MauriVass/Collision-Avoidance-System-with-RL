@@ -25,6 +25,17 @@ public:
 	void SetAction(int Action);
 	void SetConfidence(float Confidence);
 
+	UFUNCTION(BlueprintCallable)
+		float GetEpsilon();
+	UFUNCTION(BlueprintCallable)
+		float GetReward();
+	UFUNCTION(BlueprintCallable)
+		float GetCumulativeReward();
+	UFUNCTION(BlueprintCallable)
+		int GetNumberSteps();
+	UFUNCTION(BlueprintCallable)
+		int GetEpoch();
+
 private:
 
 	TArray<int> GetInput();
@@ -47,8 +58,13 @@ private:
 	float EpsilonDecay;
 	float MinEpsilon;
 
+	int Epoch;
 	int NumberSteps;
 	int MaxNumberSteps;
+	int NumberFitSteps;
+
+	float Reward;
+	float CumulativeReward;
 
 	class Experience PreviousExperience;
 

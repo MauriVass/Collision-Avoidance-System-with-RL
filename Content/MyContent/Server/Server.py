@@ -4,6 +4,7 @@ import json
 import numpy as np
 import tensorflow as tf
 import time
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -13,7 +14,7 @@ class Network():
 		self.num_inputs = 32
 		self.batchsize = 24
 		self.discount_rate = 0.75
-		self.lr = 0.01
+		self.lr = 0.001
 		self.gamma = 0.99
 		self.optimizer = tf.optimizers.Adam(self.lr)
 		
@@ -188,6 +189,13 @@ class Network():
 	
 	def copyNN(self):
 		self.targetNetwork.set_weights(self.policyNetwork.get_weights())
+	
+	def saveModel(self):
+		timestamp = datetime.now().strftime("%d_%m_%Y_%H_%M_%S")
+		self.policyNetwork.save(f'Models/{timestamp}')
+	def loadModel(self,path):
+		self.policyNetwork = tf.keras.models.load_model(f"Models/{path}")
+		print(self.policyNetwork.summary())
 
 
 network = Network()
@@ -226,11 +234,19 @@ def PREDICT():
 	print(f'Predict: elapsed time: {(time_end-time_start):.3f}')
 	return f'{action};0.2'
 
-	# def PREDICT_TN(self):
-	# 	output = self.net.predictTN(values[0])
-	# 	out = '.'.join([str(o) for o in output])
-	# 	#print('tn', out, np.shape(out))
-	# 	return out
+@app.route('/copy', methods=['GET'])
+def COPY_WEIGHTS():
+	network.copyNN()
+	return ''
+@app.route('/save', methods=['GET'])
+def SAVE_MODEL():
+	network.saveModel()
+	return ''
+@app.route('/load', methods=['POST'])
+def LOAD_MODEL():
+	path = request.data.decode("utf-8") 
+	network.loadModel(path)
+	return ''
 
 	# def RESET(self):
 	# 	msg = cherrypy.request.body.readline().decode("utf-8")
