@@ -42,6 +42,7 @@ void ADeepAgent::BeginPlay() {
 
 	ADeepAgent::TickTime = 0.01;
 
+	ADeepAgent::Client->SendMetadata(ADeepAgent::NumberSensor, ADeepAgent::NumberActions);
 	ADeepAgent::RestartGame();
 	UE_LOG(LogTemp, Error, TEXT("Begin"));
 }
@@ -52,10 +53,10 @@ void ADeepAgent::Tick(float DeltaTime) {
 
 	timer += DeltaTime;
 	if (timer > ADeepAgent::TickTime) {//20 fps
-		ADeepAgent::Step();
+		//ADeepAgent::Step();
 		timer = 0;
 	}
-	ADeepAgent::PerformAction(ADeepAgent::Action);
+	//ADeepAgent::PerformAction(ADeepAgent::Action);
 
 	//UE_LOG(LogTemp, Error, TEXT("Line trace has hit: %f"), DeltaTime);
 }

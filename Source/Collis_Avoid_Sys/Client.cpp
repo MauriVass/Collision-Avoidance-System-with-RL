@@ -19,8 +19,8 @@ void AClient::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	//AClient::UrlAddress = "192.168.1.7:5000/";
-	AClient::UrlAddress = "192.168.1.12:5000/";
+	AClient::UrlAddress = "192.168.1.7:5000/";
+	//AClient::UrlAddress = "192.168.1.12:5000/";
 }
 
 
@@ -31,9 +31,21 @@ void AClient::Tick(float DeltaTime)
 
 }
 
+void AClient::SendMetadata(int numSensors, int numActions)
+{
+	FString data = FString::FromInt(numSensors) + ":" + FString::FromInt(numActions);
+
+	FHttpModule* Http = &FHttpModule::Get();
+	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> HttpRequest = Http->CreateRequest();
+	HttpRequest->SetVerb("Post");
+	HttpRequest->SetHeader("Content-Type", "text/plain");
+	HttpRequest->SetURL(AClient::UrlAddress + "initialization");
+	HttpRequest->SetContentAsString(data);
+	HttpRequest->ProcessRequest();
+}
+
 void AClient::SendExperience(TArray<int> currentState, int action, TArray<int> nextState, float reward, bool endGame)
 {
-	//FString data = AClient::ConstructData(currentState, action, nextState, reward, endGame);
 	FString data = Experience::ConstructData(currentState, action, nextState, reward, endGame);
 
 	FHttpModule* Http = &FHttpModule::Get();

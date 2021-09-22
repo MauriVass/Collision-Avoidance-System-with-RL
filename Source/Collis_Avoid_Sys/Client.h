@@ -28,6 +28,7 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	void SendMetadata(int numSensors, int numActions);
 	void SendExperience(TArray<int> currentState, int action, TArray<int> nextState, float reward, bool endGame);
 	void Predict(TArray<int> currentState);
 

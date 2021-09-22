@@ -202,12 +202,21 @@ class Network():
 
 
 network = Network()
-network.Initialization(5,128)
 
 @app.route('/')
 def home():
 	print('home')
 	return 'server';
+
+@app.route('/initialization', methods=['POST'])
+def INITIALIZATION():
+	msg = request.data.decode("utf-8")
+	input = np.array(msg.split(':')).astype(int)
+	num_sensors = input[0]
+	num_actions = input[1] 
+	network.Initialization(num_sensors,num_actions)
+	return 'initialization'
+
 
 @app.route('/fit', methods=['POST'])
 def FIT():
