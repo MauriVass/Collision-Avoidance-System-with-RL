@@ -11,7 +11,7 @@ app = Flask(__name__)
 class Network():
 	def __init__(self):
 		self.num_actions = 5
-		self.num_inputs = 32
+		self.num_inputs = 128
 		self.batchsize = 24
 		self.discount_rate = 0.75
 		self.lr = 0.001
@@ -247,6 +247,14 @@ def LOAD_MODEL():
 	path = request.data.decode("utf-8") 
 	network.loadModel(path)
 	return ''
+
+@app.route("/shutdown", methods=['GET'])
+def shutdown():
+    shutdown_func = request.environ.get('werkzeug.server.shutdown')
+    if shutdown_func is None:
+        raise RuntimeError('Not running werkzeug')
+    shutdown_func()
+    return "Shutting down..."
 
 	# def RESET(self):
 	# 	msg = cherrypy.request.body.readline().decode("utf-8")
