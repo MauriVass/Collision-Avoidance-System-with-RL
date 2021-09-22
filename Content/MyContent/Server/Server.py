@@ -10,8 +10,6 @@ app = Flask(__name__)
 
 class Network():
 	def __init__(self):
-		self.num_actions = 5
-		self.num_inputs = 128
 		self.batchsize = 24
 		self.discount_rate = 0.75
 		self.lr = 0.001
@@ -31,13 +29,16 @@ class Network():
 		self.steps = 0
 		self.copyWeightSteps = 24
 
+		self.fit_times = []
+
+	def Initialization(self, num_inputs, num_actions):
+		self.num_inputs = num_inputs
+		self.num_actions = num_actions
 		self.policyNetwork = self.ModelTemplate()
 
 		self.targetNetwork = self.ModelTemplate()
 		self.copyNN()
 		print(self.policyNetwork.summary())
-
-		self.fit_times = []
 
 	def ModelTemplate(self):
 			model = tf.keras.Sequential([
@@ -190,20 +191,23 @@ class Network():
 	def copyNN(self):
 		self.targetNetwork.set_weights(self.policyNetwork.get_weights())
 	
-	def saveModel(self):
+	def saveModel(self,name):
 		timestamp = datetime.now().strftime("%d_%m_%Y_%H_%M_%S")
-		self.policyNetwork.save(f'Models/{timestamp}')
+		path = f'{timestamp}_{name}'
+		self.policyNetwork.save(f'Models/{path}')
+		return path
 	def loadModel(self,path):
 		self.policyNetwork = tf.keras.models.load_model(f"Models/{path}")
 		print(self.policyNetwork.summary())
 
 
 network = Network()
+network.Initialization(5,128)
 
 @app.route('/')
 def home():
 	print('home')
-	return 'bella';
+	return 'server';
 
 @app.route('/fit', methods=['POST'])
 def FIT():
@@ -215,7 +219,7 @@ def FIT():
 	network.fit_times.append(time_elaps)
 	print(f'Fit: elapsed time: {(time_elaps):.3f}\n')
 
-	return 'a'
+	return 'fitted'
 
 @app.route('/predict', methods=['POST'])
 def PREDICT():
@@ -237,24 +241,28 @@ def PREDICT():
 @app.route('/copy', methods=['GET'])
 def COPY_WEIGHTS():
 	network.copyNN()
-	return ''
+	return 'copied'
 @app.route('/save', methods=['GET'])
+
 def SAVE_MODEL():
-	network.saveModel()
-	return ''
-@app.route('/load', methods=['POST'])
+	#http://192.168.1.X:5000/save?file=XX
+	file_name = request.args['file']
+	path = network.saveModel(file_name)
+	return f'saved to {path}'
+@app.route('/load', methods=['GET'])
 def LOAD_MODEL():
-	path = request.data.decode("utf-8") 
+	#http://192.168.1.X:5000/load?file=XX
+	path = request.args['file']
 	network.loadModel(path)
-	return ''
+	return f'loaded {path}'
 
 @app.route("/shutdown", methods=['GET'])
 def shutdown():
-    shutdown_func = request.environ.get('werkzeug.server.shutdown')
-    if shutdown_func is None:
-        raise RuntimeError('Not running werkzeug')
-    shutdown_func()
-    return "Shutting down..."
+	shutdown_func = request.environ.get('werkzeug.server.shutdown')
+	if shutdown_func is None:
+		raise RuntimeError('Not running werkzeug')
+	shutdown_func()
+	return "Shutting down..."
 
 	# def RESET(self):
 	# 	msg = cherrypy.request.body.readline().decode("utf-8")
