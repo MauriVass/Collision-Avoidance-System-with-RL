@@ -31,16 +31,16 @@ void ADeepAgent::BeginPlay() {
 	ADeepAgent::MovementComponent = this->GetVehicleMovementComponent();
 	ADeepAgent::initialTransform = this->GetTransform();
 
+	ADeepAgent::IsTraining = true;
 	ADeepAgent::Epoch = 0;
-
 	ADeepAgent::NumberActions = 5;
 	ADeepAgent::Epsilon = 1.0;
-	ADeepAgent::EpsilonDecay = 6 * FMath::Pow(10,-5);
+	ADeepAgent::EpsilonDecay = 4 * FMath::Pow(10,-5);
 	ADeepAgent::MinEpsilon = 0.05;
-	ADeepAgent::MaxNumberSteps = 10000;
+	ADeepAgent::MaxNumberSteps = 12000;
 	ADeepAgent::NumberFitSteps = 3;
 
-	ADeepAgent::TickTime = 0.045;
+	ADeepAgent::TickTime = 0.01;
 
 	ADeepAgent::RestartGame();
 	UE_LOG(LogTemp, Error, TEXT("Begin"));
@@ -71,6 +71,15 @@ void ADeepAgent::SetConfidence(float confidence)
 void ADeepAgent::SetIsGameEnded(bool value)
 {
 	ADeepAgent::IsGameEnded = value;
+}
+void ADeepAgent::ToggleIsTraining()
+{
+	ADeepAgent::IsTraining = !ADeepAgent::IsTraining;
+	if (ADeepAgent::IsTraining) {
+		ADeepAgent::TickTime = 0.005;
+	}
+	else
+		ADeepAgent::TickTime = 0.01;
 }
 
 float ADeepAgent::GetEpsilon()
@@ -107,7 +116,7 @@ TArray<int> ADeepAgent::GetInput() {
 		FHitResult hit;
 		Hit.Init(hit, ADeepAgent::NumberSensor);
 	}
-	float AngleExtension = 230;
+	float AngleExtension = 220;
 	FCollisionQueryParams FParams;
 	
 	float maxDistance = 1000;
@@ -137,6 +146,10 @@ TArray<int> ADeepAgent::GetInput() {
 
 	return currentSate;
 }
+bool ADeepAgent::GetIsTraining()
+{
+	return ADeepAgent::IsTraining;
+}
 
 void ADeepAgent::SendExperience(TArray<int> currentState, int action, TArray<int> nextState, float reward, bool endGame)
 {
@@ -163,8 +176,8 @@ void ADeepAgent::PerformAction(int action)
 	}*/
 
 	//2) 2 actions
-	//ADeepAgent::MovementComponent->SetThrottleInput(0.6);
-	/*switch (ADeepAgent::Action)
+	/*ADeepAgent::MovementComponent->SetThrottleInput(0.7);
+	switch (ADeepAgent::Action)
 	{
 	case 0:
 		ADeepAgent::MovementComponent->SetSteeringInput(1);
@@ -180,22 +193,22 @@ void ADeepAgent::PerformAction(int action)
 	switch (ADeepAgent::Action)
 	{
 	case 0:
-		ADeepAgent::MovementComponent->SetThrottleInput(0.1);
+		ADeepAgent::MovementComponent->SetThrottleInput(0.2);
 		ADeepAgent::MovementComponent->SetSteeringInput(-1);
 		break;
 	case 1:
-		ADeepAgent::MovementComponent->SetThrottleInput(0.5);
+		ADeepAgent::MovementComponent->SetThrottleInput(0.6);
 		ADeepAgent::MovementComponent->SetSteeringInput(-0.5);
 		break;
 	case 2:
 		ADeepAgent::MovementComponent->SetThrottleInput(1);
 		break;
 	case 3:
-		ADeepAgent::MovementComponent->SetThrottleInput(0.5);
+		ADeepAgent::MovementComponent->SetThrottleInput(0.6);
 		ADeepAgent::MovementComponent->SetSteeringInput(0.5);
 		break;
 	case 4:
-		ADeepAgent::MovementComponent->SetThrottleInput(0.1);
+		ADeepAgent::MovementComponent->SetThrottleInput(0.2);
 		ADeepAgent::MovementComponent->SetSteeringInput(1);
 		break;
 	default:
@@ -210,7 +223,7 @@ void ADeepAgent::Step()
 
 	//EXPLORATION - EXPLOITATION TRADEOFF
 	float exploitation = FMath::SRand();
-	if (exploitation > ADeepAgent::Epsilon) {
+	if (exploitation > ADeepAgent::Epsilon || !ADeepAgent::IsTraining) {
 		//Chose best action
 		ADeepAgent::Client->Predict(currentState);
 		UE_LOG(LogTemp, Error, TEXT("Best Action chosen: %d"), ADeepAgent::Action);
@@ -222,8 +235,8 @@ void ADeepAgent::Step()
 			ADeepAgent::Epsilon -= ADeepAgent::EpsilonDecay;
 		}
 		else {
-			ADeepAgent::TickTime = 0.015;
-			ADeepAgent::NumberFitSteps = 8;
+			ADeepAgent::TickTime /= 2.0;
+			ADeepAgent::NumberFitSteps *= 2;
 		}
 		//else ADeepAgent::Epsilon = 0;
 		/*if (GEngine)
@@ -243,7 +256,7 @@ void ADeepAgent::Step()
 	//ADeepAgent::Reward
 	//float ADeepAgent::Reward = 0.1;
 	
-	//float ADeepAgent::Reward = ADeepAgent::GetMesh()->GetPhysicsLinearVelocity().Size()/10.0;
+	//ADeepAgent::Reward = ADeepAgent::GetMesh()->GetPhysicsLinearVelocity().Size()/2000.0;
 
 	//ADeepAgent::Reward by number of green rays
 	ADeepAgent::Reward = -1;
@@ -255,10 +268,10 @@ void ADeepAgent::Step()
 		}
 	}
 	ADeepAgent::Reward = ADeepAgent::Reward / 10;
-	// multiplied by velocity
-	ADeepAgent::Reward *= ADeepAgent::GetMesh()->GetPhysicsLinearVelocity().Size() / 1000;
+	//multiplied by velocity (punish if the velocity is under a given threshold)
+	ADeepAgent::Reward *= (ADeepAgent::GetMesh()->GetPhysicsLinearVelocity().Size() - 90) / 1000;
 
-	//No ADeepAgent::Reward (inly negative ADeepAgent::Reward when hitting a wall)
+	//No ADeepAgent::Reward (only negative ADeepAgent::Reward when hitting a wall)
 	//float ADeepAgent::Reward = 0;
 
 	//Distance from walls ADeepAgent::Reward
@@ -271,19 +284,22 @@ void ADeepAgent::Step()
 	}
 	ADeepAgent::CumulativeReward += ADeepAgent::Reward;
 
-	Experience currentExp = Experience(currentState, ADeepAgent::Action, nextState, ADeepAgent::Reward, IsGameEnded);
-	if (!ADeepAgent::PreviousExperience.GetInitilized() || !ADeepAgent::PreviousExperience.CheckEqualExperiences(currentExp)) {
-		//SEND EXPERIENCE
-		counter++;
-		if(counter%ADeepAgent::NumberFitSteps==0)//&& (ADeepAgent::Epsilon > ADeepAgent::MinEpsilon)
-			ADeepAgent::SendExperience(currentState, ADeepAgent::Action, nextState, ADeepAgent::Reward, ADeepAgent::IsGameEnded);
-	}
+	if (ADeepAgent::IsTraining) {
+		Experience currentExp = Experience(currentState, ADeepAgent::Action, nextState, ADeepAgent::Reward, IsGameEnded);
+		if ((!ADeepAgent::PreviousExperience.GetInitilized() ||
+			!ADeepAgent::PreviousExperience.CheckEqualExperiences(currentExp))) {
+			//SEND EXPERIENCE
+			counter++;
+			if (counter % ADeepAgent::NumberFitSteps == 0)//&& (ADeepAgent::Epsilon > ADeepAgent::MinEpsilon)
+				ADeepAgent::SendExperience(currentState, ADeepAgent::Action, nextState, ADeepAgent::Reward, ADeepAgent::IsGameEnded);
+		}
 
-	if (!ADeepAgent::PreviousExperience.GetInitilized()) {
-		ADeepAgent::PreviousExperience.InitializeExperience(currentState, ADeepAgent::Action, nextState, ADeepAgent::Reward, IsGameEnded);
-	}
-	else{
-		ADeepAgent::PreviousExperience = currentExp;
+		if (!ADeepAgent::PreviousExperience.GetInitilized()) {
+			ADeepAgent::PreviousExperience.InitializeExperience(currentState, ADeepAgent::Action, nextState, ADeepAgent::Reward, IsGameEnded);
+		}
+		else {
+			ADeepAgent::PreviousExperience = currentExp;
+		}
 	}
 
 	ADeepAgent::NumberSteps++;

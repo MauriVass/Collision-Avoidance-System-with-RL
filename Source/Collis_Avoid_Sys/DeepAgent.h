@@ -24,6 +24,8 @@ public:
 
 	void SetAction(int Action);
 	void SetConfidence(float Confidence);
+	UFUNCTION(BlueprintCallable)
+		void ToggleIsTraining();
 
 	UFUNCTION(BlueprintCallable)
 		float GetEpsilon();
@@ -35,6 +37,8 @@ public:
 		int GetNumberSteps();
 	UFUNCTION(BlueprintCallable)
 		int GetEpoch();
+	UFUNCTION(BlueprintCallable)
+		bool GetIsTraining();
 
 private:
 
@@ -42,7 +46,7 @@ private:
 
 	UStaticMeshComponent* SensorPosition;
 
-	static const int NumberSensor = 32;
+	static const int NumberSensor = 128;
 
 	class AClient* Client;
 	void SendExperience(TArray<int> currentState, int action, TArray<int> nextState, float reward, bool endGame);
@@ -53,6 +57,7 @@ private:
 	UWheeledVehicleMovementComponent* MovementComponent;
 	FTransform initialTransform;
 
+	bool IsTraining;
 	int NumberActions;
 	float Epsilon;
 	float EpsilonDecay;
