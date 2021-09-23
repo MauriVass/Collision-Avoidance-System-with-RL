@@ -31,6 +31,9 @@ void ADeepAgent::BeginPlay() {
 	ADeepAgent::MovementComponent = this->GetVehicleMovementComponent();
 	ADeepAgent::initialTransform = this->GetTransform();
 
+	ADeepAgent::IsGameStarting = true;
+	ADeepAgent::ToggleIsGameStarting();
+
 	ADeepAgent::IsTraining = true;
 	ADeepAgent::Epoch = 0;
 	ADeepAgent::NumberActions = 5;
@@ -53,10 +56,10 @@ void ADeepAgent::Tick(float DeltaTime) {
 
 	timer += DeltaTime;
 	if (timer > ADeepAgent::TickTime) {//20 fps
-		//ADeepAgent::Step();
+		ADeepAgent::Step();
 		timer = 0;
 	}
-	//ADeepAgent::PerformAction(ADeepAgent::Action);
+	ADeepAgent::PerformAction(ADeepAgent::Action);
 
 	//UE_LOG(LogTemp, Error, TEXT("Line trace has hit: %f"), DeltaTime);
 }
@@ -81,6 +84,11 @@ void ADeepAgent::ToggleIsTraining()
 	}
 	else
 		ADeepAgent::TickTime = 0.01;
+}
+void ADeepAgent::ToggleIsGameStarting()
+{
+	ADeepAgent::IsGameStarting = !ADeepAgent::IsGameStarting;
+	GetWorld()->GetFirstPlayerController()->SetPause(!ADeepAgent::IsGameStarting);
 }
 
 float ADeepAgent::GetEpsilon()
@@ -151,6 +159,7 @@ bool ADeepAgent::GetIsTraining()
 {
 	return ADeepAgent::IsTraining;
 }
+
 
 void ADeepAgent::SendExperience(TArray<int> currentState, int action, TArray<int> nextState, float reward, bool endGame)
 {

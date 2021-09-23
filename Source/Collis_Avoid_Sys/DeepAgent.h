@@ -26,6 +26,8 @@ public:
 	void SetConfidence(float Confidence);
 	UFUNCTION(BlueprintCallable)
 		void ToggleIsTraining();
+	UFUNCTION(BlueprintCallable)
+		void ToggleIsGameStarting();
 
 	UFUNCTION(BlueprintCallable)
 		float GetEpsilon();
@@ -39,6 +41,7 @@ public:
 		int GetEpoch();
 	UFUNCTION(BlueprintCallable)
 		bool GetIsTraining();
+
 
 private:
 
@@ -57,6 +60,7 @@ private:
 	UWheeledVehicleMovementComponent* MovementComponent;
 	FTransform initialTransform;
 
+	bool IsGameStarting;
 	bool IsTraining;
 	int NumberActions;
 	float Epsilon;
