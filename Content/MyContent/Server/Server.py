@@ -27,10 +27,10 @@ class Network():
 		self.minNumExperiences = 200
 		self.maxNumExperiences = 20000
 		self.steps = 0
-		self.copyWeightSteps = 24
+		self.copyWeightSteps = 1024
 
 		self.fit_times = []
-		self.losses = [];
+		self.losses = []
 
 	def Initialization(self, num_inputs, num_actions):
 		self.num_inputs = num_inputs
@@ -162,6 +162,7 @@ class Network():
 			# t1 = time.time()
 			variables = self.policyNetwork.trainable_variables
 			gradients = tape.gradient(loss, variables)
+			gradients, _ = tf.clip_by_global_norm(gradients, 5.0)
 			# print('variables', type(variables), np.array(variables).shape)
 			# print('wv', tape.watched_variables())
 			# print('gradients', type(gradients), np.array(gradients).shape)
@@ -291,7 +292,7 @@ for i in network.fit_times:
 	file.write(str(i)+'\n')
 file.close()
 
-file = open('run.loses','w')
+file = open('run.losses.csv','w')
 for i in network.losses:
 	file.write(str(i.numpy())+'\n')
 file.close()
