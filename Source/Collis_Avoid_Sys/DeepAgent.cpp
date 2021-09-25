@@ -6,6 +6,7 @@
 #include "Client.h"
 #include "DeepAgent.h"
 #include "WheeledVehicleMovementComponent.h"
+#include "Misc/FileHelper.h"
 
 void ADeepAgent::BeginPlay() {
 	Super::BeginPlay();
@@ -31,9 +32,6 @@ void ADeepAgent::BeginPlay() {
 	ADeepAgent::MovementComponent = this->GetVehicleMovementComponent();
 	ADeepAgent::initialTransform = this->GetTransform();
 
-	ADeepAgent::IsGameStarting = true;
-	ADeepAgent::ToggleIsGameStarting();
-
 	ADeepAgent::IsTraining = true;
 	ADeepAgent::Epoch = 0;
 	ADeepAgent::NumberActions = 5;
@@ -48,6 +46,14 @@ void ADeepAgent::BeginPlay() {
 	ADeepAgent::Client->SendMetadata(ADeepAgent::NumberSensor, ADeepAgent::NumberActions);
 	ADeepAgent::RestartGame();
 	UE_LOG(LogTemp, Error, TEXT("Begin"));
+
+	//todo: remove full-path
+	ADeepAgent::SaveDirectory = FString("C:/Users/mauri/Desktop/Mauri/software_per_programmazione/progetti/UnrealEngine/Collis_Avoid_Sys/CollisionAvoidanceSystem/Content/MyContent/Server");
+	ADeepAgent::FileName = FString("run.rewards");
+	ADeepAgent::WriteToFile(0,0,false);
+
+	ADeepAgent::IsGameStarting = true;
+	ADeepAgent::ToggleIsGameStarting();
 }
 
 float timer;
@@ -338,6 +344,8 @@ void ADeepAgent::RestartGame()
 	this->GetMesh()->SetPhysicsAngularVelocityInDegrees(FVector::ZeroVector);
 	ADeepAgent::MovementComponent->SetThrottleInput(1);
 
+	if(ADeepAgent::Epoch>0)
+		ADeepAgent::WriteToFile(ADeepAgent::Epoch, ADeepAgent::CumulativeReward, true);
 	ADeepAgent::Epoch++;
 	ADeepAgent::NumberSteps = 0;
 	ADeepAgent::CumulativeReward = 0;
@@ -349,4 +357,30 @@ void ADeepAgent::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 	InputComponent->BindAction("Input1", IE_Pressed, this, &ADeepAgent::Restart);
+}
+
+void ADeepAgent::WriteToFile(int epoch, float totalReward, bool allowOverwriting)
+{
+	FString TextToSave = FString("");
+	TextToSave += FString::FromInt(epoch) + ";" + FString::SanitizeFloat(totalReward); 
+	TextToSave += "\n";
+
+	IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
+
+	// CreateDirectoryTree returns true if the destination
+	// directory existed prior to call or has been created
+	// during the call.
+	if (PlatformFile.CreateDirectoryTree(*ADeepAgent::SaveDirectory))
+	{
+		// Get absolute file path
+		FString AbsoluteFilePath = ADeepAgent::SaveDirectory + "/" + ADeepAgent::FileName;
+
+		//if (!PlatformFile.FileExists(*AbsoluteFilePath))
+		{
+			if(allowOverwriting)
+				FFileHelper::SaveStringToFile(TextToSave, *AbsoluteFilePath, FFileHelper::EEncodingOptions::AutoDetect, &IFileManager::Get(), FILEWRITE_Append);
+			else
+				FFileHelper::SaveStringToFile(TextToSave, *AbsoluteFilePath, FFileHelper::EEncodingOptions::AutoDetect, &IFileManager::Get(), EFileWrite::FILEWRITE_None);
+		}
+	}
 }

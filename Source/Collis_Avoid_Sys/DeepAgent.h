@@ -57,6 +57,10 @@ private:
 	void Step();
 	void RestartGame();
 
+	FString SaveDirectory;
+	FString FileName;
+	void WriteToFile(int epoch, float totalReward, bool allowOverwriting);
+
 	UWheeledVehicleMovementComponent* MovementComponent;
 	FTransform initialTransform;
 
@@ -89,5 +93,6 @@ private:
 
 	float totalDistance;
 	float TickTime;
+
 
 };
