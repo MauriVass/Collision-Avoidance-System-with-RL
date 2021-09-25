@@ -19,8 +19,8 @@ void AClient::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	AClient::UrlAddress = "192.168.1.7:5000/";
-	//AClient::UrlAddress = "192.168.1.12:5000/";
+	//AClient::UrlAddress = "192.168.1.7:5000/";
+	AClient::UrlAddress = "192.168.1.12:5000/";
 }
 
 

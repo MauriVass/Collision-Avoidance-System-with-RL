@@ -39,7 +39,7 @@ void ADeepAgent::BeginPlay() {
 	ADeepAgent::EpsilonDecay = 4 * FMath::Pow(10,-5);
 	ADeepAgent::MinEpsilon = 0.05;
 	ADeepAgent::MaxNumberSteps = 12000;
-	ADeepAgent::NumberFitSteps = 3;
+	ADeepAgent::NumberFitSteps = 1;
 
 	ADeepAgent::TickTime = 0.01;
 
@@ -50,7 +50,7 @@ void ADeepAgent::BeginPlay() {
 	//todo: remove full-path
 	ADeepAgent::SaveDirectory = FString("C:/Users/mauri/Desktop/Mauri/software_per_programmazione/progetti/UnrealEngine/Collis_Avoid_Sys/CollisionAvoidanceSystem/Content/MyContent/Server");
 	ADeepAgent::FileName = FString("run.rewards");
-	ADeepAgent::WriteToFile(0,0,false);
+	ADeepAgent::WriteToFile(0,0,false,false);
 
 	ADeepAgent::IsGameStarting = true;
 	ADeepAgent::ToggleIsGameStarting();
@@ -251,6 +251,7 @@ void ADeepAgent::Step()
 			ADeepAgent::Epsilon -= ADeepAgent::EpsilonDecay;
 		}
 		else {
+			ADeepAgent::Epsilon = ADeepAgent::MinEpsilon;
 			ADeepAgent::TickTime /= 2.0;
 			ADeepAgent::NumberFitSteps *= 2;
 		}
@@ -292,7 +293,7 @@ void ADeepAgent::Step()
 
 	//Distance from walls ADeepAgent::Reward
 	//float ADeepAgent::Reward = (ADeepAgent::totalDistance) /10000.0;
-	UE_LOG(LogTemp, Error, TEXT("%f %f"),ADeepAgent::Reward, ADeepAgent::GetMesh()->GetPhysicsLinearVelocity().Size());
+	//UE_LOG(LogTemp, Error, TEXT("%f %f"),ADeepAgent::Reward, ADeepAgent::GetMesh()->GetPhysicsLinearVelocity().Size());
 
 	//UE_LOG(LogTemp, Error, TEXT("%f %f %f"),ADeepAgent::Reward, ADeepAgent::GetMesh()->GetComponentVelocity().Size(), );
 	if (ADeepAgent::IsGameEnded) {
@@ -345,7 +346,7 @@ void ADeepAgent::RestartGame()
 	ADeepAgent::MovementComponent->SetThrottleInput(1);
 
 	if(ADeepAgent::Epoch>0)
-		ADeepAgent::WriteToFile(ADeepAgent::Epoch, ADeepAgent::CumulativeReward, true);
+		ADeepAgent::WriteToFile(ADeepAgent::Epoch, ADeepAgent::CumulativeReward, ADeepAgent::IsGameEnded, true);
 	ADeepAgent::Epoch++;
 	ADeepAgent::NumberSteps = 0;
 	ADeepAgent::CumulativeReward = 0;
@@ -359,10 +360,10 @@ void ADeepAgent::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 	InputComponent->BindAction("Input1", IE_Pressed, this, &ADeepAgent::Restart);
 }
 
-void ADeepAgent::WriteToFile(int epoch, float totalReward, bool allowOverwriting)
+void ADeepAgent::WriteToFile(int epoch, float totalReward, bool gameEndedByCrush, bool allowOverwriting)
 {
 	FString TextToSave = FString("");
-	TextToSave += FString::FromInt(epoch) + ";" + FString::SanitizeFloat(totalReward); 
+	TextToSave += FString::FromInt(epoch) + "," + FString::SanitizeFloat(totalReward) + "," + FString::FromInt(gameEndedByCrush);
 	TextToSave += "\n";
 
 	IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
