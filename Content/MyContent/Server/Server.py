@@ -30,6 +30,7 @@ class Network():
 		self.copyWeightSteps = 24
 
 		self.fit_times = []
+		self.losses = [];
 
 	def Initialization(self, num_inputs, num_actions):
 		self.num_inputs = num_inputs
@@ -155,6 +156,7 @@ class Network():
 				loss = tf.math.reduce_mean(tf.square(actual_values - selected_action_values))
 				tape.watch(loss)
 				print('#####\tloss\t#####', loss)
+				self.losses.append(loss)
 			# print(f'Fit: 3 gradient: {(time.time()-t1):.3f}')
 
 			# t1 = time.time()
@@ -287,5 +289,10 @@ network.writeAllExperiences()
 file = open('time_elapsed','w')
 for i in network.fit_times:
 	file.write(str(i)+'\n')
+file.close()
+
+file = open('run.loses','w')
+for i in network.losses:
+	file.write(str(i.numpy())+'\n')
 file.close()
 
