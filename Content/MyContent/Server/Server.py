@@ -20,21 +20,25 @@ class Network():
 		self.file = '' #initialize after
 		self.experiences_raw = []
 		self.experiences_prepros = []
+		# self.readExperiencesFromFile()
 		# t1 = time.time()
-		self.readExperiencesFromFile()
 		# print(f'Reading {time.time()-t1}')
 
 		self.minNumExperiences = 30
-		self.maxNumExperiences = 20000
+		self.maxNumExperiences = 2*10**5
 		self.steps = 0
 		self.copyWeightSteps = 1024
 
 		self.fit_times = []
 		self.losses = []
 
-	def Initialization(self, num_inputs, num_actions):
+	def Initialization(self, num_inputs, is_action_space_descrete, num_actions):
 		self.num_inputs = num_inputs
+		self.is_action_space_descrete = is_action_space_descrete
 		self.num_actions = num_actions
+		
+		self.readExperiencesFromFile()
+
 		self.policyNetwork = self.ModelTemplate()
 
 		self.targetNetwork = self.ModelTemplate()
@@ -73,10 +77,13 @@ class Network():
 		# for e in self.experiences_raw:
 		for e in self.experiences_prepros:
 			cs = ':'.join( [str(x) for x in e['s'].numpy()[0]] )
-			# a = str(e['a'])
-			thro_a = str(e['a'][0])
-			steer_a = str(e['a'][1])
-			a = thro_a+':'+steer_a
+
+			if(self.is_action_space_descrete):
+				a = str(e['a'])
+			else:
+				thro_a = str(e['a'][0])
+				steer_a = str(e['a'][1])
+				a = thro_a+':'+steer_a
 			ns = ':'.join( [str(x) for x in e['ns'].numpy()[0]] )
 			r = str(e['r'])
 			end = str(int(e['done']))
@@ -90,14 +97,19 @@ class Network():
 		elements = experience_raw.split(';')
 
 		currentState = tf.Variable([np.array(elements[0].split(':'), dtype=np.int8)])
-		# action = int(elements[1])
-		throttle_action = float(elements[1].split(':')[0])
-		steer_action = float(elements[1].split(':')[1])
+		
+		if(self.is_action_space_descrete):
+			action = int(elements[1])
+		else:
+			throttle_action = float(elements[1].split(':')[0])
+			steer_action = float(elements[1].split(':')[1])
+			action = [throttle_action, steer_action]
 		nextAction = tf.Variable([np.array(elements[2].split(':'), dtype=np.int8)])
 		reward = float(elements[3])
 		gameEnded = True if elements[4]==1 else False
+		
 		# exp = {'s': currentState, 'a': action, 'ns': nextAction, 'r': reward, 'done': gameEnded}
-		exp = {'s': currentState, 'a': [throttle_action, steer_action], 'ns': nextAction, 'r': reward, 'done': gameEnded}
+		exp = {'s': currentState, 'a': action, 'ns': nextAction, 'r': reward, 'done': gameEnded}
 		return exp
 
 	def getBatchExperiences(self):
@@ -155,8 +167,11 @@ class Network():
 			# t1 = time.time()
 			with tf.GradientTape() as tape:
 				tape.watch(states)
-				
-				a = self.policyNetwork(states) #* tf.one_hot(actions, self.num_actions)
+
+				if(self.is_action_space_descrete):
+					a = self.policyNetwork(states) * tf.one_hot(actions, self.num_actions)
+				else:
+					a = self.policyNetwork(states)
 				selected_action_values = tf.math.reduce_sum(a , axis=1)
 
 				loss = tf.math.reduce_mean(tf.square(actual_values - selected_action_values))
@@ -182,8 +197,7 @@ class Network():
 			if(self.steps>=self.copyWeightSteps):
 				# t1 = time.time()
 				self.copyNN()
-				self.counter=0
-				self.counter=0
+				self.steps=0
 				# print(f'Fit: 5 copy weights: {(time.time()-t1):.3f}')
 
 		
@@ -220,10 +234,11 @@ def home():
 @app.route('/initialization', methods=['POST'])
 def INITIALIZATION():
 	msg = request.data.decode("utf-8")
-	input = np.array(msg.split(':')).astype(int)
-	num_sensors = input[0]
-	num_actions = input[1] 
-	network.Initialization(num_sensors,num_actions)
+	input = np.array(msg.split(':'))
+	num_sensors = int(input[0])
+	is_action_space_descrete = False if input[1]=='False' else True
+	num_actions = int(input[2])
+	network.Initialization(num_sensors,is_action_space_descrete,num_actions)
 	return 'initialization'
 
 
@@ -248,13 +263,19 @@ def PREDICT():
 	# print('PREDICT')
 	#print(input)
 	output = network.predictPN(input)
-	actions = output.numpy()[0] #np.argmax(output)
+
+	if(network.is_action_space_descrete):
+		a = np.argmax(output)
+		output = str(a)
+	else:
+		a = output.numpy()[0] #np.argmax(output)
+		output = f'{a[0]};{a[1]}'
 	#print('pred net', output, action)
 	# # print('target net', self.net.predictTN(input))
 	# out = '/'.join([str(o) for o in output.numpy()[0]])
 	time_end = time.time()
 	print(f'Predict: elapsed time: {(time_end-time_start):.3f}')
-	return f'{actions[0]};{actions[1]}'
+	return output
 
 @app.route('/copy', methods=['GET'])
 def COPY_WEIGHTS():

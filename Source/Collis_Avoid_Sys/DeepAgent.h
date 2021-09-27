@@ -50,10 +50,9 @@ private:
 
 	UStaticMeshComponent* SensorPosition;
 
-	static const int NumberSensor = 128;
+	static const int NumberSensor = 64;
 
 	class AClient* Client;
-	void SendExperience(TArray<int> currentState, int action, TArray<int> nextState, float reward, bool endGame);
 	void PerformAction(int action);
 	void Step();
 	void RestartGame();
@@ -87,6 +86,7 @@ private:
 	UFUNCTION(BlueprintSetter)
 	void SetIsGameEnded(bool value);
 
+	bool IsActionSpaceDescrete;
 	int Action;
 	float ThrottleAction;
 	float SteerAction;

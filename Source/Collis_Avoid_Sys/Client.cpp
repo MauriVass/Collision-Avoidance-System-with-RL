@@ -19,8 +19,8 @@ void AClient::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	//AClient::UrlAddress = "192.168.1.8:5000/";
-	AClient::UrlAddress = "192.168.1.12:5000/";
+	AClient::UrlAddress = "192.168.1.8:5000/";
+	//AClient::UrlAddress = "192.168.1.12:5000/";
 }
 
 
@@ -31,9 +31,9 @@ void AClient::Tick(float DeltaTime)
 
 }
 
-void AClient::SendMetadata(int numSensors, int numActions)
+void AClient::SendMetadata(int numSensors, bool actionDescrete, int numActions)
 {
-	FString data = FString::FromInt(numSensors) + ":" + FString::FromInt(numActions);
+	FString data = FString::FromInt(numSensors) + ":" + (actionDescrete? "True" : "False") + ":" + FString::FromInt(numActions);
 
 	FHttpModule* Http = &FHttpModule::Get();
 	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> HttpRequest = Http->CreateRequest();
@@ -44,7 +44,19 @@ void AClient::SendMetadata(int numSensors, int numActions)
 	HttpRequest->ProcessRequest();
 }
 
-//void AClient::SendExperience(TArray<int> currentState, int action, TArray<int> nextState, float reward, bool endGame)
+void AClient::SendExperience(TArray<int> currentState, int action, TArray<int> nextState, float reward, bool endGame)
+{
+	//FString data = Experience::ConstructData(currentState, action, nextState, reward, endGame);
+	FString data = Experience::ConstructData(currentState, action, nextState, reward, endGame);
+
+	FHttpModule* Http = &FHttpModule::Get();
+	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> HttpRequest = Http->CreateRequest();
+	HttpRequest->SetVerb("Post");
+	HttpRequest->SetHeader("Content-Type", "text/plain");
+	HttpRequest->SetURL(AClient::UrlAddress + "fit");
+	HttpRequest->SetContentAsString(data);
+	HttpRequest->ProcessRequest();
+}
 void AClient::SendExperience(TArray<int> currentState, float throttleAction, float steerAction, TArray<int> nextState, float reward, bool endGame)
 {
 	//FString data = Experience::ConstructData(currentState, action, nextState, reward, endGame);

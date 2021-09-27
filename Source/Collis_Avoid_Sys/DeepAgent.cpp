@@ -34,16 +34,17 @@ void ADeepAgent::BeginPlay() {
 
 	ADeepAgent::IsTraining = true;
 	ADeepAgent::Epoch = 0;
+	ADeepAgent::IsActionSpaceDescrete = false;
 	ADeepAgent::NumberActions = 2;
 	ADeepAgent::Epsilon = 1.0;
-	ADeepAgent::EpsilonDecay = 4 * FMath::Pow(10,-5);
+	ADeepAgent::EpsilonDecay = 5 * FMath::Pow(10,-5);
 	ADeepAgent::MinEpsilon = 0.05;
 	ADeepAgent::MaxNumberSteps = 12000;
 	ADeepAgent::NumberFitSteps = 1;
 
-	ADeepAgent::TickTime = 0.01;
+	ADeepAgent::TickTime = 0.04;
 
-	ADeepAgent::Client->SendMetadata(ADeepAgent::NumberSensor, ADeepAgent::NumberActions);
+	ADeepAgent::Client->SendMetadata(ADeepAgent::NumberSensor, ADeepAgent::IsActionSpaceDescrete,ADeepAgent::NumberActions);
 	ADeepAgent::RestartGame();
 	UE_LOG(LogTemp, Error, TEXT("Begin"));
 
@@ -171,15 +172,6 @@ bool ADeepAgent::GetIsTraining()
 }
 
 
-//void ADeepAgent::SendExperience(TArray<int> currentState, int action, TArray<int> nextState, float reward, bool endGame)
-//{
-//	ADeepAgent::Client->SendExperience(currentState, action, nextState, ADeepAgent::Reward, endGame);
-//}
-void ADeepAgent::SendExperience(TArray<int> currentState, int action, TArray<int> nextState, float reward, bool endGame)
-{
-	ADeepAgent::Client->SendExperience(currentState, ADeepAgent::ThrottleAction, ADeepAgent::SteerAction, nextState, ADeepAgent::Reward, endGame);
-}
-
 void ADeepAgent::PerformAction(int action)
 {
 	//1) 3 actions
@@ -261,7 +253,7 @@ void ADeepAgent::Step()
 		//Choose random action
 		//ADeepAgent::Action = FMath::RandRange(0,ADeepAgent::NumberActions-1);
 		//Choose random actions
-		ADeepAgent::ThrottleAction = FMath::FRandRange(-1,1);
+		ADeepAgent::ThrottleAction = FMath::FRandRange(0,1);
 		ADeepAgent::SteerAction = FMath::FRandRange(-1, 1);
 		if (ADeepAgent::Epsilon > ADeepAgent::MinEpsilon) {
 			ADeepAgent::Epsilon -= ADeepAgent::EpsilonDecay;
@@ -314,7 +306,7 @@ void ADeepAgent::Step()
 
 	//UE_LOG(LogTemp, Error, TEXT("%f %f %f"),ADeepAgent::Reward, ADeepAgent::GetMesh()->GetComponentVelocity().Size(), );
 	if (ADeepAgent::IsGameEnded) {
-		ADeepAgent::Reward = -10000;
+		ADeepAgent::Reward = -100;
 	}
 	ADeepAgent::CumulativeReward += ADeepAgent::Reward;
 
@@ -324,8 +316,20 @@ void ADeepAgent::Step()
 			!ADeepAgent::PreviousExperience.CheckEqualExperiences(currentExp))) {
 			//SEND EXPERIENCE
 			counter++;
-			if (counter % ADeepAgent::NumberFitSteps == 0)//&& (ADeepAgent::Epsilon > ADeepAgent::MinEpsilon)
-				ADeepAgent::SendExperience(currentState, ADeepAgent::Action, nextState, ADeepAgent::Reward, ADeepAgent::IsGameEnded);
+			try
+			{
+				if (counter % ADeepAgent::NumberFitSteps == 0)//&& (ADeepAgent::Epsilon > ADeepAgent::MinEpsilon)
+					if(!ADeepAgent::IsActionSpaceDescrete)
+						ADeepAgent::Client->SendExperience(currentState, ADeepAgent::ThrottleAction, ADeepAgent::SteerAction, nextState, ADeepAgent::Reward, ADeepAgent::IsGameEnded);
+					else
+						ADeepAgent::Client->SendExperience(currentState, ADeepAgent::Action, nextState, ADeepAgent::Reward, ADeepAgent::IsGameEnded);
+
+			}
+			catch (const std::exception&)
+			{
+				UE_LOG(LogTemp, Error, TEXT("%d %f"), ADeepAgent::NumberFitSteps, ADeepAgent::NumberFitSteps);
+			}
+			
 		}
 
 		if (!ADeepAgent::PreviousExperience.GetInitilized()) {
