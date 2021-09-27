@@ -61,6 +61,42 @@ FString Experience::ConstructData(TArray<int> currentState, int action, TArray<i
 	result.Append(FString::FromInt(gameEnded));
 	return result;
 }
+FString Experience::ConstructData(TArray<int> currentState, float throttleAction, float steerAction, TArray<int> nextState, float reward, bool gameEnded)
+
+{
+	FString result;
+	//CURRENT STATE
+	for (int i = 0; i < currentState.Num(); i++)
+	{
+		if (i > 0)
+			result.Append(":");
+		result.Append(FString::FromInt(currentState[i]));
+	}
+	result.Append(";");
+
+	//ACTION CHOSEN
+	result.Append(FString::SanitizeFloat(throttleAction));
+	result.Append(":");
+	result.Append(FString::SanitizeFloat(steerAction));
+	result.Append(";");
+
+	//NEXT STATE
+	for (int i = 0; i < nextState.Num(); i++)
+	{
+		if (i > 0)
+			result.Append(":");
+		result.Append(FString::FromInt(nextState[i]));
+	}
+	result.Append(";");
+
+	//REWARD GOT
+	result.Append(FString::SanitizeFloat(reward));
+	result.Append(";");
+
+	//THE GAME ENDED OR NOT (0 false, 1 true)
+	result.Append(FString::FromInt(gameEnded));
+	return result;
+}
 FString Experience::ConstructData(Experience exp)
 {
 	return Experience::ConstructData(exp.CurrentState,exp.Action,exp.NextState,exp.Reward,exp.GameEnded);

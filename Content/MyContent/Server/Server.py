@@ -24,7 +24,7 @@ class Network():
 		self.readExperiencesFromFile()
 		# print(f'Reading {time.time()-t1}')
 
-		self.minNumExperiences = 200
+		self.minNumExperiences = 30
 		self.maxNumExperiences = 20000
 		self.steps = 0
 		self.copyWeightSteps = 1024
@@ -47,7 +47,7 @@ class Network():
 							# tf.keras.layers.Dense(64, activation='relu'),
 							tf.keras.layers.Dense(64, activation='relu', kernel_initializer='RandomNormal'),
 							tf.keras.layers.Dense(64, activation='relu', kernel_initializer='RandomNormal'),
-							tf.keras.layers.Dense(self.num_actions, activation='softmax', kernel_initializer='RandomNormal')
+							tf.keras.layers.Dense(self.num_actions, activation='tanh', kernel_initializer='RandomNormal') #softmax
 						])
 			model.build(input_shape=(1,self.num_inputs))
 			return model
@@ -73,7 +73,10 @@ class Network():
 		# for e in self.experiences_raw:
 		for e in self.experiences_prepros:
 			cs = ':'.join( [str(x) for x in e['s'].numpy()[0]] )
-			a = str(e['a'])
+			# a = str(e['a'])
+			thro_a = str(e['a'][0])
+			steer_a = str(e['a'][1])
+			a = thro_a+':'+steer_a
 			ns = ':'.join( [str(x) for x in e['ns'].numpy()[0]] )
 			r = str(e['r'])
 			end = str(int(e['done']))
@@ -87,11 +90,14 @@ class Network():
 		elements = experience_raw.split(';')
 
 		currentState = tf.Variable([np.array(elements[0].split(':'), dtype=np.int8)])
-		action = int(elements[1])
+		# action = int(elements[1])
+		throttle_action = float(elements[1].split(':')[0])
+		steer_action = float(elements[1].split(':')[1])
 		nextAction = tf.Variable([np.array(elements[2].split(':'), dtype=np.int8)])
 		reward = float(elements[3])
 		gameEnded = True if elements[4]==1 else False
-		exp = {'s': currentState, 'a': action, 'ns': nextAction, 'r': reward, 'done': gameEnded}
+		# exp = {'s': currentState, 'a': action, 'ns': nextAction, 'r': reward, 'done': gameEnded}
+		exp = {'s': currentState, 'a': [throttle_action, steer_action], 'ns': nextAction, 'r': reward, 'done': gameEnded}
 		return exp
 
 	def getBatchExperiences(self):
@@ -150,7 +156,7 @@ class Network():
 			with tf.GradientTape() as tape:
 				tape.watch(states)
 				
-				a = self.policyNetwork(states) * tf.one_hot(actions, self.num_actions)
+				a = self.policyNetwork(states) #* tf.one_hot(actions, self.num_actions)
 				selected_action_values = tf.math.reduce_sum(a , axis=1)
 
 				loss = tf.math.reduce_mean(tf.square(actual_values - selected_action_values))
@@ -242,13 +248,13 @@ def PREDICT():
 	# print('PREDICT')
 	#print(input)
 	output = network.predictPN(input)
-	action = np.argmax(output)
+	actions = output.numpy()[0] #np.argmax(output)
 	#print('pred net', output, action)
 	# # print('target net', self.net.predictTN(input))
 	# out = '/'.join([str(o) for o in output.numpy()[0]])
 	time_end = time.time()
 	print(f'Predict: elapsed time: {(time_end-time_start):.3f}')
-	return f'{action};0.2'
+	return f'{actions[0]};{actions[1]}'
 
 @app.route('/copy', methods=['GET'])
 def COPY_WEIGHTS():

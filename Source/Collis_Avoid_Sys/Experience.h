@@ -17,6 +17,7 @@ public:
 	void InitializeExperience(TArray<int> currentState, int action, TArray<int> nextState, float reward, bool gameEnded);
 
 	static FString ConstructData(TArray<int> currentState, int action, TArray<int> nextState, float reward, bool gameEnded);
+	static FString ConstructData(TArray<int> currentState, float throttleAction, float steerAction, TArray<int> nextState, float reward, bool gameEnded);
 	static FString ConstructData(Experience exp);
 
 	bool CheckEqualExperiences(Experience expOther);

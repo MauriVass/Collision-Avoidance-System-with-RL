@@ -19,7 +19,7 @@ void AClient::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	//AClient::UrlAddress = "192.168.1.7:5000/";
+	//AClient::UrlAddress = "192.168.1.8:5000/";
 	AClient::UrlAddress = "192.168.1.12:5000/";
 }
 
@@ -44,9 +44,11 @@ void AClient::SendMetadata(int numSensors, int numActions)
 	HttpRequest->ProcessRequest();
 }
 
-void AClient::SendExperience(TArray<int> currentState, int action, TArray<int> nextState, float reward, bool endGame)
+//void AClient::SendExperience(TArray<int> currentState, int action, TArray<int> nextState, float reward, bool endGame)
+void AClient::SendExperience(TArray<int> currentState, float throttleAction, float steerAction, TArray<int> nextState, float reward, bool endGame)
 {
-	FString data = Experience::ConstructData(currentState, action, nextState, reward, endGame);
+	//FString data = Experience::ConstructData(currentState, action, nextState, reward, endGame);
+	FString data = Experience::ConstructData(currentState, throttleAction, steerAction, nextState, reward, endGame);
 
 	FHttpModule* Http = &FHttpModule::Get();
 	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> HttpRequest = Http->CreateRequest();
@@ -89,9 +91,13 @@ void AClient::GetPrediction(FHttpRequestPtr request, FHttpResponsePtr Response, 
 		TArray<FString> result;
 		response.ParseIntoArray(result, TEXT(";"), true);
 
-		AClient::Agent->SetAction(FCString::Atoi(*result[0]));
+		//1 action
+		//AClient::Agent->SetAction(FCString::Atoi(*result[0]));
 		//AClient::Agent->SetConfidence(FCString::Atof(*result[1]));
 
+		//2 actions
+		AClient::Agent->SetThrottleAction(FCString::Atof(*result[0]));
+		AClient::Agent->SetSteerAction(FCString::Atof(*result[1]));
 	}
 }
 

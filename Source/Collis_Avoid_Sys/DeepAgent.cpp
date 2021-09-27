@@ -34,7 +34,7 @@ void ADeepAgent::BeginPlay() {
 
 	ADeepAgent::IsTraining = true;
 	ADeepAgent::Epoch = 0;
-	ADeepAgent::NumberActions = 5;
+	ADeepAgent::NumberActions = 2;
 	ADeepAgent::Epsilon = 1.0;
 	ADeepAgent::EpsilonDecay = 4 * FMath::Pow(10,-5);
 	ADeepAgent::MinEpsilon = 0.05;
@@ -74,9 +74,13 @@ void ADeepAgent::SetAction(int action)
 {
 	ADeepAgent::Action = action;
 }
-void ADeepAgent::SetConfidence(float confidence)
+void ADeepAgent::SetThrottleAction(float throttle)
 {
-	ADeepAgent::Confidence = confidence;
+	ADeepAgent::ThrottleAction = throttle;
+}
+void ADeepAgent::SetSteerAction(float steer)
+{
+	ADeepAgent::SteerAction = steer;
 }
 void ADeepAgent::SetIsGameEnded(bool value)
 {
@@ -167,9 +171,13 @@ bool ADeepAgent::GetIsTraining()
 }
 
 
+//void ADeepAgent::SendExperience(TArray<int> currentState, int action, TArray<int> nextState, float reward, bool endGame)
+//{
+//	ADeepAgent::Client->SendExperience(currentState, action, nextState, ADeepAgent::Reward, endGame);
+//}
 void ADeepAgent::SendExperience(TArray<int> currentState, int action, TArray<int> nextState, float reward, bool endGame)
 {
-	ADeepAgent::Client->SendExperience(currentState, action, nextState, ADeepAgent::Reward, endGame);
+	ADeepAgent::Client->SendExperience(currentState, ADeepAgent::ThrottleAction, ADeepAgent::SteerAction, nextState, ADeepAgent::Reward, endGame);
 }
 
 void ADeepAgent::PerformAction(int action)
@@ -206,7 +214,7 @@ void ADeepAgent::PerformAction(int action)
 	}*/
 
 	//3) 5 Actions
-	switch (ADeepAgent::Action)
+	/*switch (ADeepAgent::Action)
 	{
 	case 0:
 		ADeepAgent::MovementComponent->SetThrottleInput(0.2);
@@ -229,7 +237,11 @@ void ADeepAgent::PerformAction(int action)
 		break;
 	default:
 		break;
-	}
+	}*/
+
+	//2 actions
+	ADeepAgent::MovementComponent->SetThrottleInput(ADeepAgent::ThrottleAction);
+	ADeepAgent::MovementComponent->SetSteeringInput(ADeepAgent::SteerAction);
 }
 
 void ADeepAgent::Step()
@@ -242,11 +254,15 @@ void ADeepAgent::Step()
 	if (exploitation > ADeepAgent::Epsilon || !ADeepAgent::IsTraining) {
 		//Chose best action
 		ADeepAgent::Client->Predict(currentState);
-		UE_LOG(LogTemp, Error, TEXT("Best Action chosen: %d"), ADeepAgent::Action);
+		//UE_LOG(LogTemp, Error, TEXT("Best Action chosen: %d"), ADeepAgent::Action);
+		UE_LOG(LogTemp, Error, TEXT("Best Action chosen: %f %f"), ADeepAgent::ThrottleAction, ADeepAgent::SteerAction);
 	}
 	else {
 		//Choose random action
-		ADeepAgent::Action = FMath::RandRange(0,ADeepAgent::NumberActions-1);
+		//ADeepAgent::Action = FMath::RandRange(0,ADeepAgent::NumberActions-1);
+		//Choose random actions
+		ADeepAgent::ThrottleAction = FMath::FRandRange(-1,1);
+		ADeepAgent::SteerAction = FMath::FRandRange(-1, 1);
 		if (ADeepAgent::Epsilon > ADeepAgent::MinEpsilon) {
 			ADeepAgent::Epsilon -= ADeepAgent::EpsilonDecay;
 		}
@@ -258,7 +274,8 @@ void ADeepAgent::Step()
 		//else ADeepAgent::Epsilon = 0;
 		/*if (GEngine)
 			GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Yellow, FString::Printf(TEXT("Epsilon: %f"), ADeepAgent::Epsilon) );*/
-		UE_LOG(LogTemp, Error, TEXT("Random Action chosen: %d"), ADeepAgent::Action);
+		//UE_LOG(LogTemp, Error, TEXT("Random Action chosen: %d"), ADeepAgent::Action);
+		UE_LOG(LogTemp, Error, TEXT("Random Action chosen: %f %f"), ADeepAgent::ThrottleAction, ADeepAgent::SteerAction);
 	}
 
 	//PERFORM ACTION

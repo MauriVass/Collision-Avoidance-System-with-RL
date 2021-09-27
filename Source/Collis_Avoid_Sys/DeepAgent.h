@@ -23,7 +23,8 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	void SetAction(int Action);
-	void SetConfidence(float Confidence);
+	void SetThrottleAction(float throttle);
+	void SetSteerAction(float steer);
 	UFUNCTION(BlueprintCallable)
 		void ToggleIsTraining();
 	UFUNCTION(BlueprintCallable)
@@ -87,7 +88,8 @@ private:
 	void SetIsGameEnded(bool value);
 
 	int Action;
-	float Confidence;
+	float ThrottleAction;
+	float SteerAction;
 
 	int counter=0;
 

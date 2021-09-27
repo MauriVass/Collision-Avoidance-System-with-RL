@@ -10,7 +10,7 @@ ax = plt.axes()
 
 x = np.arange(len(losses))
 y = np.array(losses)
-y = np.clip(y, 0, 5)
+y = np.clip(y, 0, 0.01)
 
 ax.scatter(x, y, s=0.1)
 plt.show()
