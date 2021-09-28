@@ -42,7 +42,7 @@ void ADeepAgent::BeginPlay() {
 	ADeepAgent::MaxNumberSteps = 12000;
 	ADeepAgent::NumberFitSteps = 1;
 
-	ADeepAgent::TickTime = 0.04;
+	ADeepAgent::TickTime = 0.03;
 
 	ADeepAgent::Client->SendMetadata(ADeepAgent::NumberSensor, ADeepAgent::IsActionSpaceDescrete,ADeepAgent::NumberActions);
 	ADeepAgent::RestartGame();
@@ -83,6 +83,10 @@ void ADeepAgent::SetSteerAction(float steer)
 {
 	ADeepAgent::SteerAction = steer;
 }
+void ADeepAgent::SetTickTime(float tickTime)
+{
+	ADeepAgent::TickTime = tickTime;
+}
 void ADeepAgent::SetIsGameEnded(bool value)
 {
 	ADeepAgent::IsGameEnded = value;
@@ -90,11 +94,6 @@ void ADeepAgent::SetIsGameEnded(bool value)
 void ADeepAgent::ToggleIsTraining()
 {
 	ADeepAgent::IsTraining = !ADeepAgent::IsTraining;
-	if (ADeepAgent::IsTraining) {
-		ADeepAgent::TickTime = 0.005;
-	}
-	else
-		ADeepAgent::TickTime = 0.01;
 }
 void ADeepAgent::ToggleIsGameStarting()
 {
@@ -140,27 +139,31 @@ TArray<int> ADeepAgent::GetInput() {
 	FCollisionQueryParams FParams;
 	
 	float maxDistance = 1000;
+	ADeepAgent::TargetVector = FVector::ZeroVector;
 	for (int i = 0; i < ADeepAgent::NumberSensor; i++)
 	{
 		FRotator angle = FRotator::ZeroRotator; 
 		angle.Yaw = -AngleExtension/2 + AngleExtension / (ADeepAgent::NumberSensor-1) * i;
-		FVector End = Start + (Rot+angle).Vector() * maxDistance;
-		GetWorld()->LineTraceSingleByChannel(Hit[i], Start, End, ECollisionChannel::ECC_WorldStatic, FParams);
+		FVector direction = (Rot + angle).Vector() * maxDistance;
+		FVector end = Start + direction;
+		GetWorld()->LineTraceSingleByChannel(Hit[i], Start, end, ECollisionChannel::ECC_WorldStatic, FParams);
 
 
 		AActor* ActorHit = Hit[i].GetActor();
 
 		float lifeTime = 0.06;
 		if (ActorHit) {
-			DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, lifeTime, 0, 5);
+			DrawDebugLine(GetWorld(), Start, end, FColor::Red, false, lifeTime, 0, 5);
 			currentSate.Add(0);
 			//ADeepAgent::totalDistance += Hit[i].Distance - maxDistance*3/4;
 			//UE_LOG(LogTemp, Error, TEXT("Line trace has hit: %d %s"),i, *(ActorHit->GetName()));
 		}
 		else {
 			ADeepAgent::totalDistance += maxDistance;
-			DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, lifeTime, 0, 5);
+			DrawDebugLine(GetWorld(), Start, end, FColor::Green, false, lifeTime, 0, 5);
 			currentSate.Add(1);
+
+			ADeepAgent::TargetVector += direction;
 		}
 	}
 
@@ -170,7 +173,53 @@ bool ADeepAgent::GetIsTraining()
 {
 	return ADeepAgent::IsTraining;
 }
+float ADeepAgent::GetTickTime()
+{
+	return ADeepAgent::TickTime;
+}
 
+
+void ADeepAgent::RewardFunction(TArray<int> currentState)
+{
+	//float ADeepAgent::Reward = 0.1;
+
+	//Reward by magnitude velocity
+	//ADeepAgent::Reward = ADeepAgent::GetMesh()->GetPhysicsLinearVelocity().Size()/2000.0;
+
+	//Reward by number of green rays (not bad)
+	//ADeepAgent::Reward = -1;
+	//for (int i = 0; i < currentState.Num(); i++)
+	//{
+	//	if (currentState[i] == 1)
+	//	{
+	//		ADeepAgent::Reward++;
+	//	}
+	//}
+	//ADeepAgent::Reward = ADeepAgent::Reward / 10;
+	////multiplied by velocity (punish if the velocity is under a given threshold)
+	//ADeepAgent::Reward *= (ADeepAgent::GetMesh()->GetPhysicsLinearVelocity().Size() - 90) / 1000;
+
+	//No ADeepAgent::Reward (only negative ADeepAgent::Reward when hitting a wall)
+	//float ADeepAgent::Reward = 0;
+	
+	//Distance from walls Reward
+	//float ADeepAgent::Reward = (ADeepAgent::totalDistance) /10000.0;
+	ADeepAgent::TargetVector /= ADeepAgent::TargetVector.Size();
+	FVector start = ADeepAgent::SensorPosition->GetComponentLocation();
+	FVector carDirection = ADeepAgent::SensorPosition->GetForwardVector();
+
+	DrawDebugLine(GetWorld(), start, start + ADeepAgent::TargetVector * 2000, FColor::Orange, false, 0.3, 0, 5);
+	DrawDebugLine(GetWorld(), start, start + carDirection * 2000, FColor::Blue, false, 0.3, 0, 5);
+
+	float reward = FVector::DotProduct(ADeepAgent::TargetVector, carDirection);
+	ADeepAgent::Reward = reward-0.2;
+
+	//UE_LOG(LogTemp, Error, TEXT("%f %f"),ADeepAgent::Reward, ADeepAgent::GetMesh()->GetPhysicsLinearVelocity().Size());
+	//UE_LOG(LogTemp, Error, TEXT("%f %f %f"),ADeepAgent::Reward, ADeepAgent::GetMesh()->GetComponentVelocity().Size(), );
+	if (ADeepAgent::IsGameEnded) {
+		ADeepAgent::Reward = -100;
+	}
+}
 
 void ADeepAgent::PerformAction(int action)
 {
@@ -260,7 +309,6 @@ void ADeepAgent::Step()
 		}
 		else {
 			ADeepAgent::Epsilon = ADeepAgent::MinEpsilon;
-			ADeepAgent::TickTime /= 2.0;
 			ADeepAgent::NumberFitSteps *= 2;
 		}
 		//else ADeepAgent::Epsilon = 0;
@@ -280,36 +328,10 @@ void ADeepAgent::Step()
 	//bool gameStatus = ADeepAgent::GameStatus;
 
 	//ADeepAgent::Reward
-	//float ADeepAgent::Reward = 0.1;
-	
-	//ADeepAgent::Reward = ADeepAgent::GetMesh()->GetPhysicsLinearVelocity().Size()/2000.0;
-
-	//ADeepAgent::Reward by number of green rays
-	ADeepAgent::Reward = -1;
-	for (int i = 0; i < currentState.Num(); i++)
-	{
-		if (currentState[i]==1)
-		{
-			ADeepAgent::Reward++;
-		}
-	}
-	ADeepAgent::Reward = ADeepAgent::Reward / 10;
-	//multiplied by velocity (punish if the velocity is under a given threshold)
-	ADeepAgent::Reward *= (ADeepAgent::GetMesh()->GetPhysicsLinearVelocity().Size() - 90) / 1000;
-
-	//No ADeepAgent::Reward (only negative ADeepAgent::Reward when hitting a wall)
-	//float ADeepAgent::Reward = 0;
-
-	//Distance from walls ADeepAgent::Reward
-	//float ADeepAgent::Reward = (ADeepAgent::totalDistance) /10000.0;
-	//UE_LOG(LogTemp, Error, TEXT("%f %f"),ADeepAgent::Reward, ADeepAgent::GetMesh()->GetPhysicsLinearVelocity().Size());
-
-	//UE_LOG(LogTemp, Error, TEXT("%f %f %f"),ADeepAgent::Reward, ADeepAgent::GetMesh()->GetComponentVelocity().Size(), );
-	if (ADeepAgent::IsGameEnded) {
-		ADeepAgent::Reward = -100;
-	}
+	ADeepAgent::RewardFunction(currentState);
 	ADeepAgent::CumulativeReward += ADeepAgent::Reward;
 
+	//FIT NEURAL NETWORK WITH THIS EXPERIENCE
 	if (ADeepAgent::IsTraining) {
 		Experience currentExp = Experience(currentState, ADeepAgent::Action, nextState, ADeepAgent::Reward, IsGameEnded);
 		if ((!ADeepAgent::PreviousExperience.GetInitilized() ||

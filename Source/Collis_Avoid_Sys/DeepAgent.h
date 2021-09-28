@@ -26,6 +26,8 @@ public:
 	void SetThrottleAction(float throttle);
 	void SetSteerAction(float steer);
 	UFUNCTION(BlueprintCallable)
+	void SetTickTime(float tickTime);
+	UFUNCTION(BlueprintCallable)
 		void ToggleIsTraining();
 	UFUNCTION(BlueprintCallable)
 		void ToggleIsGameStarting();
@@ -42,6 +44,8 @@ public:
 		int GetEpoch();
 	UFUNCTION(BlueprintCallable)
 		bool GetIsTraining();
+	UFUNCTION(BlueprintCallable)
+		float GetTickTime();
 
 
 private:
@@ -78,6 +82,8 @@ private:
 
 	float Reward;
 	float CumulativeReward;
+	FVector TargetVector;
+	void RewardFunction(TArray<int> currentState);
 
 	class Experience PreviousExperience;
 
