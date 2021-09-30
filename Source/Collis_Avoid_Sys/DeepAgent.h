@@ -26,7 +26,10 @@ public:
 	void SetThrottleAction(float throttle);
 	void SetSteerAction(float steer);
 	UFUNCTION(BlueprintCallable)
-	void SetTickTime(float tickTime);
+		void SetTickTime(float tickTime);
+	UFUNCTION(BlueprintCallable)
+		void SetManualControll(bool manualControll);
+
 	UFUNCTION(BlueprintCallable)
 		void ToggleIsTraining();
 	UFUNCTION(BlueprintCallable)
@@ -46,6 +49,8 @@ public:
 		bool GetIsTraining();
 	UFUNCTION(BlueprintCallable)
 		float GetTickTime();
+	UFUNCTION(BlueprintCallable)
+		bool GetManualControll();
 	bool GetIsActionSpaceDescrete();
 
 
@@ -68,6 +73,8 @@ private:
 
 	UWheeledVehicleMovementComponent* MovementComponent;
 	FTransform initialTransform;
+
+	bool ManualControll;
 
 	bool IsGameStarting;
 	bool IsTraining;
