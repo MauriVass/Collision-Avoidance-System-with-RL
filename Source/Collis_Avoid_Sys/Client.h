@@ -19,6 +19,7 @@ protected:
 	FString UrlAddress;
 
 	void GetPrediction(FHttpRequestPtr request, FHttpResponsePtr Response, bool bWasSuccessful);
+	void Initialization(FHttpRequestPtr request, FHttpResponsePtr Response, bool bWasSuccessful);
 
 	class ADeepAgent* Agent;
 

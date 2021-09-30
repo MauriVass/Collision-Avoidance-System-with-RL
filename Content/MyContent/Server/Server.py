@@ -10,7 +10,7 @@ app = Flask(__name__)
 
 class Network():
 	def __init__(self):
-		self.batchsize = 24
+		self.batchsize = 64
 		self.discount_rate = 0.75
 		self.lr = 0.001
 		self.gamma = 0.99
@@ -20,14 +20,16 @@ class Network():
 		self.file = '' #initialize after
 		self.experiences_raw = []
 		self.experiences_prepros = []
-		# self.readExperiencesFromFile()
+
+		self.is_action_space_descrete = True
+		self.readExperiencesFromFile()
 		# t1 = time.time()
 		# print(f'Reading {time.time()-t1}')
 
-		self.minNumExperiences = 30
-		self.maxNumExperiences = 2*10**5
+		self.minNumExperiences = self.batchsize * 2
+		self.maxNumExperiences = 1*10**5
 		self.steps = 0
-		self.copyWeightSteps = 1024
+		self.copyWeightSteps = 1024*4
 
 		self.fit_times = []
 		self.losses = []
@@ -51,7 +53,7 @@ class Network():
 							# tf.keras.layers.Dense(64, activation='relu'),
 							tf.keras.layers.Dense(64, activation='relu', kernel_initializer='RandomNormal'),
 							tf.keras.layers.Dense(64, activation='relu', kernel_initializer='RandomNormal'),
-							tf.keras.layers.Dense(self.num_actions, activation='tanh', kernel_initializer='RandomNormal') #softmax
+							tf.keras.layers.Dense(self.num_actions, activation='linear', kernel_initializer='RandomNormal') #softmax
 						])
 			model.build(input_shape=(1,self.num_inputs))
 			return model

@@ -34,15 +34,15 @@ void ADeepAgent::BeginPlay() {
 
 	ADeepAgent::IsTraining = true;
 	ADeepAgent::Epoch = 0;
-	ADeepAgent::IsActionSpaceDescrete = false;
-	ADeepAgent::NumberActions = 2;
+	ADeepAgent::IsActionSpaceDescrete = true;
+	ADeepAgent::NumberActions = 5;
 	ADeepAgent::Epsilon = 1.0;
 	ADeepAgent::EpsilonDecay = 5 * FMath::Pow(10,-5);
 	ADeepAgent::MinEpsilon = 0.05;
 	ADeepAgent::MaxNumberSteps = 12000;
 	ADeepAgent::NumberFitSteps = 1;
 
-	ADeepAgent::TickTime = 0.03;
+	ADeepAgent::TickTime = 0.025;
 
 	ADeepAgent::Client->SendMetadata(ADeepAgent::NumberSensor, ADeepAgent::IsActionSpaceDescrete,ADeepAgent::NumberActions);
 	ADeepAgent::RestartGame();
@@ -178,6 +178,11 @@ float ADeepAgent::GetTickTime()
 	return ADeepAgent::TickTime;
 }
 
+bool ADeepAgent::GetIsActionSpaceDescrete()
+{
+	return ADeepAgent::IsActionSpaceDescrete;
+}
+
 
 void ADeepAgent::RewardFunction(TArray<int> currentState)
 {
@@ -212,7 +217,7 @@ void ADeepAgent::RewardFunction(TArray<int> currentState)
 	DrawDebugLine(GetWorld(), start, start + carDirection * 2000, FColor::Blue, false, 0.3, 0, 5);
 
 	float reward = FVector::DotProduct(ADeepAgent::TargetVector, carDirection);
-	ADeepAgent::Reward = reward-0.2;
+	ADeepAgent::Reward = (reward - 0.1); // *(ADeepAgent::GetMesh()->GetPhysicsLinearVelocity().Size() - 100) / 1000;
 
 	//UE_LOG(LogTemp, Error, TEXT("%f %f"),ADeepAgent::Reward, ADeepAgent::GetMesh()->GetPhysicsLinearVelocity().Size());
 	//UE_LOG(LogTemp, Error, TEXT("%f %f %f"),ADeepAgent::Reward, ADeepAgent::GetMesh()->GetComponentVelocity().Size(), );
@@ -255,7 +260,7 @@ void ADeepAgent::PerformAction(int action)
 	}*/
 
 	//3) 5 Actions
-	/*switch (ADeepAgent::Action)
+	switch (ADeepAgent::Action)
 	{
 	case 0:
 		ADeepAgent::MovementComponent->SetThrottleInput(0.2);
@@ -278,11 +283,11 @@ void ADeepAgent::PerformAction(int action)
 		break;
 	default:
 		break;
-	}*/
+	}
 
 	//2 actions
-	ADeepAgent::MovementComponent->SetThrottleInput(ADeepAgent::ThrottleAction);
-	ADeepAgent::MovementComponent->SetSteeringInput(ADeepAgent::SteerAction);
+	/*ADeepAgent::MovementComponent->SetThrottleInput(ADeepAgent::ThrottleAction+0.2);
+	ADeepAgent::MovementComponent->SetSteeringInput(ADeepAgent::SteerAction);*/
 }
 
 void ADeepAgent::Step()
@@ -295,15 +300,19 @@ void ADeepAgent::Step()
 	if (exploitation > ADeepAgent::Epsilon || !ADeepAgent::IsTraining) {
 		//Chose best action
 		ADeepAgent::Client->Predict(currentState);
-		//UE_LOG(LogTemp, Error, TEXT("Best Action chosen: %d"), ADeepAgent::Action);
-		UE_LOG(LogTemp, Error, TEXT("Best Action chosen: %f %f"), ADeepAgent::ThrottleAction, ADeepAgent::SteerAction);
+		UE_LOG(LogTemp, Error, TEXT("Best Action chosen: %d"), ADeepAgent::Action);
+		//UE_LOG(LogTemp, Error, TEXT("Best Action chosen: %f %f"), ADeepAgent::ThrottleAction, ADeepAgent::SteerAction);
 	}
 	else {
 		//Choose random action
-		//ADeepAgent::Action = FMath::RandRange(0,ADeepAgent::NumberActions-1);
-		//Choose random actions
-		ADeepAgent::ThrottleAction = FMath::FRandRange(0,1);
-		ADeepAgent::SteerAction = FMath::FRandRange(-1, 1);
+		if (ADeepAgent::IsActionSpaceDescrete) {
+			ADeepAgent::Action = FMath::RandRange(0, ADeepAgent::NumberActions - 1);
+		}
+		else {//Choose random actions
+			ADeepAgent::ThrottleAction = FMath::FRandRange(0, 1);
+			ADeepAgent::SteerAction = FMath::FRandRange(-1, 1);
+		}
+
 		if (ADeepAgent::Epsilon > ADeepAgent::MinEpsilon) {
 			ADeepAgent::Epsilon -= ADeepAgent::EpsilonDecay;
 		}
@@ -314,8 +323,8 @@ void ADeepAgent::Step()
 		//else ADeepAgent::Epsilon = 0;
 		/*if (GEngine)
 			GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Yellow, FString::Printf(TEXT("Epsilon: %f"), ADeepAgent::Epsilon) );*/
-		//UE_LOG(LogTemp, Error, TEXT("Random Action chosen: %d"), ADeepAgent::Action);
-		UE_LOG(LogTemp, Error, TEXT("Random Action chosen: %f %f"), ADeepAgent::ThrottleAction, ADeepAgent::SteerAction);
+		UE_LOG(LogTemp, Error, TEXT("Random Action chosen: %d"), ADeepAgent::Action);
+		//UE_LOG(LogTemp, Error, TEXT("Random Action chosen: %f %f"), ADeepAgent::ThrottleAction, ADeepAgent::SteerAction);
 	}
 
 	//PERFORM ACTION

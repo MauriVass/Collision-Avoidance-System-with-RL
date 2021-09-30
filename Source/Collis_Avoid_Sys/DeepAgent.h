@@ -46,6 +46,7 @@ public:
 		bool GetIsTraining();
 	UFUNCTION(BlueprintCallable)
 		float GetTickTime();
+	bool GetIsActionSpaceDescrete();
 
 
 private:

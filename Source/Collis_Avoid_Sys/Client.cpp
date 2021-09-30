@@ -19,8 +19,8 @@ void AClient::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	//AClient::UrlAddress = "192.168.1.8:5000/";						//Laptop
-	AClient::UrlAddress = "http://1cac-34-75-219-86.ngrok.io/";			//Colab
+	AClient::UrlAddress = "192.168.1.8:5000/";						//Laptop
+	//AClient::UrlAddress = "http://1cac-34-75-219-86.ngrok.io/";			//Colab
 	//AClient::UrlAddress = "192.168.1.12:5000/";						//Desktop
 }
 
@@ -42,7 +42,16 @@ void AClient::SendMetadata(int numSensors, bool actionDescrete, int numActions)
 	HttpRequest->SetHeader("Content-Type", "text/plain");
 	HttpRequest->SetURL(AClient::UrlAddress + "initialization");
 	HttpRequest->SetContentAsString(data);
+	HttpRequest->OnProcessRequestComplete().BindUObject(this, &AClient::Initialization);
 	HttpRequest->ProcessRequest();
+}
+void AClient::Initialization(FHttpRequestPtr request, FHttpResponsePtr Response, bool bWasSuccessful)
+{
+	//UE_LOG(LogTemp, Error, TEXT("Response"));
+	if (bWasSuccessful)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Initialized"));
+	}
 }
 
 void AClient::SendExperience(TArray<int> currentState, int action, TArray<int> nextState, float reward, bool endGame)
@@ -104,13 +113,16 @@ void AClient::GetPrediction(FHttpRequestPtr request, FHttpResponsePtr Response, 
 		TArray<FString> result;
 		response.ParseIntoArray(result, TEXT(";"), true);
 
-		//1 action
-		//AClient::Agent->SetAction(FCString::Atoi(*result[0]));
-		//AClient::Agent->SetConfidence(FCString::Atof(*result[1]));
-
-		//2 actions
-		AClient::Agent->SetThrottleAction(FCString::Atof(*result[0]));
-		AClient::Agent->SetSteerAction(FCString::Atof(*result[1]));
+		if (AClient::Agent->GetIsActionSpaceDescrete()) {
+			//1 action
+			AClient::Agent->SetAction(FCString::Atoi(*result[0]));
+			//AClient::Agent->SetConfidence(FCString::Atof(*result[1]));
+		}
+		else {
+			//2 actions
+			AClient::Agent->SetThrottleAction(FCString::Atof(*result[0]));
+			AClient::Agent->SetSteerAction(FCString::Atof(*result[1]));
+		}
 	}
 }
 
