@@ -11,7 +11,7 @@ app = Flask(__name__)
 class Network():
 	def __init__(self):
 		self.batchsize = 64
-		self.discount_rate = 0.75
+		self.discount_rate = 0.95
 		self.lr = 0.001
 		self.gamma = 0.99
 		self.optimizer = tf.optimizers.Adam(self.lr)
@@ -29,23 +29,28 @@ class Network():
 		self.minNumExperiences = self.batchsize * 2
 		self.maxNumExperiences = 1*10**5
 		self.steps = 0
-		self.copyWeightSteps = 1024*4
+		self.copyWeightSteps = 128
 
 		self.fit_times = []
-		self.losses = []
+		self.losses = []	
+		
+		self.t1 =0
+		self.t2=0
+		self.f = open('updates','w')
 
 	def Initialization(self, num_inputs, is_action_space_descrete, num_actions):
 		self.num_inputs = num_inputs
 		self.is_action_space_descrete = is_action_space_descrete
 		self.num_actions = num_actions
 		
-		self.readExperiencesFromFile()
+		#self.readExperiencesFromFile()
 
 		self.policyNetwork = self.ModelTemplate()
 
 		self.targetNetwork = self.ModelTemplate()
 		self.copyNN()
 		print(self.policyNetwork.summary())
+		self.t1 = time.time()
 
 	def ModelTemplate(self):
 			model = tf.keras.Sequential([
@@ -185,7 +190,7 @@ class Network():
 			# t1 = time.time()
 			variables = self.policyNetwork.trainable_variables
 			gradients = tape.gradient(loss, variables)
-			gradients, _ = tf.clip_by_global_norm(gradients, 5.0)
+			#gradients, _ = tf.clip_by_global_norm(gradients, 5.0)
 			# print('variables', type(variables), np.array(variables).shape)
 			# print('wv', tape.watched_variables())
 			# print('gradients', type(gradients), np.array(gradients).shape)
@@ -198,8 +203,13 @@ class Network():
 			self.steps+=1
 			if(self.steps>=self.copyWeightSteps):
 				# t1 = time.time()
-				self.copyNN()
 				self.steps=0
+				self.copyNN()
+				self.t2 = time.time()
+				t = self.t2-self.t1
+				#print(f'\t\t\tTime from last update: {():.3f}')
+				self.f.write(f'{t}\n')
+				self.t1 = self.t2
 				# print(f'Fit: 5 copy weights: {(time.time()-t1):.3f}')
 
 		
@@ -216,13 +226,14 @@ class Network():
 	def copyNN(self):
 		self.targetNetwork.set_weights(self.policyNetwork.get_weights())
 	
-	def saveModel(self,name):
+	def saveModel(self,name=''):
 		timestamp = datetime.now().strftime("%d_%m_%Y_%H_%M_%S")
 		path = f'{timestamp}_{name}'
 		self.policyNetwork.save(f'Models/{path}')
 		return path
 	def loadModel(self,path):
 		self.policyNetwork = tf.keras.models.load_model(f"Models/{path}")
+		self.copyNN()
 		print(self.policyNetwork.summary())
 
 
@@ -315,6 +326,7 @@ def shutdown():
 app.run(host='0.0.0.0')
 # network.closeFile()
 network.writeAllExperiences()
+network.f.close()
 
 file = open('time_elapsed','w')
 for i in network.fit_times:
