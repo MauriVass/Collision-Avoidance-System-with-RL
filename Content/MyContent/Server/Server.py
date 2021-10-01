@@ -27,9 +27,9 @@ class Network():
 		# print(f'Reading {time.time()-t1}')
 
 		self.minNumExperiences = self.batchsize * 2
-		self.maxNumExperiences = 1*10**5
+		self.maxNumExperiences = 2*10**4
 		self.steps = 0
-		self.copyWeightSteps = 128
+		self.copyWeightSteps = 64
 
 		self.fit_times = []
 		self.losses = []	
@@ -55,9 +55,8 @@ class Network():
 	def ModelTemplate(self):
 			model = tf.keras.Sequential([
 							tf.keras.layers.Flatten(),
-							# tf.keras.layers.Dense(64, activation='relu'),
-							tf.keras.layers.Dense(64, activation='relu', kernel_initializer='RandomNormal'),
-							tf.keras.layers.Dense(64, activation='relu', kernel_initializer='RandomNormal'),
+							tf.keras.layers.Dense(32, activation='tanh', kernel_initializer='RandomNormal'),
+							#tf.keras.layers.Dense(64, activation='relu', kernel_initializer='RandomNormal'),
 							tf.keras.layers.Dense(self.num_actions, activation='linear', kernel_initializer='RandomNormal') #softmax
 						])
 			model.build(input_shape=(1,self.num_inputs))
@@ -78,6 +77,7 @@ class Network():
 		self.file = open(self.filepath,'w')
 
 		diff = len(self.experiences_prepros) - self.maxNumExperiences
+		print(diff)
 		if(diff>0):
 			inds = np.random.randint(len(self.experiences_prepros), size=diff)
 			self.experiences_prepros = np.delete(self.experiences_prepros, inds)
@@ -228,11 +228,11 @@ class Network():
 	
 	def saveModel(self,name=''):
 		timestamp = datetime.now().strftime("%d_%m_%Y_%H_%M_%S")
-		path = f'{timestamp}_{name}'
+		path = f'{timestamp}_{name}_{self.num_inputs}_{self.num_actions}'
 		self.policyNetwork.save(f'Models/{path}')
 		return path
-	def loadModel(self,path):
-		self.policyNetwork = tf.keras.models.load_model(f"Models/{path}")
+	def loadModel(self,name):
+		self.policyNetwork = tf.keras.models.load_model(f"Models/{name}")
 		self.copyNN()
 		print(self.policyNetwork.summary())
 
