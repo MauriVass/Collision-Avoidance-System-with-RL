@@ -1,5 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+//Collapse all CTRL+M CTRL+O
 
 #include "DrawDebugHelpers.h"
 #include <Collis_Avoid_Sys/Experience.h>
@@ -72,7 +73,7 @@ void ADeepAgent::Tick(float DeltaTime) {
 		ADeepAgent::PerformAction(ADeepAgent::Action);
 	}
 
-	UE_LOG(LogTemp, Error, TEXT("Speed: %f"), ADeepAgent::GetMesh()->GetPhysicsLinearVelocity().Size());
+	//UE_LOG(LogTemp, Error, TEXT("Speed: %f"), ADeepAgent::GetMesh()->GetPhysicsLinearVelocity().Size());
 	//UE_LOG(LogTemp, Error, TEXT("Line trace has hit: %f"), DeltaTime);
 }
 
@@ -100,6 +101,7 @@ void ADeepAgent::SetIsGameEnded(bool value)
 {
 	ADeepAgent::IsGameEnded = value;
 }
+
 void ADeepAgent::ToggleIsTraining()
 {
 	ADeepAgent::IsTraining = !ADeepAgent::IsTraining;
@@ -144,7 +146,7 @@ TArray<int> ADeepAgent::GetInput() {
 		FHitResult hit;
 		Hit.Init(hit, ADeepAgent::NumberSensor);
 	}
-	float AngleExtension = 220;
+	float AngleExtension = 120;
 	FCollisionQueryParams FParams;
 	
 	float maxDistance = 1000;
@@ -186,17 +188,14 @@ float ADeepAgent::GetTickTime()
 {
 	return ADeepAgent::TickTime;
 }
-
 bool ADeepAgent::GetManualControll()
 {
 	return ADeepAgent::ManualControll;
 }
-
 bool ADeepAgent::GetIsActionSpaceDescrete()
 {
 	return ADeepAgent::IsActionSpaceDescrete;
 }
-
 
 void ADeepAgent::RewardFunction(TArray<int> currentState)
 {
@@ -225,31 +224,41 @@ void ADeepAgent::RewardFunction(TArray<int> currentState)
 	//float ADeepAgent::Reward = (ADeepAgent::totalDistance) /10000.0;
 
 	//##### Sum of green rays #####
-	ADeepAgent::TargetVector /= ADeepAgent::TargetVector.Size();
+	//ADeepAgent::TargetVector /= ADeepAgent::TargetVector.Size();
 	FVector start = ADeepAgent::SensorPosition->GetComponentLocation();
 	FVector carDirection = ADeepAgent::SensorPosition->GetForwardVector();
 
 	DrawDebugLine(GetWorld(), start, start + ADeepAgent::TargetVector * 2000, FColor::Orange, false, 0.1, 0, 5);
 	DrawDebugLine(GetWorld(), start, start + carDirection * 2000, FColor::Blue, false, 0.1, 0, 5);
 
-	float rewardDir = (FVector::DotProduct(ADeepAgent::TargetVector, carDirection) - 0.2) / 3;
+	/*float rewardDir = (FVector::DotProduct(ADeepAgent::TargetVector, carDirection) - 0.2) / 3;
 	float rewardSpeed = (ADeepAgent::GetMesh()->GetPhysicsLinearVelocity().Size() - 200) / 1000;
-	ADeepAgent::Reward = rewardDir + rewardSpeed;
-	UE_LOG(LogTemp, Error, TEXT("%f %f"), rewardDir, rewardSpeed);
+	ADeepAgent::Reward = rewardDir + rewardSpeed;*/
+	//UE_LOG(LogTemp, Error, TEXT("%f %f"), rewardDir, rewardSpeed);
 
 	//###### Angle between direction and target ######
-	/*float angle = FMath::RadiansToDegrees(acosf(FVector::DotProduct(ADeepAgent::TargetVector, carDirection)));
+	float dot = (FVector::DotProduct(ADeepAgent::TargetVector, carDirection)) / (ADeepAgent::TargetVector.Size() * carDirection.Size());
+	float cos_1 = FMath::Acos(dot);
+	float angle = FMath::RadiansToDegrees(cos_1);
+	float sign = FVector::CrossProduct(carDirection , ADeepAgent::TargetVector).Z; //// ADeepAgent::TargetVector.Size()
 
-	ADeepAgent::Reward = -0.1;
-	if ( (angle>0 && ADeepAgent::Action>2) || 
-		(angle < 0 && ADeepAgent::Action < 2) || 
-		(FMath::Abs(angle) < 10 && ADeepAgent::Action == 2) )
+	float rewardAngle = -1;
+	if ((sign > 0 && ADeepAgent::Action > 2) ||
+		(sign < 0 && ADeepAgent::Action < 2) ||
+		(FMath::Abs(angle) < 10 && ADeepAgent::Action == 2))
 	{
-		ADeepAgent::Reward += 0.5;
-	}
-	ADeepAgent::Reward *= (ADeepAgent::GetMesh()->GetPhysicsLinearVelocity().Size() - 100) / 1000;*/
+		for (int i = 0; i < currentState.Num(); i++)
+		{
+			if (currentState[i] == 1)
+				rewardAngle += 1;
 
-	//UE_LOG(LogTemp, Error, TEXT("%f %f"),ADeepAgent::Reward, ADeepAgent::GetMesh()->GetPhysicsLinearVelocity().Size());
+		}
+	}
+	rewardAngle /= 10;
+	float rewardSpeed = (ADeepAgent::GetMesh()->GetPhysicsLinearVelocity().Size() - 200) / 1000;
+	//UE_LOG(LogTemp, Error, TEXT("%f %f %f cross %f"), angle, rewardAngle, rewardSpeed, sign);
+	ADeepAgent::Reward = rewardAngle + rewardSpeed;
+
 	//UE_LOG(LogTemp, Error, TEXT("%f %f %f"),ADeepAgent::Reward, ADeepAgent::GetMesh()->GetComponentVelocity().Size(), );
 	if (ADeepAgent::IsGameEnded) {
 		ADeepAgent::Reward = -100;
@@ -294,14 +303,14 @@ void ADeepAgent::PerformAction(int action)
 	{
 	case 0:
 		ADeepAgent::MovementComponent->SetThrottleInput(0.2);
-		ADeepAgent::MovementComponent->SetSteeringInput(-1);
+		ADeepAgent::MovementComponent->SetSteeringInput(-0.8);
 		break;
 	case 1:
 		ADeepAgent::MovementComponent->SetThrottleInput(0.6);
 		ADeepAgent::MovementComponent->SetSteeringInput(-0.5);
 		break;
 	case 2:
-		ADeepAgent::MovementComponent->SetThrottleInput(1);
+		ADeepAgent::MovementComponent->SetThrottleInput(0.8);
 		break;
 	case 3:
 		ADeepAgent::MovementComponent->SetThrottleInput(0.6);
@@ -309,7 +318,7 @@ void ADeepAgent::PerformAction(int action)
 		break;
 	case 4:
 		ADeepAgent::MovementComponent->SetThrottleInput(0.2);
-		ADeepAgent::MovementComponent->SetSteeringInput(1);
+		ADeepAgent::MovementComponent->SetSteeringInput(0.8);
 		break;
 	default:
 		break;

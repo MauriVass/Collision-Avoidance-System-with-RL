@@ -60,7 +60,7 @@ private:
 
 	UStaticMeshComponent* SensorPosition;
 
-	static const int NumberSensor = 64;
+	static const int NumberSensor = 16;
 
 	class AClient* Client;
 	void PerformAction(int action);
