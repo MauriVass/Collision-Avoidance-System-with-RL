@@ -32,6 +32,8 @@ void ADeepAgent::BeginPlay() {
 	ADeepAgent::MovementComponent = this->GetVehicleMovementComponent();
 	ADeepAgent::initialTransform = this->GetTransform();
 
+	ADeepAgent::ManualControll = false;
+
 	ADeepAgent::IsTraining = true;
 	ADeepAgent::Epoch = 0;
 	ADeepAgent::IsActionSpaceDescrete = true;
@@ -61,13 +63,16 @@ float timer;
 void ADeepAgent::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
 
-	timer += DeltaTime;
-	if (timer > ADeepAgent::TickTime) {//20 fps
-		ADeepAgent::Step();
-		timer = 0;
+	if (!ADeepAgent::ManualControll) {
+		timer += DeltaTime;
+		if (timer > ADeepAgent::TickTime) {
+			ADeepAgent::Step();
+			timer = 0;
+		}
+		ADeepAgent::PerformAction(ADeepAgent::Action);
 	}
-	ADeepAgent::PerformAction(ADeepAgent::Action);
 
+	UE_LOG(LogTemp, Error, TEXT("Speed: %f"), ADeepAgent::GetMesh()->GetPhysicsLinearVelocity().Size());
 	//UE_LOG(LogTemp, Error, TEXT("Line trace has hit: %f"), DeltaTime);
 }
 
@@ -86,6 +91,10 @@ void ADeepAgent::SetSteerAction(float steer)
 void ADeepAgent::SetTickTime(float tickTime)
 {
 	ADeepAgent::TickTime = tickTime;
+}
+void ADeepAgent::SetManualControll(bool manualControll)
+{
+	ADeepAgent::ManualControll = manualControll;
 }
 void ADeepAgent::SetIsGameEnded(bool value)
 {
@@ -178,6 +187,11 @@ float ADeepAgent::GetTickTime()
 	return ADeepAgent::TickTime;
 }
 
+bool ADeepAgent::GetManualControll()
+{
+	return ADeepAgent::ManualControll;
+}
+
 bool ADeepAgent::GetIsActionSpaceDescrete()
 {
 	return ADeepAgent::IsActionSpaceDescrete;
@@ -188,10 +202,10 @@ void ADeepAgent::RewardFunction(TArray<int> currentState)
 {
 	//float ADeepAgent::Reward = 0.1;
 
-	//Reward by magnitude velocity
+	//##### Reward by magnitude velocity #####
 	//ADeepAgent::Reward = ADeepAgent::GetMesh()->GetPhysicsLinearVelocity().Size()/2000.0;
 
-	//Reward by number of green rays (not bad)
+	//##### Reward by number of green rays (not bad) #####
 	//ADeepAgent::Reward = -1;
 	//for (int i = 0; i < currentState.Num(); i++)
 	//{
@@ -204,20 +218,36 @@ void ADeepAgent::RewardFunction(TArray<int> currentState)
 	////multiplied by velocity (punish if the velocity is under a given threshold)
 	//ADeepAgent::Reward *= (ADeepAgent::GetMesh()->GetPhysicsLinearVelocity().Size() - 90) / 1000;
 
-	//No ADeepAgent::Reward (only negative ADeepAgent::Reward when hitting a wall)
+	//##### No ADeepAgent::Reward (only negative ADeepAgent::Reward when hitting a wall) #####
 	//float ADeepAgent::Reward = 0;
 	
-	//Distance from walls Reward
+	//##### Distance from walls Reward #####
 	//float ADeepAgent::Reward = (ADeepAgent::totalDistance) /10000.0;
+
+	//##### Sum of green rays #####
 	ADeepAgent::TargetVector /= ADeepAgent::TargetVector.Size();
 	FVector start = ADeepAgent::SensorPosition->GetComponentLocation();
 	FVector carDirection = ADeepAgent::SensorPosition->GetForwardVector();
 
-	DrawDebugLine(GetWorld(), start, start + ADeepAgent::TargetVector * 2000, FColor::Orange, false, 0.3, 0, 5);
-	DrawDebugLine(GetWorld(), start, start + carDirection * 2000, FColor::Blue, false, 0.3, 0, 5);
+	DrawDebugLine(GetWorld(), start, start + ADeepAgent::TargetVector * 2000, FColor::Orange, false, 0.1, 0, 5);
+	DrawDebugLine(GetWorld(), start, start + carDirection * 2000, FColor::Blue, false, 0.1, 0, 5);
 
-	float reward = FVector::DotProduct(ADeepAgent::TargetVector, carDirection);
-	ADeepAgent::Reward = (reward - 0.1); // *(ADeepAgent::GetMesh()->GetPhysicsLinearVelocity().Size() - 100) / 1000;
+	float rewardDir = (FVector::DotProduct(ADeepAgent::TargetVector, carDirection) - 0.2) / 3;
+	float rewardSpeed = (ADeepAgent::GetMesh()->GetPhysicsLinearVelocity().Size() - 200) / 1000;
+	ADeepAgent::Reward = rewardDir + rewardSpeed;
+	UE_LOG(LogTemp, Error, TEXT("%f %f"), rewardDir, rewardSpeed);
+
+	//###### Angle between direction and target ######
+	/*float angle = FMath::RadiansToDegrees(acosf(FVector::DotProduct(ADeepAgent::TargetVector, carDirection)));
+
+	ADeepAgent::Reward = -0.1;
+	if ( (angle>0 && ADeepAgent::Action>2) || 
+		(angle < 0 && ADeepAgent::Action < 2) || 
+		(FMath::Abs(angle) < 10 && ADeepAgent::Action == 2) )
+	{
+		ADeepAgent::Reward += 0.5;
+	}
+	ADeepAgent::Reward *= (ADeepAgent::GetMesh()->GetPhysicsLinearVelocity().Size() - 100) / 1000;*/
 
 	//UE_LOG(LogTemp, Error, TEXT("%f %f"),ADeepAgent::Reward, ADeepAgent::GetMesh()->GetPhysicsLinearVelocity().Size());
 	//UE_LOG(LogTemp, Error, TEXT("%f %f %f"),ADeepAgent::Reward, ADeepAgent::GetMesh()->GetComponentVelocity().Size(), );
@@ -318,7 +348,7 @@ void ADeepAgent::Step()
 		}
 		else {
 			ADeepAgent::Epsilon = ADeepAgent::MinEpsilon;
-			ADeepAgent::NumberFitSteps *= 2;
+			ADeepAgent::NumberFitSteps = 2;
 		}
 		//else ADeepAgent::Epsilon = 0;
 		/*if (GEngine)
