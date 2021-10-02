@@ -12,7 +12,7 @@ class Network():
 	def __init__(self):
 		self.batchsize = 64
 		self.discount_rate = 0.95
-		self.lr = 0.001
+		self.lr = 0.001/10
 		self.gamma = 0.99
 		self.optimizer = tf.optimizers.Adam(self.lr)
 		
