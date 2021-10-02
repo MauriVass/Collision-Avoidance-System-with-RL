@@ -69,7 +69,7 @@ private:
 
 	FString SaveDirectory;
 	FString FileName;
-	void WriteToFile(int epoch, float totalReward, float averageSpeed, bool gameEndedByCrush, bool allowOverwriting);
+	void WriteToFile(int epoch, int numberSteps, float totalReward, float averageSpeed, bool gameEndedByCrush, bool allowOverwriting);
 
 	UWheeledVehicleMovementComponent* MovementComponent;
 	FTransform initialTransform;
