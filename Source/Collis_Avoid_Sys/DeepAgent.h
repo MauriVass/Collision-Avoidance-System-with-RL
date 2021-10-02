@@ -60,7 +60,7 @@ private:
 
 	UStaticMeshComponent* SensorPosition;
 
-	static const int NumberSensor = 16;
+	static const int NumberSensor = 24;
 
 	class AClient* Client;
 	void PerformAction(int action);
@@ -69,7 +69,7 @@ private:
 
 	FString SaveDirectory;
 	FString FileName;
-	void WriteToFile(int epoch, float totalReward, bool gameEndedByCrush, bool allowOverwriting);
+	void WriteToFile(int epoch, float totalReward, float averageSpeed, bool gameEndedByCrush, bool allowOverwriting);
 
 	UWheeledVehicleMovementComponent* MovementComponent;
 	FTransform initialTransform;
@@ -82,16 +82,17 @@ private:
 	float Epsilon;
 	float EpsilonDecay;
 	float MinEpsilon;
-
 	int Epoch;
 	int NumberSteps;
 	int MaxNumberSteps;
 	int NumberFitSteps;
+	float AngleExtension;
 
 	float Reward;
 	float CumulativeReward;
 	FVector TargetVector;
 	void RewardFunction(TArray<int> currentState);
+	float AverageSpeed;
 
 	class Experience PreviousExperience;
 
