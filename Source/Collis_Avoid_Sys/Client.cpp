@@ -19,9 +19,9 @@ void AClient::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	AClient::UrlAddress = "192.168.1.8:5000/";						//Laptop
+	//AClient::UrlAddress = "192.168.1.8:5000/";						//Laptop
 	//AClient::UrlAddress = "http://1cac-34-75-219-86.ngrok.io/";			//Colab
-	//AClient::UrlAddress = "192.168.1.12:5000/";						//Desktop
+	AClient::UrlAddress = "192.168.1.12:5000/";						//Desktop
 }
 
 

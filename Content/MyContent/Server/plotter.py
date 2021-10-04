@@ -19,8 +19,9 @@ if(plot_losses is True):
 	#ax.scatter(x, y, s=0.1)
 	ax.plot(x,y,linewidth=.05, marker='o', markersize=0.5)
 else:
-	rewards['rolling_avg_reward'] = rewards['totalReward'].rolling(10).mean()
-	rewards['rolling_avg_speed'] = rewards['averageSpeed'].rolling(10).mean()
+	rolling = 7
+	rewards['rolling_avg_reward'] = rewards['totalReward'].rolling(rolling).mean()
+	rewards['rolling_avg_speed'] = rewards['averageSpeed'].rolling(rolling).mean()
 	x = np.arange(len(rewards))
 	y1 = np.array(rewards['rolling_avg_reward'])
 	y2 = np.array(rewards['rolling_avg_speed'])

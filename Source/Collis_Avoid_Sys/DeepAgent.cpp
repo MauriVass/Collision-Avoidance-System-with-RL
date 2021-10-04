@@ -36,18 +36,18 @@ void ADeepAgent::BeginPlay() {
 	ADeepAgent::ManualControll = false;
 
 	ADeepAgent::IsTraining = true;
-	ADeepAgent::IsActuallDistance = false;
+	ADeepAgent::IsStateSpaceDescrete = true;
 	ADeepAgent::IsActionSpaceDescrete = true;
 	ADeepAgent::Epoch = 0;
 	ADeepAgent::NumberActions = 5;
 	ADeepAgent::Epsilon = 1.0;
-	ADeepAgent::EpsilonDecay = 5 * FMath::Pow(10,-5);
-	ADeepAgent::MinEpsilon = 0.05;
+	ADeepAgent::EpsilonDecay = 6.5 * FMath::Pow(10,-5);
+	ADeepAgent::MinEpsilon = 0.03;
 	ADeepAgent::MaxNumberSteps = 12000;
 	ADeepAgent::NumberFitSteps = 1;
 	ADeepAgent::AngleExtension = 170;
 
-	ADeepAgent::TickTime = 0.025;
+	ADeepAgent::TickTime = 0.02;
 
 	ADeepAgent::Client->SendMetadata(ADeepAgent::NumberSensor, ADeepAgent::IsActionSpaceDescrete,ADeepAgent::NumberActions);
 	ADeepAgent::RestartGame();
@@ -164,10 +164,10 @@ TArray<float> ADeepAgent::GetInput() {
 		AActor* ActorHit = Hit[i].GetActor();
 
 		float lifeTime = 0.06;
-		float value = Hit[i].Distance > 0 ? Hit[i].Distance / maxDistance : 1; //if ADeepAgent::IsActuallDistance is True
+		float value = Hit[i].Distance > 0 ? Hit[i].Distance / maxDistance : 1; //if ADeepAgent::IsStateSpaceDescrete is True
 		if (ActorHit) {
 			DrawDebugLine(GetWorld(), Start, end, FColor::Red, false, lifeTime, 0, 5);
-			if (!ADeepAgent::IsActuallDistance)
+			if (ADeepAgent::IsStateSpaceDescrete)
 				value = 0;
 			//ADeepAgent::totalDistance += Hit[i].Distance - maxDistance*3/4;
 			//UE_LOG(LogTemp, Error, TEXT("Line trace has hit: %d %s"),i, *(ActorHit->GetName()));
@@ -175,7 +175,7 @@ TArray<float> ADeepAgent::GetInput() {
 		else {
 			//ADeepAgent::totalDistance += maxDistance;
 			DrawDebugLine(GetWorld(), Start, end, FColor::Green, false, lifeTime, 0, 5);
-			if (!ADeepAgent::IsActuallDistance)
+			if (ADeepAgent::IsStateSpaceDescrete)
 				value = 1;
 
 			ADeepAgent::TargetVector += direction;
@@ -429,7 +429,7 @@ void ADeepAgent::RestartGame()
 	//Calculate new location
 	FVector pos = ADeepAgent::initialTransform.GetLocation();
 	float offset = 200;
-	pos.X += FMath::FRandRange(-offset*2, offset);
+	pos.X += FMath::FRandRange(-offset*2, offset*2);
 	pos.Y += FMath::FRandRange(-offset, offset);
 	//this->GetMesh()->SetAllPhysicsPosition(pos);
 
@@ -443,8 +443,9 @@ void ADeepAgent::RestartGame()
 		//using 360 rotates the actor of 360 degrees (no change)
 		//using 359 it works as expected -> worst thing ever, you should be ashamed of yourself UE4
 		rot = rot + FQuat(FRotator(0,359,0));
-		UE_LOG(LogTemp, Error, TEXT("Rotated"));
 	}
+	/*float randRotation = FMath::FRandRange(-10.0, 10.0);
+	rot = rot + FQuat(FRotator(0, randRotation, 0));*/
 	//Set location and rotation
 	this->GetMesh()->SetWorldLocationAndRotation(pos,rot,false,nullptr,ETeleportType::TeleportPhysics);// > AddLocalRotation(rot); //->SetAllPhysicsRotation( rot );
 

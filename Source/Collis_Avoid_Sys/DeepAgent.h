@@ -59,7 +59,7 @@ private:
 
 	UStaticMeshComponent* SensorPosition;
 
-	static const int NumberSensor = 24;
+	static const int NumberSensor = 32;
 
 	class AClient* Client;
 	void PerformAction(int action);
@@ -77,7 +77,7 @@ private:
 
 	bool IsGameStarting;
 	bool IsTraining;
-	bool IsActuallDistance;
+	bool IsStateSpaceDescrete;
 	int NumberActions;
 	float Epsilon;
 	float EpsilonDecay;
