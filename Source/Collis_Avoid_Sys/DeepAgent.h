@@ -77,6 +77,7 @@ private:
 
 	bool IsGameStarting;
 	bool IsTraining;
+	bool IsActuallDistance;
 	int NumberActions;
 	float Epsilon;
 	float EpsilonDecay;

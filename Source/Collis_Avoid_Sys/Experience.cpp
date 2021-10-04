@@ -36,7 +36,7 @@ FString Experience::ConstructData(TArray<float> currentState, int action, TArray
 	{
 		if (i > 0)
 			result.Append(":");
-		result.Append(FString::FromInt(currentState[i]));
+		result.Append(FString::SanitizeFloat(currentState[i]));
 	}
 	result.Append(";");
 
@@ -49,7 +49,7 @@ FString Experience::ConstructData(TArray<float> currentState, int action, TArray
 	{
 		if (i > 0)
 			result.Append(":");
-		result.Append(FString::FromInt(nextState[i]));
+		result.Append(FString::SanitizeFloat(nextState[i]));
 	}
 	result.Append(";");
 
@@ -70,7 +70,7 @@ FString Experience::ConstructData(TArray<float> currentState, float throttleActi
 	{
 		if (i > 0)
 			result.Append(":");
-		result.Append(FString::FromInt(currentState[i]));
+		result.Append(FString::SanitizeFloat(currentState[i]));
 	}
 	result.Append(";");
 
@@ -85,7 +85,7 @@ FString Experience::ConstructData(TArray<float> currentState, float throttleActi
 	{
 		if (i > 0)
 			result.Append(":");
-		result.Append(FString::FromInt(nextState[i]));
+		result.Append(FString::SanitizeFloat(nextState[i]));
 	}
 	result.Append(";");
 

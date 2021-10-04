@@ -36,8 +36,9 @@ void ADeepAgent::BeginPlay() {
 	ADeepAgent::ManualControll = false;
 
 	ADeepAgent::IsTraining = true;
-	ADeepAgent::Epoch = 0;
+	ADeepAgent::IsActuallDistance = false;
 	ADeepAgent::IsActionSpaceDescrete = true;
+	ADeepAgent::Epoch = 0;
 	ADeepAgent::NumberActions = 5;
 	ADeepAgent::Epsilon = 1.0;
 	ADeepAgent::EpsilonDecay = 5 * FMath::Pow(10,-5);
@@ -163,19 +164,23 @@ TArray<float> ADeepAgent::GetInput() {
 		AActor* ActorHit = Hit[i].GetActor();
 
 		float lifeTime = 0.06;
+		float value = Hit[i].Distance > 0 ? Hit[i].Distance / maxDistance : 1; //if ADeepAgent::IsActuallDistance is True
 		if (ActorHit) {
 			DrawDebugLine(GetWorld(), Start, end, FColor::Red, false, lifeTime, 0, 5);
-			currentSate.Add(0);
+			if (!ADeepAgent::IsActuallDistance)
+				value = 0;
 			//ADeepAgent::totalDistance += Hit[i].Distance - maxDistance*3/4;
 			//UE_LOG(LogTemp, Error, TEXT("Line trace has hit: %d %s"),i, *(ActorHit->GetName()));
 		}
 		else {
-			ADeepAgent::totalDistance += maxDistance;
+			//ADeepAgent::totalDistance += maxDistance;
 			DrawDebugLine(GetWorld(), Start, end, FColor::Green, false, lifeTime, 0, 5);
-			currentSate.Add(1);
+			if (!ADeepAgent::IsActuallDistance)
+				value = 1;
 
 			ADeepAgent::TargetVector += direction;
 		}
+		currentSate.Add(value);
 	}
 
 	return currentSate;

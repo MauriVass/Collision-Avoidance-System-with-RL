@@ -103,15 +103,15 @@ class Network():
 	def dictFromExperienceRaw(self,experience_raw):
 		elements = experience_raw.split(';')
 
-		currentState = tf.Variable([np.array(elements[0].split(':'), dtype=np.int8)])
+		currentState = tf.Variable([np.array(elements[0].split(':'), dtype=np.float16)])
 		
 		if(self.is_action_space_descrete):
-			action = int(elements[1])
+			action = float(elements[1])
 		else:
 			throttle_action = float(elements[1].split(':')[0])
 			steer_action = float(elements[1].split(':')[1])
 			action = [throttle_action, steer_action]
-		nextAction = tf.Variable([np.array(elements[2].split(':'), dtype=np.int8)])
+		nextAction = tf.Variable([np.array(elements[2].split(':'), dtype=np.float16)])
 		reward = float(elements[3])
 		gameEnded = True if elements[4]==1 else False
 		
