@@ -131,8 +131,8 @@ int ADeepAgent::GetNumberSteps() {
 int ADeepAgent::GetEpoch() {
 	return ADeepAgent::Epoch;
 }
-TArray<int> ADeepAgent::GetInput() {
-	TArray<int> currentSate;
+TArray<float> ADeepAgent::GetInput() {
+	TArray<float> currentSate;
 
 	FVector Start;
 	FRotator Rot;
@@ -197,7 +197,7 @@ bool ADeepAgent::GetIsActionSpaceDescrete()
 	return ADeepAgent::IsActionSpaceDescrete;
 }
 
-void ADeepAgent::RewardFunction(TArray<int> currentState)
+void ADeepAgent::RewardFunction(TArray<float> currentState)
 {
 	//float ADeepAgent::Reward = 0.1;
 
@@ -333,7 +333,7 @@ void ADeepAgent::PerformAction(int action)
 void ADeepAgent::Step()
 {
 	//CURRENT STATE FROM INPUT SENSORS
-	TArray<int> currentState = ADeepAgent::GetInput();
+	TArray<float> currentState = ADeepAgent::GetInput();
 
 	//EXPLORATION - EXPLOITATION TRADEOFF
 	float exploitation = FMath::SRand();
@@ -371,7 +371,7 @@ void ADeepAgent::Step()
 	ADeepAgent::PerformAction(ADeepAgent::Action);
 
 	//NEXT STATE
-	TArray<int> nextState = ADeepAgent::GetInput();
+	TArray<float> nextState = ADeepAgent::GetInput();
 
 	//GAME STATUS
 	//bool gameStatus = ADeepAgent::GameStatus;

@@ -11,13 +11,13 @@ class COLLIS_AVOID_SYS_API Experience
 {
 public:
 	Experience();
-	Experience(TArray<int> currentState, int action, TArray<int> nextState, float reward, bool gameEnded);
+	Experience(TArray<float> currentState, int action, TArray<float> nextState, float reward, bool gameEnded);
 	~Experience();
 
-	void InitializeExperience(TArray<int> currentState, int action, TArray<int> nextState, float reward, bool gameEnded);
+	void InitializeExperience(TArray<float> currentState, int action, TArray<float> nextState, float reward, bool gameEnded);
 
-	static FString ConstructData(TArray<int> currentState, int action, TArray<int> nextState, float reward, bool gameEnded);
-	static FString ConstructData(TArray<int> currentState, float throttleAction, float steerAction, TArray<int> nextState, float reward, bool gameEnded);
+	static FString ConstructData(TArray<float> currentState, int action, TArray<float> nextState, float reward, bool gameEnded);
+	static FString ConstructData(TArray<float> currentState, float throttleAction, float steerAction, TArray<float> nextState, float reward, bool gameEnded);
 	static FString ConstructData(Experience exp);
 
 	bool CheckEqualExperiences(Experience expOther);
@@ -27,9 +27,9 @@ public:
 private:
 	bool Initilized;
 
-	TArray<int> CurrentState;
+	TArray<float> CurrentState;
 	int Action;
-	TArray<int> NextState;
+	TArray<float> NextState;
 	float Reward;
 	bool GameEnded;
 

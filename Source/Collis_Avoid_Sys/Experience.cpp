@@ -7,7 +7,7 @@ Experience::Experience()
 {
 }
 
-Experience::Experience(TArray<int> currentState, int action, TArray<int> nextState, float reward, bool gameEnded)
+Experience::Experience(TArray<float> currentState, int action, TArray<float> nextState, float reward, bool gameEnded)
 {
 	Experience::InitializeExperience(currentState, action, nextState, reward, gameEnded);
 }
@@ -17,7 +17,7 @@ Experience::~Experience()
 	Experience::Initilized = false;
 }
 
-void Experience::InitializeExperience(TArray<int> currentState, int action, TArray<int> nextState, float reward, bool gameEnded)
+void Experience::InitializeExperience(TArray<float> currentState, int action, TArray<float> nextState, float reward, bool gameEnded)
 {
 	Experience::CurrentState = currentState;
 	Experience::Action = action;
@@ -28,7 +28,7 @@ void Experience::InitializeExperience(TArray<int> currentState, int action, TArr
 	Experience::Initilized = true;
 }
 
-FString Experience::ConstructData(TArray<int> currentState, int action, TArray<int> nextState, float reward, bool gameEnded)
+FString Experience::ConstructData(TArray<float> currentState, int action, TArray<float> nextState, float reward, bool gameEnded)
 {
 	FString result;
 	//CURRENT STATE
@@ -61,7 +61,7 @@ FString Experience::ConstructData(TArray<int> currentState, int action, TArray<i
 	result.Append(FString::FromInt(gameEnded));
 	return result;
 }
-FString Experience::ConstructData(TArray<int> currentState, float throttleAction, float steerAction, TArray<int> nextState, float reward, bool gameEnded)
+FString Experience::ConstructData(TArray<float> currentState, float throttleAction, float steerAction, TArray<float> nextState, float reward, bool gameEnded)
 
 {
 	FString result;

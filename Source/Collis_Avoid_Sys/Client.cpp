@@ -19,9 +19,9 @@ void AClient::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	//AClient::UrlAddress = "192.168.1.8:5000/";						//Laptop
+	AClient::UrlAddress = "192.168.1.8:5000/";						//Laptop
 	//AClient::UrlAddress = "http://1cac-34-75-219-86.ngrok.io/";			//Colab
-	AClient::UrlAddress = "192.168.1.12:5000/";						//Desktop
+	//AClient::UrlAddress = "192.168.1.12:5000/";						//Desktop
 }
 
 
@@ -54,7 +54,7 @@ void AClient::Initialization(FHttpRequestPtr request, FHttpResponsePtr Response,
 	}
 }
 
-void AClient::SendExperience(TArray<int> currentState, int action, TArray<int> nextState, float reward, bool endGame)
+void AClient::SendExperience(TArray<float> currentState, int action, TArray<float> nextState, float reward, bool endGame)
 {
 	//FString data = Experience::ConstructData(currentState, action, nextState, reward, endGame);
 	FString data = Experience::ConstructData(currentState, action, nextState, reward, endGame);
@@ -67,7 +67,7 @@ void AClient::SendExperience(TArray<int> currentState, int action, TArray<int> n
 	HttpRequest->SetContentAsString(data);
 	HttpRequest->ProcessRequest();
 }
-void AClient::SendExperience(TArray<int> currentState, float throttleAction, float steerAction, TArray<int> nextState, float reward, bool endGame)
+void AClient::SendExperience(TArray<float> currentState, float throttleAction, float steerAction, TArray<float> nextState, float reward, bool endGame)
 {
 	//FString data = Experience::ConstructData(currentState, action, nextState, reward, endGame);
 	FString data = Experience::ConstructData(currentState, throttleAction, steerAction, nextState, reward, endGame);
@@ -81,7 +81,7 @@ void AClient::SendExperience(TArray<int> currentState, float throttleAction, flo
 	HttpRequest->ProcessRequest();
 }
 
-void AClient::Predict(TArray<int> currentState)
+void AClient::Predict(TArray<float> currentState)
 {
 	FHttpModule* Http = &FHttpModule::Get();
 	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> HttpRequest = Http->CreateRequest();

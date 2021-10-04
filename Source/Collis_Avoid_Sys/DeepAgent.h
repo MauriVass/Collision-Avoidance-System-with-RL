@@ -55,8 +55,7 @@ public:
 
 
 private:
-
-	TArray<int> GetInput();
+	TArray<float> GetInput();
 
 	UStaticMeshComponent* SensorPosition;
 
@@ -91,7 +90,7 @@ private:
 	float Reward;
 	float CumulativeReward;
 	FVector TargetVector;
-	void RewardFunction(TArray<int> currentState);
+	void RewardFunction(TArray<float> currentState);
 	float AverageSpeed;
 
 	class Experience PreviousExperience;
