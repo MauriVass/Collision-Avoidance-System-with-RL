@@ -8,12 +8,17 @@ from datetime import datetime
 
 app = Flask(__name__)
 
+RANDOM_SEED = 21
+tf.random.set_seed(RANDOM_SEED)
+np.random.seed(RANDOM_SEED)
+
 class Network():
 	def __init__(self):
 		self.batchsize = 64
 		self.discount_rate = 0.95
 		self.lr = 0.001/10
 		self.gamma = 0.99
+		self.tau = 0.99
 		self.optimizer = tf.optimizers.Adam(self.lr)
 		
 		self.filepath = 'experiences.csv'
@@ -48,7 +53,7 @@ class Network():
 		self.policyNetwork = self.ModelTemplate()
 
 		self.targetNetwork = self.ModelTemplate()
-		self.copyNN()
+		self.copyNN(soft=True)
 		print(self.policyNetwork.summary())
 		self.t1 = time.time()
 
@@ -181,7 +186,12 @@ class Network():
 					a = self.policyNetwork(states)
 				selected_action_values = tf.math.reduce_sum(a , axis=1)
 
-				loss = tf.math.reduce_mean(tf.square(actual_values - selected_action_values))
+				#MES
+				# loss = tf.math.reduce_mean(tf.square(actual_values - selected_action_values))
+				#Huber Loss
+				loss_function = tf.keras.losses.Huber(reduction=tf.keras.losses.Reduction.SUM_OVER_BATCH_SIZE)
+				loss = loss_function(actual_values, selected_action_values)
+
 				tape.watch(loss)
 				print('#####\tloss\t#####', loss)
 				self.losses.append(loss)
@@ -223,8 +233,17 @@ class Network():
 	def predictTN(self, input):
 		return self.targetNetwork(np.atleast_2d(input))
 	
-	def copyNN(self):
-		self.targetNetwork.set_weights(self.policyNetwork.get_weights())
+	def copyNN(self, soft=False):
+		if(soft):
+			self.targetNetwork.set_weights(self.policyNetwork.get_weights())
+		else:
+			targetN_weights = self.targetNetwork.get_weights()
+			policyN_weights = self.policyNetwork.get_weights()
+			new_weights = []
+			for t,p in zip(targetN_weights,policyN_weights):
+				new_weights.append(self.tau * t + (1-self.tau) * p)
+			# c = self.tau * a + (1-self.tau) * b
+			self.targetNetwork.set_weights(new_weights)
 	
 	def saveModel(self,name=''):
 		timestamp = datetime.now().strftime("%d_%m_%Y_%H_%M_%S")
@@ -235,7 +254,6 @@ class Network():
 		self.policyNetwork = tf.keras.models.load_model(f"Models/{name}")
 		self.copyNN()
 		print(self.policyNetwork.summary())
-
 
 network = Network()
 
@@ -253,7 +271,6 @@ def INITIALIZATION():
 	num_actions = int(input[2])
 	network.Initialization(num_sensors,is_action_space_descrete,num_actions)
 	return 'initialization'
-
 
 @app.route('/fit', methods=['POST'])
 def FIT():
@@ -294,13 +311,14 @@ def PREDICT():
 def COPY_WEIGHTS():
 	network.copyNN()
 	return 'copied'
-@app.route('/save', methods=['GET'])
 
+@app.route('/save', methods=['GET'])
 def SAVE_MODEL():
 	#http://192.168.1.X:5000/save?file=XX
 	file_name = request.args['file']
 	path = network.saveModel(file_name)
 	return f'saved to {path}'
+
 @app.route('/load', methods=['GET'])
 def LOAD_MODEL():
 	#http://192.168.1.X:5000/load?file=XX
