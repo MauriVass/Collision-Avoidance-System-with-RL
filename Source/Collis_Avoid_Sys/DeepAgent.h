@@ -51,6 +51,8 @@ public:
 		float GetTickTime();
 	UFUNCTION(BlueprintCallable)
 		bool GetManualControll();
+	UFUNCTION(BlueprintCallable)
+		float GetAverageSpeed();
 	bool GetIsActionSpaceDescrete();
 
 

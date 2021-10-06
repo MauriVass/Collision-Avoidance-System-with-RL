@@ -43,7 +43,7 @@ void ADeepAgent::BeginPlay() {
 	ADeepAgent::Epsilon = 1.0;
 	ADeepAgent::EpsilonDecay = 6.5 * FMath::Pow(10,-5);
 	ADeepAgent::MinEpsilon = 0.03;
-	ADeepAgent::MaxNumberSteps = 12000;
+	ADeepAgent::MaxNumberSteps = 4000;
 	ADeepAgent::NumberFitSteps = 1;
 	ADeepAgent::AngleExtension = 170;
 
@@ -197,6 +197,10 @@ bool ADeepAgent::GetManualControll()
 {
 	return ADeepAgent::ManualControll;
 }
+float ADeepAgent::GetAverageSpeed()
+{
+	return ADeepAgent::AverageSpeed / ADeepAgent::NumberSteps;
+}
 bool ADeepAgent::GetIsActionSpaceDescrete()
 {
 	return ADeepAgent::IsActionSpaceDescrete;
@@ -233,8 +237,8 @@ void ADeepAgent::RewardFunction(TArray<float> currentState)
 	FVector start = ADeepAgent::SensorPosition->GetComponentLocation();
 	FVector carDirection = ADeepAgent::SensorPosition->GetForwardVector();
 
-	DrawDebugLine(GetWorld(), start, start + ADeepAgent::TargetVector * 2000, FColor::Orange, false, ADeepAgent::TickTime*2, 0, 5);
-	DrawDebugLine(GetWorld(), start, start + carDirection * 2000, FColor::Blue, false, ADeepAgent::TickTime*2, 0, 5);
+	DrawDebugLine(GetWorld(), start, start + ADeepAgent::TargetVector * 2000, FColor::Orange, false, ADeepAgent::TickTime*3, 0, 5);
+	DrawDebugLine(GetWorld(), start, start + carDirection * 2000, FColor::Blue, false, ADeepAgent::TickTime*3, 0, 5);
 
 	/*float rewardDir = (FVector::DotProduct(ADeepAgent::TargetVector, carDirection) - 0.2) / 3;
 	float rewardSpeed = (ADeepAgent::GetMesh()->GetPhysicsLinearVelocity().Size() - 200) / 1000;
