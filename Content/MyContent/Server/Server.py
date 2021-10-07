@@ -32,7 +32,7 @@ class Network():
 		# print(f'Reading {time.time()-t1}')
 
 		self.minNumExperiences = self.batchsize * 2
-		self.maxNumExperiences = 2*10**4
+		self.maxNumExperiences = 3*10**4
 		self.steps = 0
 		self.copyWeightSteps = 64
 
@@ -60,7 +60,7 @@ class Network():
 	def ModelTemplate(self):
 			model = tf.keras.Sequential([
 							tf.keras.layers.Flatten(),
-							tf.keras.layers.Dense(128, activation='tanh', kernel_initializer='RandomNormal'),
+							tf.keras.layers.Dense(64, activation='relu', kernel_initializer='RandomNormal'),
 							#tf.keras.layers.Dense(64, activation='relu', kernel_initializer='RandomNormal'),
 							tf.keras.layers.Dense(self.num_actions, activation='linear', kernel_initializer='RandomNormal') #softmax
 						])
