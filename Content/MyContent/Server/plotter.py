@@ -9,7 +9,7 @@ rewards = pd.read_csv('run.rewards.csv')
 fig = plt.figure(figsize=(24,8))
 ax = plt.axes()
 
-plot_losses = False
+plot_losses = True
 
 if(plot_losses is True):
 	x = np.arange(len(losses))

@@ -14,9 +14,9 @@ np.random.seed(RANDOM_SEED)
 
 class Network():
 	def __init__(self):
-		self.batchsize = 64
+		self.batchsize = 32
 		self.discount_rate = 0.95
-		self.lr = 0.001/10
+		self.lr = 0.001
 		self.gamma = 0.99
 		self.tau = 0.99
 		self.optimizer = tf.optimizers.Adam(self.lr)
@@ -53,14 +53,14 @@ class Network():
 		self.policyNetwork = self.ModelTemplate()
 
 		self.targetNetwork = self.ModelTemplate()
-		self.copyNN(soft=True)
+		self.copyNN()
 		print(self.policyNetwork.summary())
 		self.t1 = time.time()
 
 	def ModelTemplate(self):
 			model = tf.keras.Sequential([
 							tf.keras.layers.Flatten(),
-							tf.keras.layers.Dense(32, activation='tanh', kernel_initializer='RandomNormal'),
+							tf.keras.layers.Dense(128, activation='tanh', kernel_initializer='RandomNormal'),
 							#tf.keras.layers.Dense(64, activation='relu', kernel_initializer='RandomNormal'),
 							tf.keras.layers.Dense(self.num_actions, activation='linear', kernel_initializer='RandomNormal') #softmax
 						])
@@ -214,7 +214,7 @@ class Network():
 			if(self.steps>=self.copyWeightSteps):
 				# t1 = time.time()
 				self.steps=0
-				self.copyNN()
+				self.copyNN(soft=True)
 				self.t2 = time.time()
 				t = self.t2-self.t1
 				#print(f'\t\t\tTime from last update: {():.3f}')
@@ -235,15 +235,14 @@ class Network():
 	
 	def copyNN(self, soft=False):
 		if(soft):
-			self.targetNetwork.set_weights(self.policyNetwork.get_weights())
-		else:
 			targetN_weights = self.targetNetwork.get_weights()
 			policyN_weights = self.policyNetwork.get_weights()
 			new_weights = []
 			for t,p in zip(targetN_weights,policyN_weights):
 				new_weights.append(self.tau * t + (1-self.tau) * p)
-			# c = self.tau * a + (1-self.tau) * b
 			self.targetNetwork.set_weights(new_weights)
+		else:
+			self.targetNetwork.set_weights(self.policyNetwork.get_weights())
 	
 	def saveModel(self,name=''):
 		timestamp = datetime.now().strftime("%d_%m_%Y_%H_%M_%S")
@@ -260,7 +259,7 @@ network = Network()
 @app.route('/')
 def home():
 	print('home')
-	return 'server';
+	return 'server'
 
 @app.route('/initialization', methods=['POST'])
 def INITIALIZATION():
