@@ -14,7 +14,7 @@ np.random.seed(RANDOM_SEED)
 
 class Network():
 	def __init__(self):
-		self.batchsize = 32
+		self.batchsize = 128
 		self.discount_rate = 0.95
 		self.lr = 0.001
 		self.gamma = 0.99
@@ -23,8 +23,12 @@ class Network():
 		
 		self.filepath = 'experiences.csv'
 		self.file = '' #initialize after
-		self.experiences_raw = []
 		self.experiences_prepros = []
+
+		self.number_prioritize_experiences_batch = 2
+		self.prioritize = True
+		self.negative_hit_reward=-100
+		self.prioritize_experiences = []
 
 		self.is_action_space_descrete = True
 		self.readExperiencesFromFile()
@@ -32,7 +36,7 @@ class Network():
 		# print(f'Reading {time.time()-t1}')
 
 		self.minNumExperiences = self.batchsize * 2
-		self.maxNumExperiences = 3*10**4
+		self.maxNumExperiences = 4*10**4
 		self.steps = 0
 		self.copyWeightSteps = 64
 
@@ -71,14 +75,15 @@ class Network():
 		self.file = open(self.filepath,'r')
 
 		for l in self.file.readlines():
-			# self.experiences_raw.append(l.strip())
-			self.experiences_prepros.append(self.dictFromExperienceRaw(l.strip()))
+			exp = self.dictFromExperienceRaw(l.strip())
+			if(self.prioritize and exp['r']==self.negative_hit_reward):
+				self.prioritize_experiences.append(exp)
+			else:
+				self.experiences_prepros.append(exp)
+				
 		self.closeFile()
-	def writeExperienceToFile(self,experience):
-		# self.experiences_raw.append(experience)
-		self.experiences_prepros.append(self.dictFromExperienceRaw(experience))
-		# self.file.write(experience+'\n')
-	def writeAllExperiences(self):
+
+	def writeExperiencesToFile(self):
 		self.file = open(self.filepath,'w')
 
 		diff = len(self.experiences_prepros) - self.maxNumExperiences
@@ -86,7 +91,8 @@ class Network():
 		if(diff>0):
 			inds = np.random.randint(len(self.experiences_prepros), size=diff)
 			self.experiences_prepros = np.delete(self.experiences_prepros, inds)
-		# for e in self.experiences_raw:
+		if(self.prioritize):
+			self.experiences_prepros = np.append(self.experiences_prepros,self.prioritize_experiences)
 		for e in self.experiences_prepros:
 			cs = ':'.join( [str(x) for x in e['s'].numpy()[0]] )
 
@@ -128,32 +134,28 @@ class Network():
 		experiences = {'s': [], 'a': [], 'r': [], 'ns': [], 'done': []}
 
 		# t1 = time.time()
-		# indices = np.random.randint(len(self.experiences_raw), size=self.batchsize)
-		indices = np.random.randint(len(self.experiences_prepros), size=self.batchsize)
+		if(self.prioritize):
+			indices = np.random.randint(len(self.experiences_prepros), size=self.batchsize-self.number_prioritize_experiences_batch)
+			indices_prior = np.random.randint(len(self.prioritize_experiences), size=self.number_prioritize_experiences_batch)
+		else:
+			indices = np.random.randint(len(self.experiences_prepros), size=self.batchsize)
 		# print(f'\t getBatchExperiences: 1 rand: {(time.time()-t1):.3f}')
 
-		# t_fetch = 0
-		# t_append = 0
 		for i in indices:
-			# t1 = time.time()
-			# experience = self.dictFromExperienceRaw(self.experiences_raw[i])
 			experience = self.experiences_prepros[i]
-			# t_fetch += time.time()-t1
-			# if(len(self.experiences_raw)>self.maxNumExperiences):
-			# 	experiences.pop()
-			# experiences.append(experience)
-			# t1 = time.time()
 			for k,v in experience.items():
 				experiences[k].append(v)
-			# t_append += time.time()-t1
-		# print(f'\t getBatchExperiences: 2 fetch: {(t_fetch):.3f}')
-		# print(f'\t getBatchExperiences: 3 append: {(t_append):.3f}')
+		if(self.prioritize):
+			for i in indices_prior:
+				experience = self.prioritize_experiences[i]
+				for k,v in experience.items():
+					experiences[k].append(v)
 		return experiences
 
 
 	def fit(self, exp):
-		# if(len(self.experiences_raw)>=self.minNumExperiences):
-		if(len(self.experiences_prepros)>=self.minNumExperiences):
+		if(len(self.experiences_prepros)>=self.minNumExperiences 
+			or (self.prioritize and len(self.prioritize_experiences)>self.number_prioritize_experiences_batch)):
 
 			# t1 = time.time()
 			experiences = self.getBatchExperiences()
@@ -221,11 +223,6 @@ class Network():
 				self.f.write(f'{t}\n')
 				self.t1 = self.t2
 				# print(f'Fit: 5 copy weights: {(time.time()-t1):.3f}')
-
-		
-		# t1 = time.time()
-		self.writeExperienceToFile(exp)
-		# print(f'Fit: 6 write to file: {(time.time()-t1):.3f}')
 
 	def predictPN(self, input):
 		return self.policyNetwork(np.atleast_2d(input))
@@ -342,7 +339,7 @@ def shutdown():
 
 app.run(host='0.0.0.0')
 # network.closeFile()
-network.writeAllExperiences()
+network.writeExperiencesToFile()
 network.f.close()
 
 file = open('time_elapsed','w')
