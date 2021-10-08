@@ -14,7 +14,7 @@ np.random.seed(RANDOM_SEED)
 
 class Network():
 	def __init__(self):
-		self.batchsize = 128
+		self.batchsize = 64
 		self.discount_rate = 0.95
 		self.lr = 0.001
 		self.gamma = 0.99
@@ -25,8 +25,8 @@ class Network():
 		self.file = '' #initialize after
 		self.experiences_prepros = []
 
-		self.number_prioritize_experiences_batch = 2
 		self.prioritize = True
+		self.number_prioritize_experiences_batch = 2
 		self.negative_hit_reward=-100
 		self.prioritize_experiences = []
 
@@ -154,8 +154,8 @@ class Network():
 
 
 	def fit(self, exp):
-		if(len(self.experiences_prepros)>=self.minNumExperiences 
-			or (self.prioritize and len(self.prioritize_experiences)>self.number_prioritize_experiences_batch)):
+		if( (self.prioritize is False and len(self.experiences_prepros)>self.minNumExperiences)
+			or (self.prioritize and len(self.experiences_prepros)>self.minNumExperiences and len(self.prioritize_experiences)>self.number_prioritize_experiences_batch)):
 
 			# t1 = time.time()
 			experiences = self.getBatchExperiences()
@@ -163,19 +163,12 @@ class Network():
 
 			# t1 = time.time()
 			states = tf.convert_to_tensor(experiences['s'], dtype=tf.float32) #The current state
-			# print('states', states.shape, states)
 			actions = np.asarray(experiences['a']) #The action performed (chosen randomly or by net)
-			# print('actions', actions.shape, actions)
 			rewards = np.asarray(experiences['r']) #The reward got
-			# print('rewards', rewards.shape, rewards)
 			next_states = tf.convert_to_tensor(experiences['ns']) #The next state
-			# print('next_states', next_states.shape, next_states)
 			dones = np.asarray(experiences['done']) #State of the game (ended or not)
-			# print('dones', dones.shape, dones)
 			value_next = np.max(self.targetNetwork(next_states),axis=1) #Max next values according to the Target Network
-			# print('value_next', value_next.shape, value_next)
-			actual_values = np.where(dones, rewards, rewards+self.gamma*value_next)
-			# print('actual_values', actual_values.shape, actual_values)
+			actual_values = np.where(dones, rewards, rewards+self.gamma*value_next) #Max values according to Bellman's equation
 			# print(f'Fit: 2 generate tensors: {(time.time()-t1):.3f}')
 
 			# t1 = time.time()
@@ -223,6 +216,12 @@ class Network():
 				self.f.write(f'{t}\n')
 				self.t1 = self.t2
 				# print(f'Fit: 5 copy weights: {(time.time()-t1):.3f}')
+		#else
+		exp = self.dictFromExperienceRaw(exp.strip())
+		if(self.prioritize and exp['r']==self.negative_hit_reward):
+			self.prioritize_experiences.append(exp)
+		else:
+			self.experiences_prepros.append(exp)
 
 	def predictPN(self, input):
 		return self.policyNetwork(np.atleast_2d(input))
