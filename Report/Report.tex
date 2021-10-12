@@ -1,0 +1,134 @@
+\documentclass[14pt]{extarticle}
+\usepackage{amsmath}
+\usepackage{float}
+\usepackage{listings}
+\lstset{
+    %numbers=left,
+    breaklines=true,
+    tabsize=2,
+    basicstyle=\ttfamily,
+    literate={\ \ }{{\ }}1
+}
+
+\usepackage{graphicx}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+\usepackage[utf8]{inputenc}
+\usepackage{geometry}
+ \geometry{
+ a4paper,
+ total={170mm,257mm},
+ left=20mm,
+ top=20mm,
+ }
+
+\usepackage{changepage}
+
+%Legend
+%\vspace{10pt} interlinea nome section - testo o Titolo elenco - descrizione elenco (Variable) 
+\def\sp{\vspace{5pt}}
+%\vspace{25pt} interlinea tra sections (Variable)
+\def\ss{\vspace{25pt}}
+%\vspace{3pt} interlinea tra linee in un paragrafo + breakline (Variable)
+\def\pp{\vspace{10pt}\newline}
+\def\ppn{\vspace{10pt}}
+%Tab 
+\def\tab{\hspace*{15pt}}
+
+\def\remo{\emph{REMO }}
+
+%debug 1 -> debug, 0 -> finale
+\newcounter{debug}
+\setcounter{debug}{1}
+
+\begin{document}
+\title{title}
+\author{author}
+\date{date}
+
+\begin{titlepage}
+	\begin{figure}[t]
+    		\centering\includegraphics[width=0.7\textwidth]{./Image/polito_logo_2021_blu.jpg}
+		\vspace{10mm}
+	\end{figure}
+
+	\begin{center}
+	    	\textbf{ \LARGE{University\\}}
+		%\textnormal{ \Large{Dipartimento di Automatica e Informatica Collegio di Ingegneria Informatica, del Cinema e Meccatronica\\}}
+		\ss
+		\textnormal{ \Large {MAURIZIO VASSALLO\\}}
+		\textnormal{ \large {Student ID: \\}}
+		\textnormal{ \large {Compan\\}}
+		\textnormal{ \large {Academic Tutor: a\\}}
+		%\vspace{30mm}
+	    		\vspace{\fill}\textbf{\LARGE{HIP\\}}\vspace*{\fill}%vertical align
+	\end{center}
+	
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+\begin{center}
+	\section{Introduction}
+	\sp
+\end{center}
+\begin{flushleft}
+	This report is drawn up 
+	\ss
+\end{flushleft}
+
+	\subsection{The}
+	\sp
+\begin{flushleft}ake the rehabilitation process of
+	\ss
+\end{flushleft}
+
+
+\newpage
+\begin{center}
+	\section{The}
+	\sp
+\end{center}
+\begin{flushleft}
+ience and in the back-end server development part. 
+	\ss
+\end{flushleft}
+
+\subsection{Test}
+\sp
+\begin{flushleft}
+The first task was .
+\end{flushleft}
+
+\subsection{Complex-Analysis} \label{complex}
+\sp
+\begin{flushleft}
+This part concerns the st
+\subsubsection{Dataset }
+m movements
+\end{flushleft}
+
+
+
+\newpage
+\begin{center}
+	\section{Conclusion}
+	\sp
+\end{center}
+\begin{flushleft}
+
+This internship was a formative experience that allowed me to discover many new topics but also to understand how a company works. Moreover, it allowed me to understand that there is a substantial difference between the university environment and the corporate environment: university, as mentioned by some professors during the courses, has the task of giving a general knowledge of the topics and the real task is to give a way of thinking and analysing a problem to find a solution; indeed, during this period in the company I realized that computer knowledge was not always essential but it was more important to understand what was needed to be done and how to do it.
+\ppn
+
+I believe that this internship was very useful because it allowed me to deepen and learn about new topics and gave me an idea to understand if the tasks assigned could be addressed in a future university career or in a possible job.
+\newline
+This is also an experience that allows to grow both personally and professionally, not to mention that it is a way to
+enrich the Curriculum Vitae.
+
+\ppn
+I am fully satisfied with the internship as AI researcher and developer and I am satisfied with the atmosphere of serenity and professionalism that I lived in the company thanks to the kind and extremely helpful colleagues.
+	\ss
+\end{flushleft}
+
+\end{document}
