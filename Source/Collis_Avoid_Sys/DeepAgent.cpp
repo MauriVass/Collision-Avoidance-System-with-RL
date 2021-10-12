@@ -38,7 +38,7 @@ void ADeepAgent::BeginPlay() {
 	ADeepAgent::IsTraining = true;
 	ADeepAgent::IsStateSpaceDescrete = true;
 	ADeepAgent::IsActionSpaceDescrete = true;
-	ADeepAgent::Epoch = 0;
+	ADeepAgent::Episode = 0;
 	ADeepAgent::NumberActions = 5;
 	ADeepAgent::Epsilon = 1.0;
 	ADeepAgent::EpsilonDecay = 6.5 * FMath::Pow(10,-5);
@@ -135,8 +135,8 @@ float ADeepAgent::GetCumulativeReward()
 int ADeepAgent::GetNumberSteps() {
 	return ADeepAgent::NumberSteps;
 }
-int ADeepAgent::GetEpoch() {
-	return ADeepAgent::Epoch;
+int ADeepAgent::GetEpisode() {
+	return ADeepAgent::Episode;
 }
 TArray<float> ADeepAgent::GetInput() {
 	TArray<float> currentSate;
@@ -464,9 +464,9 @@ void ADeepAgent::RestartGame()
 	ADeepAgent::MovementComponent->SetThrottleInput(1);
 
 	ADeepAgent::AverageSpeed /= ADeepAgent::NumberSteps;
-	if(ADeepAgent::Epoch>0)
-		ADeepAgent::WriteToFile(ADeepAgent::Epoch, ADeepAgent::NumberSteps, ADeepAgent::CumulativeReward, ADeepAgent::AverageSpeed, ADeepAgent::IsGameEnded, true);
-	ADeepAgent::Epoch++;
+	if(ADeepAgent::Episode>0)
+		ADeepAgent::WriteToFile(ADeepAgent::Episode, ADeepAgent::NumberSteps, ADeepAgent::CumulativeReward, ADeepAgent::AverageSpeed, ADeepAgent::IsGameEnded, true);
+	ADeepAgent::Episode++;
 	ADeepAgent::NumberSteps = 0;
 	ADeepAgent::CumulativeReward = 0;
 	ADeepAgent::AverageSpeed = 0;
@@ -480,10 +480,10 @@ void ADeepAgent::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 	InputComponent->BindAction("Input1", IE_Pressed, this, &ADeepAgent::Restart);
 }
 
-void ADeepAgent::WriteToFile(int epoch, int numberSteps, float totalReward, float averageSpeed, bool gameEndedByCrush, bool allowOverwriting)
+void ADeepAgent::WriteToFile(int episode, int numberSteps, float totalReward, float averageSpeed, bool gameEndedByCrush, bool allowOverwriting)
 {
 	FString TextToSave = FString("");
-	TextToSave += FString::FromInt(epoch) + "," + FString::FromInt(numberSteps) + "," + FString::SanitizeFloat(totalReward) + "," + FString::SanitizeFloat(averageSpeed) + "," + FString::FromInt(gameEndedByCrush);
+	TextToSave += FString::FromInt(episode) + "," + FString::FromInt(numberSteps) + "," + FString::SanitizeFloat(totalReward) + "," + FString::SanitizeFloat(averageSpeed) + "," + FString::FromInt(gameEndedByCrush);
 	TextToSave += "\n";
 
 	IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
@@ -501,7 +501,7 @@ void ADeepAgent::WriteToFile(int epoch, int numberSteps, float totalReward, floa
 			if(allowOverwriting)
 				FFileHelper::SaveStringToFile(TextToSave, *AbsoluteFilePath, FFileHelper::EEncodingOptions::AutoDetect, &IFileManager::Get(), FILEWRITE_Append);
 			else {
-				TextToSave = "epoch,numberSteps,totalReward,averageSpeed,gameEndedByCrush\n";
+				TextToSave = "Episode,numberSteps,totalReward,averageSpeed,gameEndedByCrush\n";
 				FFileHelper::SaveStringToFile(TextToSave, *AbsoluteFilePath, FFileHelper::EEncodingOptions::AutoDetect, &IFileManager::Get(), EFileWrite::FILEWRITE_None);
 			}
 		}

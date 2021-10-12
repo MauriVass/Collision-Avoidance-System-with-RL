@@ -44,7 +44,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 		int GetNumberSteps();
 	UFUNCTION(BlueprintCallable)
-		int GetEpoch();
+		int GetEpisode();
 	UFUNCTION(BlueprintCallable)
 		bool GetIsTraining();
 	UFUNCTION(BlueprintCallable)
@@ -70,7 +70,7 @@ private:
 
 	FString SaveDirectory;
 	FString FileName;
-	void WriteToFile(int epoch, int numberSteps, float totalReward, float averageSpeed, bool gameEndedByCrush, bool allowOverwriting);
+	void WriteToFile(int Episode, int numberSteps, float totalReward, float averageSpeed, bool gameEndedByCrush, bool allowOverwriting);
 
 	UWheeledVehicleMovementComponent* MovementComponent;
 	FTransform initialTransform;
@@ -84,7 +84,7 @@ private:
 	float Epsilon;
 	float EpsilonDecay;
 	float MinEpsilon;
-	int Epoch;
+	int Episode;
 	int NumberSteps;
 	int MaxNumberSteps;
 	int NumberFitSteps;
