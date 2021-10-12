@@ -43,13 +43,19 @@ void ADeepAgent::BeginPlay() {
 	ADeepAgent::Epsilon = 1.0;
 	ADeepAgent::EpsilonDecay = 6.5 * FMath::Pow(10,-5);
 	ADeepAgent::MinEpsilon = 0.03;
-	ADeepAgent::MaxNumberSteps = 4000;
+	ADeepAgent::MaxNumberSteps = 2000;
 	ADeepAgent::NumberFitSteps = 1;
 	ADeepAgent::AngleExtension = 170;
+	ADeepAgent::NegativeReward = -10;
+	//0 -> Deep Q-Network
+	//1-> Double Deep Q-Network
+	//2-> Dueling Deep Q-Network
+	ADeepAgent::ModelSpecification = 0;
 
 	ADeepAgent::TickTime = 0.02;
 
-	ADeepAgent::Client->SendMetadata(ADeepAgent::NumberSensor, ADeepAgent::IsActionSpaceDescrete,ADeepAgent::NumberActions);
+	bool prioritize = true;
+	ADeepAgent::Client->SendMetadata(ADeepAgent::NumberSensor, ADeepAgent::IsActionSpaceDescrete, ADeepAgent::NumberActions, ADeepAgent::NegativeReward, ADeepAgent::ModelSpecification, prioritize);
 	ADeepAgent::RestartGame();
 	UE_LOG(LogTemp, Error, TEXT("Begin"));
 
@@ -271,7 +277,7 @@ void ADeepAgent::RewardFunction(TArray<float> currentState)
 
 	//UE_LOG(LogTemp, Error, TEXT("%f %f %f"),ADeepAgent::Reward, ADeepAgent::GetMesh()->GetComponentVelocity().Size(), );
 	if (ADeepAgent::IsGameEnded) {
-		ADeepAgent::Reward = -100;
+		ADeepAgent::Reward = ADeepAgent::NegativeReward;
 	}
 }
 
@@ -421,7 +427,7 @@ void ADeepAgent::Step()
 	}
 
 	ADeepAgent::NumberSteps++;
-	if (ADeepAgent::IsGameEnded || ADeepAgent::NumberSteps>=ADeepAgent::MaxNumberSteps) {
+	if (ADeepAgent::IsGameEnded || (ADeepAgent::IsTraining && ADeepAgent::NumberSteps>=ADeepAgent::MaxNumberSteps)) {
 		ADeepAgent::RestartGame();
 	}
 }

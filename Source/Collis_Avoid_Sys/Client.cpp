@@ -20,7 +20,6 @@ void AClient::BeginPlay()
 	Super::BeginPlay();
 	
 	//AClient::UrlAddress = "192.168.1.8:5000/";						//Laptop
-	//AClient::UrlAddress = "http://1cac-34-75-219-86.ngrok.io/";			//Colab
 	AClient::UrlAddress = "192.168.1.12:5000/";						//Desktop
 }
 
@@ -32,9 +31,10 @@ void AClient::Tick(float DeltaTime)
 
 }
 
-void AClient::SendMetadata(int numSensors, bool actionDescrete, int numActions)
+void AClient::SendMetadata(int numSensors, bool actionDescrete, int numActions, float negativeReward, int modelSpecification, bool prioritize)
 {
-	FString data = FString::FromInt(numSensors) + ":" + (actionDescrete? "True" : "False") + ":" + FString::FromInt(numActions);
+	FString data = FString::FromInt(numSensors) + ":" + (actionDescrete? "True" : "False") + ":" + FString::FromInt(numActions) + ":" + FString::SanitizeFloat(negativeReward) + ":" + FString::FromInt(modelSpecification) + ":" + (prioritize ? "True" : "False");
+	UE_LOG(LogTemp, Error, TEXT("Sending data: \n%s \nnumSensors, actionDescrete, numActions, negativeReward, modelSpecification, prioritize"), *data);
 
 	FHttpModule* Http = &FHttpModule::Get();
 	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> HttpRequest = Http->CreateRequest();

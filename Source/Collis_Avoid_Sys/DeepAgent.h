@@ -92,6 +92,7 @@ private:
 
 	float Reward;
 	float CumulativeReward;
+	float NegativeReward;
 	FVector TargetVector;
 	void RewardFunction(TArray<float> currentState);
 	float AverageSpeed;
@@ -102,6 +103,8 @@ private:
 		bool IsGameEnded;
 	UFUNCTION(BlueprintSetter)
 	void SetIsGameEnded(bool value);
+
+	int ModelSpecification;
 
 	bool IsActionSpaceDescrete;
 	int Action;

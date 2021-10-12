@@ -25,13 +25,12 @@ class Network():
 		self.file = '' #initialize after
 		self.experiences_prepros = []
 
-		self.prioritize = True
+		# self.prioritize = True
 		self.number_prioritize_experiences_batch = 2
-		self.negative_hit_reward=-100
 		self.prioritize_experiences = []
 
 		self.is_action_space_descrete = True
-		self.readExperiencesFromFile()
+		# self.readExperiencesFromFile()
 		# t1 = time.time()
 		# print(f'Reading {time.time()-t1}')
 
@@ -47,12 +46,15 @@ class Network():
 		self.t2=0
 		self.f = open('updates','w')
 
-	def Initialization(self, num_inputs, is_action_space_descrete, num_actions):
+	def Initialization(self, num_inputs, is_action_space_descrete, num_actions,negative_reward,model_specification, prioritize):
 		self.num_inputs = num_inputs
 		self.is_action_space_descrete = is_action_space_descrete
 		self.num_actions = num_actions
+		self.negative_hit_reward = negative_reward
+		self.model_specification = model_specification
+		self.prioritize = prioritize
 		
-		#self.readExperiencesFromFile()
+		self.readExperiencesFromFile()
 
 		self.policyNetwork = self.ModelTemplate()
 
@@ -96,12 +98,7 @@ class Network():
 		for e in self.experiences_prepros:
 			cs = ':'.join( [str(x) for x in e['s'].numpy()[0]] )
 
-			if(self.is_action_space_descrete):
-				a = str(e['a'])
-			else:
-				thro_a = str(e['a'][0])
-				steer_a = str(e['a'][1])
-				a = thro_a+':'+steer_a
+			a = str(e['a'])
 			ns = ':'.join( [str(x) for x in e['ns'].numpy()[0]] )
 			r = str(e['r'])
 			end = str(int(e['done']))
@@ -116,12 +113,7 @@ class Network():
 
 		currentState = tf.Variable([np.array(elements[0].split(':'), dtype=np.float16)])
 		
-		if(self.is_action_space_descrete):
-			action = float(elements[1])
-		else:
-			throttle_action = float(elements[1].split(':')[0])
-			steer_action = float(elements[1].split(':')[1])
-			action = [throttle_action, steer_action]
+		action = float(elements[1])
 		nextAction = tf.Variable([np.array(elements[2].split(':'), dtype=np.float16)])
 		reward = float(elements[3])
 		gameEnded = True if elements[4]==1 else False
@@ -152,7 +144,6 @@ class Network():
 					experiences[k].append(v)
 		return experiences
 
-
 	def fit(self, exp):
 		if( (self.prioritize is False and len(self.experiences_prepros)>self.minNumExperiences)
 			or (self.prioritize and len(self.experiences_prepros)>self.minNumExperiences and len(self.prioritize_experiences)>self.number_prioritize_experiences_batch)):
@@ -167,7 +158,14 @@ class Network():
 			rewards = np.asarray(experiences['r']) #The reward got
 			next_states = tf.convert_to_tensor(experiences['ns']) #The next state
 			dones = np.asarray(experiences['done']) #State of the game (ended or not)
-			value_next = np.max(self.targetNetwork(next_states),axis=1) #Max next values according to the Target Network
+
+			if(self.model_specification==0):
+				value_next = np.max(self.policyNetwork(next_states),axis=1) #Max next values according to the Target Network
+			elif(self.model_specification==1):
+				value_next = np.max(self.targetNetwork(next_states),axis=1) #Max next values according to the Target Network
+			else:
+				a=0
+			
 			actual_values = np.where(dones, rewards, rewards+self.gamma*value_next) #Max values according to Bellman's equation
 			# print(f'Fit: 2 generate tensors: {(time.time()-t1):.3f}')
 
@@ -175,10 +173,7 @@ class Network():
 			with tf.GradientTape() as tape:
 				tape.watch(states)
 
-				if(self.is_action_space_descrete):
-					a = self.policyNetwork(states) * tf.one_hot(actions, self.num_actions)
-				else:
-					a = self.policyNetwork(states)
+				a = self.policyNetwork(states) * tf.one_hot(actions, self.num_actions)
 				selected_action_values = tf.math.reduce_sum(a , axis=1)
 
 				#MES
@@ -206,7 +201,7 @@ class Network():
 			# print(f'Fit: 4 backprog: {(time.time()-t1):.3f}')
 
 			self.steps+=1
-			if(self.steps>=self.copyWeightSteps):
+			if(self.model_specification==1 and self.steps>=self.copyWeightSteps):
 				# t1 = time.time()
 				self.steps=0
 				self.copyNN(soft=True)
@@ -224,10 +219,10 @@ class Network():
 			self.experiences_prepros.append(exp)
 
 	def predictPN(self, input):
-		return self.policyNetwork(np.atleast_2d(input))
-
-	def predictTN(self, input):
-		return self.targetNetwork(np.atleast_2d(input))
+		if(self.model_specification==2):
+			a=0
+		else:
+			return self.policyNetwork(np.atleast_2d(input))
 	
 	def copyNN(self, soft=False):
 		if(soft):
@@ -264,7 +259,10 @@ def INITIALIZATION():
 	num_sensors = int(input[0])
 	is_action_space_descrete = False if input[1]=='False' else True
 	num_actions = int(input[2])
-	network.Initialization(num_sensors,is_action_space_descrete,num_actions)
+	negative_reward = float(input[3])
+	model_specification = int(input[4])
+	prioritize = False if input[5]=='False' else True
+	network.Initialization(num_sensors,is_action_space_descrete,num_actions,negative_reward,model_specification,prioritize)
 	return 'initialization'
 
 @app.route('/fit', methods=['POST'])
@@ -289,12 +287,8 @@ def PREDICT():
 	#print(input)
 	output = network.predictPN(input)
 
-	if(network.is_action_space_descrete):
-		a = np.argmax(output)
-		output = str(a)
-	else:
-		a = output.numpy()[0] #np.argmax(output)
-		output = f'{a[0]};{a[1]}'
+	a = np.argmax(output)
+	output = str(a)
 	#print('pred net', output, action)
 	# # print('target net', self.net.predictTN(input))
 	# out = '/'.join([str(o) for o in output.numpy()[0]])
