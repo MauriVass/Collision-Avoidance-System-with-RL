@@ -221,7 +221,7 @@ class Network():
  
 				a = self.policyNetwork(states) * tf.one_hot(actions, self.num_actions)
 				selected_action_values = tf.math.reduce_sum(a , axis=1)
-				
+
 				#MES
 				# loss = tf.math.reduce_mean(tf.square(actual_values - selected_action_values))
 				#Huber Loss
@@ -247,7 +247,7 @@ class Network():
 			# print(f'Fit: 4 backprog: {(time.time()-t1):.3f}')
 
 			self.steps+=1
-			if(self.model_specification==1 and self.steps>=self.copyWeightSteps):
+			if(self.model_specification!=0 and self.steps>=self.copyWeightSteps):
 				# t1 = time.time()
 				self.steps=0
 				self.copyNN(soft=True)
