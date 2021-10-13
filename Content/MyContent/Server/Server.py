@@ -16,7 +16,7 @@ class Network():
 	def __init__(self):
 		self.batchsize = 64
 		self.discount_rate = 0.95
-		self.lr = 0.001
+		self.lr = 0.000025
 		self.gamma = 0.99
 		self.tau = 0.99
 		self.optimizer = tf.optimizers.Adam(self.lr)
@@ -30,6 +30,8 @@ class Network():
 		self.prioritize_experiences = []
 
 		self.is_action_space_descrete = True
+		# self.prioritize = True
+		# self.negative_hit_reward = -10
 		# self.readExperiencesFromFile()
 		# t1 = time.time()
 		# print(f'Reading {time.time()-t1}')
@@ -58,15 +60,16 @@ class Network():
 
 		self.policyNetwork = self.ModelTemplate()
 
-		self.targetNetwork = self.ModelTemplate()
-		self.copyNN()
+		if(self.model_specification==1):
+			self.targetNetwork = self.ModelTemplate()
+			self.copyNN()
 		print(self.policyNetwork.summary())
 		self.t1 = time.time()
 
 	def ModelTemplate(self):
 			model = tf.keras.Sequential([
 							tf.keras.layers.Flatten(),
-							tf.keras.layers.Dense(64, activation='relu', kernel_initializer='RandomNormal'),
+							tf.keras.layers.Dense(32, activation='relu', kernel_initializer='RandomNormal'),
 							#tf.keras.layers.Dense(64, activation='relu', kernel_initializer='RandomNormal'),
 							tf.keras.layers.Dense(self.num_actions, activation='linear', kernel_initializer='RandomNormal') #softmax
 						])
@@ -116,7 +119,7 @@ class Network():
 		action = float(elements[1])
 		nextAction = tf.Variable([np.array(elements[2].split(':'), dtype=np.float16)])
 		reward = float(elements[3])
-		gameEnded = True if elements[4]==1 else False
+		gameEnded = True if int(elements[4])==1 else False
 		
 		# exp = {'s': currentState, 'a': action, 'ns': nextAction, 'r': reward, 'done': gameEnded}
 		exp = {'s': currentState, 'a': action, 'ns': nextAction, 'r': reward, 'done': gameEnded}
