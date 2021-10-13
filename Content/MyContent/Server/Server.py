@@ -12,6 +12,47 @@ RANDOM_SEED = 21
 tf.random.set_seed(RANDOM_SEED)
 np.random.seed(RANDOM_SEED)
 
+class DDDQN_template(tf.keras.Model):
+	def __init__(self,num_inputs,num_actions):
+		super(DDDQN_template, self).__init__(name='')
+		#First layer
+		self.dense1 = tf.keras.layers.Dense(units=32,
+										activation='relu',
+										kernel_initializer='RandomNormal')
+		# Here we separate into two streams
+		# The one that calculate V(s)
+		self.value_fc = tf.keras.layers.Dense(units=32,
+										activation='relu',
+										kernel_initializer='RandomNormal')
+
+		self.value_out = tf.keras.layers.Dense(units=1,
+										activation=None,
+										kernel_initializer='RandomNormal')
+		# The one that calculate A(s,a)
+		self.advantage_fc = tf.keras.layers.Dense(units=32,
+											activation=tf.nn.elu,
+											kernel_initializer='RandomNormal')
+
+		self.advantage_out = tf.keras.layers.Dense(units=num_actions,
+											activation=None,
+											kernel_initializer='RandomNormal')
+
+	def call(self, input_tensor):
+		x = self.dense1(input_tensor)
+
+		value = self.value_fc(x)
+		value = self.value_out(value)
+
+		advantage = self.advantage_fc(x)
+		advantage = self.value_out(advantage)
+
+		# Agregating layer
+		# Q(s,a) = V(s) + (A(s,a) - 1/|A| * sum A(s,a'))
+		output = value + tf.subtract(advantage, tf.reduce_mean(advantage, axis=1, keepdims=True))
+		output = tf.squeeze(output, -1)
+		return output
+
+
 class Network():
 	def __init__(self):
 		self.batchsize = 64
@@ -60,28 +101,32 @@ class Network():
 
 		self.policyNetwork = self.ModelTemplate()
 
-		if(self.model_specification==1):
+		if(self.model_specification!=0):
 			self.targetNetwork = self.ModelTemplate()
 			self.copyNN()
 		print(self.policyNetwork.summary())
 		self.t1 = time.time()
 
 	def ModelTemplate(self):
+		model = ''
+		if(self.model_specification!=2):
 			model = tf.keras.Sequential([
 							tf.keras.layers.Flatten(),
 							tf.keras.layers.Dense(32, activation='relu', kernel_initializer='RandomNormal'),
 							#tf.keras.layers.Dense(64, activation='relu', kernel_initializer='RandomNormal'),
 							tf.keras.layers.Dense(self.num_actions, activation='linear', kernel_initializer='RandomNormal') #softmax
 						])
-			model.build(input_shape=(1,self.num_inputs))
-			return model
+		else:
+			model = DDDQN_template(self.num_inputs,self.num_actions)
+		model.build(input_shape=(1,self.num_inputs))
+		return model
 
 	def readExperiencesFromFile(self):
 		self.file = open(self.filepath,'r')
 
 		for l in self.file.readlines():
 			exp = self.dictFromExperienceRaw(l.strip())
-			if(self.prioritize and exp['r']==self.negative_hit_reward):
+			if(self.prioritize and exp['d']==1):
 				self.prioritize_experiences.append(exp)
 			else:
 				self.experiences_prepros.append(exp)
@@ -164,10 +209,8 @@ class Network():
 
 			if(self.model_specification==0):
 				value_next = np.max(self.policyNetwork(next_states),axis=1) #Max next values according to the Target Network
-			elif(self.model_specification==1):
+			else: #if(self.model_specification==1):
 				value_next = np.max(self.targetNetwork(next_states),axis=1) #Max next values according to the Target Network
-			else:
-				a=0
 			
 			actual_values = np.where(dones, rewards, rewards+self.gamma*value_next) #Max values according to Bellman's equation
 			# print(f'Fit: 2 generate tensors: {(time.time()-t1):.3f}')
@@ -175,10 +218,10 @@ class Network():
 			# t1 = time.time()
 			with tf.GradientTape() as tape:
 				tape.watch(states)
-
+ 
 				a = self.policyNetwork(states) * tf.one_hot(actions, self.num_actions)
 				selected_action_values = tf.math.reduce_sum(a , axis=1)
-
+				
 				#MES
 				# loss = tf.math.reduce_mean(tf.square(actual_values - selected_action_values))
 				#Huber Loss
