@@ -38,6 +38,7 @@ void ADeepAgent::BeginPlay() {
 	ADeepAgent::IsTraining = true;
 	ADeepAgent::IsStateSpaceDescrete = true;
 	ADeepAgent::IsActionSpaceDescrete = true;
+	ADeepAgent::Clockwise = true;
 	ADeepAgent::Episode = 0;
 	ADeepAgent::NumberActions = 5;
 	ADeepAgent::Epsilon = 1.0;
@@ -47,10 +48,11 @@ void ADeepAgent::BeginPlay() {
 	ADeepAgent::NumberFitSteps = 1;
 	ADeepAgent::AngleExtension = 170;
 	ADeepAgent::NegativeReward = -10;
+
 	//0 -> Deep Q-Network
 	//1-> Double Deep Q-Network
 	//2-> Dueling Deep Q-Network
-	ADeepAgent::ModelSpecification = 0;
+	ADeepAgent::ModelSpecification = 1;
 
 	ADeepAgent::TickTime = 0.02;
 
@@ -62,7 +64,7 @@ void ADeepAgent::BeginPlay() {
 	//todo: remove full-path
 	ADeepAgent::SaveDirectory = FString("C:/Users/mauri/Desktop/Mauri/software_per_programmazione/progetti/UnrealEngine/Collis_Avoid_Sys/CollisionAvoidanceSystem/Content/MyContent/Server");
 	ADeepAgent::FileName = FString("run.rewards.csv");
-	ADeepAgent::WriteToFile(0,0,0,0,false,false);
+	ADeepAgent::WriteToFile(0,0,0,0,false,false,false);
 
 	ADeepAgent::IsGameStarting = true;
 	ADeepAgent::ToggleIsGameStarting();
@@ -394,7 +396,8 @@ void ADeepAgent::Step()
 	//ADeepAgent::Reward
 	ADeepAgent::RewardFunction(currentState);
 	ADeepAgent::CumulativeReward += ADeepAgent::Reward;
-	ADeepAgent::AverageSpeed += ADeepAgent::GetMesh()->GetPhysicsLinearVelocity().Size();
+	ADeepAgent::AverageSpeed += ADeepAgent::GetMesh()->GetPhysicsLinearVelocity().Size(); //Cumulative nvm
+
 	//FIT NEURAL NETWORK WITH THIS EXPERIENCE
 	if (ADeepAgent::IsTraining) {
 		Experience currentExp = Experience(currentState, ADeepAgent::Action, nextState, ADeepAgent::Reward, IsGameEnded);
@@ -405,8 +408,10 @@ void ADeepAgent::Step()
 			try
 			{
 				if (counter % ADeepAgent::NumberFitSteps == 0)//&& (ADeepAgent::Epsilon > ADeepAgent::MinEpsilon)
-					if(!ADeepAgent::IsActionSpaceDescrete)
+					if (!ADeepAgent::IsActionSpaceDescrete) {
 						ADeepAgent::Client->SendExperience(currentState, ADeepAgent::ThrottleAction, ADeepAgent::SteerAction, nextState, ADeepAgent::Reward, ADeepAgent::IsGameEnded);
+						//UE_LOG(LogTemp, Error, TEXT("%d"), ADeepAgent::IsGameEnded)
+					}
 					else
 						ADeepAgent::Client->SendExperience(currentState, ADeepAgent::Action, nextState, ADeepAgent::Reward, ADeepAgent::IsGameEnded);
 
@@ -444,7 +449,8 @@ void ADeepAgent::RestartGame()
 	//this->GetMesh()->SetAllPhysicsPosition(pos);
 
 	//Calculate new rotation
-	bool changeDirection = FMath::RandBool();
+	bool changeDirection = ADeepAgent::Clockwise; // FMath::RandBool();
+	ADeepAgent::Clockwise = !ADeepAgent::Clockwise;
 	FQuat rot = ADeepAgent::initialTransform.GetRotation();
 	if (changeDirection) {
 		//Not sure why:
@@ -465,7 +471,7 @@ void ADeepAgent::RestartGame()
 
 	ADeepAgent::AverageSpeed /= ADeepAgent::NumberSteps;
 	if(ADeepAgent::Episode>0)
-		ADeepAgent::WriteToFile(ADeepAgent::Episode, ADeepAgent::NumberSteps, ADeepAgent::CumulativeReward, ADeepAgent::AverageSpeed, ADeepAgent::IsGameEnded, true);
+		ADeepAgent::WriteToFile(ADeepAgent::Episode, ADeepAgent::NumberSteps, ADeepAgent::CumulativeReward, ADeepAgent::AverageSpeed, ADeepAgent::IsGameEnded, ADeepAgent::Clockwise, true);
 	ADeepAgent::Episode++;
 	ADeepAgent::NumberSteps = 0;
 	ADeepAgent::CumulativeReward = 0;
@@ -480,10 +486,10 @@ void ADeepAgent::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 	InputComponent->BindAction("Input1", IE_Pressed, this, &ADeepAgent::Restart);
 }
 
-void ADeepAgent::WriteToFile(int episode, int numberSteps, float totalReward, float averageSpeed, bool gameEndedByCrush, bool allowOverwriting)
+void ADeepAgent::WriteToFile(int episode, int numberSteps, float totalReward, float averageSpeed, bool gameEndedByCrush, bool clockwise, bool allowOverwriting)
 {
 	FString TextToSave = FString("");
-	TextToSave += FString::FromInt(episode) + "," + FString::FromInt(numberSteps) + "," + FString::SanitizeFloat(totalReward) + "," + FString::SanitizeFloat(averageSpeed) + "," + FString::FromInt(gameEndedByCrush);
+	TextToSave += FString::FromInt(episode) + "," + FString::FromInt(numberSteps) + "," + FString::SanitizeFloat(totalReward) + "," + FString::SanitizeFloat(averageSpeed) + "," + FString::FromInt(gameEndedByCrush) + "," + FString::FromInt(clockwise);
 	TextToSave += "\n";
 
 	IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
@@ -501,7 +507,7 @@ void ADeepAgent::WriteToFile(int episode, int numberSteps, float totalReward, fl
 			if(allowOverwriting)
 				FFileHelper::SaveStringToFile(TextToSave, *AbsoluteFilePath, FFileHelper::EEncodingOptions::AutoDetect, &IFileManager::Get(), FILEWRITE_Append);
 			else {
-				TextToSave = "Episode,numberSteps,totalReward,averageSpeed,gameEndedByCrush\n";
+				TextToSave = "Episode,numberSteps,totalReward,averageSpeed,gameEndedByCrush,IsClockwise\n";
 				FFileHelper::SaveStringToFile(TextToSave, *AbsoluteFilePath, FFileHelper::EEncodingOptions::AutoDetect, &IFileManager::Get(), EFileWrite::FILEWRITE_None);
 			}
 		}

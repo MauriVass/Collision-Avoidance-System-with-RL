@@ -70,7 +70,7 @@ private:
 
 	FString SaveDirectory;
 	FString FileName;
-	void WriteToFile(int Episode, int numberSteps, float totalReward, float averageSpeed, bool gameEndedByCrush, bool allowOverwriting);
+	void WriteToFile(int Episode, int numberSteps, float totalReward, float averageSpeed, bool gameEndedByCrush, bool clockwise, bool allowOverwriting);
 
 	UWheeledVehicleMovementComponent* MovementComponent;
 	FTransform initialTransform;
@@ -89,6 +89,7 @@ private:
 	int MaxNumberSteps;
 	int NumberFitSteps;
 	float AngleExtension;
+	bool Clockwise;
 
 	float Reward;
 	float CumulativeReward;
