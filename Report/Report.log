@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.23 (MiKTeX 21.8) (preloaded format=pdflatex 2021.9.25)  14 OCT 2021 10:01
+This is pdfTeX, Version 3.141592653-2.6-1.40.23 (MiKTeX 21.8) (preloaded format=pdflatex 2021.9.25)  14 OCT 2021 21:43
 entering extended mode
 **./Report.tex
 (Report.tex
@@ -579,13 +579,13 @@ LaTeX Info: Redefining \nameref on input line 45.
 * \@reversemarginfalse
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
-<./Image/tongji-university1.png, id=27, 602.25pt x 315.1775pt>
+<./Image/tongji-university1.png, id=39, 602.25pt x 315.1775pt>
 File: ./Image/tongji-university1.png Graphic file (type png)
 <use ./Image/tongji-university1.png>
 Package pdftex.def Info: ./Image/tongji-university1.png  used on input line 52.
 
 (pdftex.def)             Requested size: 217.6621pt x 113.91106pt.
-<./Image/polito_logo_2021_blu_resized.png, id=28, 602.25pt x 301.125pt>
+<./Image/polito_logo_2021_blu_resized.png, id=40, 602.25pt x 301.125pt>
 File: ./Image/polito_logo_2021_blu_resized.png Graphic file (type png)
 <use ./Image/polito_logo_2021_blu_resized.png>
 Package pdftex.def Info: ./Image/polito_logo_2021_blu_resized.png  used on inpu
@@ -623,35 +623,41 @@ File: c70gbsn.fd 2015/04/18 4.8.4
 (C:\Users\mauri\AppData\Local\Programs\MiKTeX\tex/latex/cjk/UTF8\c70gbsn.fdx
 File: c70gbsn.fdx 2015/04/18 4.8.4
 )
-[2] [3] [4] [5]
-LaTeX Font Info:    Trying to load font information for T1+cmtt on input line 1
-68.
+[2] [3] [4] [5] [6] [7]
+LaTeX Font Info:    Trying to load font information for T1+cmtt on input line 2
+02.
 
 (C:\Users\mauri\AppData\Local\Programs\MiKTeX\tex/latex/base\t1cmtt.fd
 File: t1cmtt.fd 2019/12/16 v2.5j Standard LaTeX font definitions
 )
-Underfull \hbox (badness 10000) in paragraph at lines 187--190
+Underfull \hbox (badness 10000) in paragraph at lines 221--224
 []$\T1/cmtt/m/n/14.4 https : / / www . reinventingparking . org / 2013 / 02 /
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 192--195
+Underfull \hbox (badness 10000) in paragraph at lines 226--229
 []$\T1/cmtt/m/n/14.4 https : / / scholarship . law . upenn . edu / cgi / viewco
 ntent . cgi ?
  []
 
-[6] (Report.aux)
+
+Underfull \hbox (badness 10000) in paragraph at lines 231--234
+[]$\T1/cmtt/m/n/14.4 http : / / web . engr . orst . edu / ~tgd / publications /
+
+ []
+
+[8] (Report.aux)
 Package rerunfilecheck Info: File `Report.out' has not changed.
-(rerunfilecheck)             Checksum: AC455D401897F5D3D23558E774906ADE;578.
+(rerunfilecheck)             Checksum: 59B887D963BE368E94392B3A8D60A39A;1459.
  ) 
 Here is how much of TeX's memory you used:
- 11821 strings out of 478927
- 173491 string characters out of 2852535
- 488611 words of memory out of 3000000
- 29448 multiletter control sequences out of 15000+600000
+ 11833 strings out of 478927
+ 173649 string characters out of 2852535
+ 489677 words of memory out of 3000000
+ 29453 multiletter control sequences out of 15000+600000
  412723 words of font info for 46 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 60i,6n,66p,706b,812s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 60i,6n,66p,734b,812s stack positions out of 5000i,500n,10000p,200000b,80000s
  <C:\Users\mauri\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ectt
 1440.pk> <C:\Users\mauri\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi60
 0\ecti1440.pk> <C:\Users\mauri\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec
@@ -663,13 +669,19 @@ ts/pk/ljfour/jknappen/ec/dpi600\ecbx2074.pk> <C:\Users\mauri\AppData\Local\MiKT
 eX\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm1728.pk> <C:\Users\mauri\AppData\Loca
 l\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm2074.pk> <C:\Users\mauri\AppDat
 a\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx2488.pk><C:/Users/mauri/A
-ppData/Local/Programs/MiKTeX/fonts/type1/arphic/gbsnu/gbsnu54.pfb><C:/Users/mau
-ri/AppData/Local/Programs/MiKTeX/fonts/type1/arphic/gbsnu/gbsnu59.pfb><C:/Users
-/mauri/AppData/Local/Programs/MiKTeX/fonts/type1/arphic/gbsnu/gbsnu5b.pfb><C:/U
-sers/mauri/AppData/Local/Programs/MiKTeX/fonts/type1/arphic/gbsnu/gbsnu6d.pfb>
-Output written on Report.pdf (7 pages, 300038 bytes).
+ppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/User
+s/mauri/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/cmmi10.pfb
+><C:/Users/mauri/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfonts/cm/c
+mmi12.pfb><C:/Users/mauri/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsf
+onts/cm/cmr10.pfb><C:/Users/mauri/AppData/Local/Programs/MiKTeX/fonts/type1/pub
+lic/amsfonts/cm/cmsy10.pfb><C:/Users/mauri/AppData/Local/Programs/MiKTeX/fonts/
+type1/arphic/gbsnu/gbsnu54.pfb><C:/Users/mauri/AppData/Local/Programs/MiKTeX/fo
+nts/type1/arphic/gbsnu/gbsnu59.pfb><C:/Users/mauri/AppData/Local/Programs/MiKTe
+X/fonts/type1/arphic/gbsnu/gbsnu5b.pfb><C:/Users/mauri/AppData/Local/Programs/M
+iKTeX/fonts/type1/arphic/gbsnu/gbsnu6d.pfb>
+Output written on Report.pdf (9 pages, 364129 bytes).
 PDF statistics:
- 450 PDF objects out of 1000 (max. 8388607)
- 21 named destinations out of 1000 (max. 500000)
- 75 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 531 PDF objects out of 1000 (max. 8388607)
+ 28 named destinations out of 1000 (max. 500000)
+ 99 words of extra memory for PDF output out of 10000 (max. 10000000)
 

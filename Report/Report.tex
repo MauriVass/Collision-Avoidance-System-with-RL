@@ -108,25 +108,59 @@ license.
 \item \textbf{Traffic Congestion and Land Use}. Autonomous vehicles could reduce congestion and change the way in which cities are planned. Most car are moving only for 5\% of their lives, for the 95\% they are parked\cite{AVparking}! For this reason lot of space is dedicated to parking lots; the same space that could be used for different purposes (green spaces, etc.).
 \item \textbf{Energy and Emissions}. Autonomous vehicle technology has the potential to reduce both energy consumption and pollution thanks to efficiencies gained through smoother acceleration and deceleration and  increased  roadway capacity.\cite{AVbenefit}
  \end{itemize}
+ 
+ To do: find a way to link this part with teh following one!!
 
 	\ss
 \end{flushleft}
 
 \newpage
 \begin{center}
-	\section{The}
-	\sp
+	\section{Reinforcement Learning}
 \end{center}
-\begin{flushleft}
-ience and in the back-end server development part. 
-	\ss
-\end{flushleft}
 
-\subsection{Test}
+\subsection{Introduction}
 \sp
 \begin{flushleft}
-The first task was .
+Humans and animals learn through a process of trial and error. This process is based on a reward mechanism that provide a response to our behaviors. The goal of this process is to incentivize the repetitions of actions which trigger positive rewards and disincentivize the repetition of actions which trigger negative ones.
+\\
+Inspired by how animals and humans learn, \textbf{Reinforcement Learning} is built around the idea trial and error from an interaction with the enviroment 
+%cite{andrea lonza book}.
+\pp
+Reinforcement Learning tries to solve the problem in which a decision-maker, Agent, can perform some action inside a world, called Enviroment. The agent senses the enviroment through the state; for each state the agent has to perform an action. These actions result in an effect: they change the agent's state and give it a feedback, the Reward. The reward is a value which indicated if the action performd is good, then the reward is positive, or it is bad, the reward is negative. Given these rewards the agent understand what action to perform in a given state to get a positive reward. 
+\\
+This cycle of state-action-reward is repeted many time. The goal of the agent is to find a policy such that the actions perform lead to the maximum reward possible. In particual the agent wants to maximize the cumulative reward, the sum of rewards over a period of time. The difference between maximizing the instant reward and cumulative reward is an important distinction because: choosing an action which lead to the maximum next reward could in the next state bring to an end state (game over); instead maximizing the cumulative reward means thinking in a long-term horizon, so that the next states should all have a positive reward (even if the action chosen in one state is not the one that the
+maximum reward).
+
+\subsection{Reinforcement Learning compared to other methods}
+\begin{flushleft}
+Machine learning is the science of getting computers to act without being explicitly programmed. Machine Learning methods are appropriate in application settings where
+people are unable to provide precise specifications for desired program behavior, but
+where examples of desired behavior are available, or where it is possible to assign a
+measure of goodness to examples of behavior\cite{RLandSL}.
+\\
+There are mainly 3 methods to train Machine Learning algorithms, each with its advantages and disavantages. These 3 methods are:
+\begin{itemize}
+\item Supervised Learning. In this method the algorithm is trained with labeled data; the training examples are of the form ($x_i$,$y_i$), with $x_i$ a \emph{n-dimentional} vector and $y_i$ a scalar (it can represent either a class or a floating value). The learner (either a classifier or a predictor) tries to find an `approximated' mapping fuction that maps an input $x_i$ to its correspoding $y_i$. During this learning process the error between the $y_i$ predicted and the actuall value is calculated and used to make the method learning (usually with Gradient Descent and Back Propagation) and decresing the error over time. A popular example is to classify and image given the raw pixels.
+\item Unsupervised Learning. The main difference between Unsupervised Learning and Supervised Learning is that in the former method data does not have labels. In this setting, the goal is usually find the relationship in the elements of the dataset. This is done calculating the distance (Euclidian, Hamming, etc.) between the points. A popular example is detecting a person purchase preferences analyzing his shopping list with other people shopping's lists.
+\item Reinforcement Learning. Reinforcement Learning comes into play when examples of desired behavior are not available but where it is possible to score examples of behavior according to some performance criterion\cite{RLandSL}. In general, in Reinforcement Learning the goal is to maximized an unknown reward fuction through and trial and error process. A popular example is a car that learns to drive in a given enviroment, with no given prior knowledge given.
+\end{itemize}
+Supervised and Reinforcement Learning could be considered similar but there are few key differences, in particual the goal in Supervised Learning is to predict the right label while in Reinforcement Learning the goal is to find an action $x^*$ in other to maximized the reward. For this reason instead of minimizing the error between the predicted class and the real class, the goal is to choose an action that maximize the cumulative reward in a given state.
 \end{flushleft}
+
+\subsection{Application of Reinforcement Learning}
+Some possible application of RL:
+\begin{itemize}
+\item Self-driving cars. Train a car in a real world can be dangerous (people can be hurt) and expensive (car can hit an object and damage the vehicle). They can be trained in a RL setting: the car is the agent, the world around it the enviroment, it has to take some actions (throttle, steer, etc.), the state are the sensors and the goal is to reach a destination avoiding obstacles. In this setting the agent can get positive or negative rewards depending on the action chosen.
+\item Games. Popular example are: chess, Go and Dota. In all these games computers were able to beat the champions.
+\item Finance. Many problems can be formulated as a RL problem, for example the stock trading. Here the action could be: selling, buying, holding and the goal is to maximize the  cumulative return over a period of time.
+\item many other applications\cite{RLapplications}.
+\end{itemize}
+
+\subsection{Mathematical formulation}
+Using a nomenclature $s_t$, $a_t$, $r_t$ respectively the state, action and reward at time $t$, it is possible to write the cumulative reward as:
+\[ \sum_{i=0}^{t} r_{i} \]
+\end{flushleft} 
 
 \subsection{Complex-Analysis} \label{complex}
 \sp
@@ -190,9 +224,19 @@ Market Users}.\\
   
    \bibitem{AVbenefit}
   Jeremy A. Carp. 2018.
-  \emph{AUTONOMOUS VEHICLES: PROBLEMS AND PRINCIPLES FOR FUTURE REGULATION }.\\
-  \url{ https://scholarship.law.upenn.edu/cgi/viewcontent.cgi?article=1048&context=jlpa}
+  \emph{AUTONOMOUS VEHICLES: PROBLEMS AND PRINCIPLES FOR FUTURE REGULATION}.\\
+  \url{https://scholarship.law.upenn.edu/cgi/viewcontent.cgi?article=1048&context=jlpa}
  
+   \bibitem{RLandSL}
+  ANDREW G. BARTO and THOMAS G. DIETTERICH.
+  \emph{Reinforcement Learning and its Relationship to Supervised Learning}.\\
+  \url{http://web.engr.orst.edu/~tgd/publications/Barto-Dietterich-03.pdf}
+  
+  \bibitem{RLapplications}
+  Yuxi Li. 2019.
+  \emph{REINFORCEMENT LEARNING APPLICATIONS}.\\
+  \url{https://arxiv.org/pdf/1908.06973.pdf}
+  
    
 
 \end{thebibliography}
