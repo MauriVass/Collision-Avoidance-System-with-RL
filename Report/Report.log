@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.23 (MiKTeX 21.8) (preloaded format=pdflatex 2021.9.25)  12 OCT 2021 18:00
+This is pdfTeX, Version 3.141592653-2.6-1.40.23 (MiKTeX 21.8) (preloaded format=pdflatex 2021.9.25)  14 OCT 2021 10:01
 entering extended mode
 **./Report.tex
 (Report.tex
@@ -319,35 +319,183 @@ ty
 Package: changepage 2009/10/20 v1.0c check page and change page layout
 \c@cp@cntr=\count290
 \cp@tempcnt=\count291
+) (C:\Users\mauri\AppData\Local\Programs\MiKTeX\tex/latex/cjk\CJKutf8.sty
+Package: CJKutf8 2015/04/18 4.8.4
+
+(C:\Users\mauri\AppData\Local\Programs\MiKTeX\tex/generic/iftex\ifpdf.sty
+Package: ifpdf 2019/10/25 v3.4 ifpdf legacy package. Use iftex instead.
 )
+(C:\Users\mauri\AppData\Local\Programs\MiKTeX\tex/latex/cjk\CJK.sty
+Package: CJK 2015/04/18 4.8.4
+
+(C:\Users\mauri\AppData\Local\Programs\MiKTeX\tex/latex/cjk/mule\MULEenc.sty
+Package: MULEenc 2015/04/18 4.8.4
+)
+(C:\Users\mauri\AppData\Local\Programs\MiKTeX\tex/latex/cjk\CJK.enc
+File: CJK.enc 2015/04/18 4.8.4
+Now handling font encoding C00 ...
+... no UTF-8 mapping file for font encoding C00
+Now handling font encoding C05 ...
+... no UTF-8 mapping file for font encoding C05
+Now handling font encoding C09 ...
+... no UTF-8 mapping file for font encoding C09
+Now handling font encoding C10 ...
+... no UTF-8 mapping file for font encoding C10
+Now handling font encoding C20 ...
+... no UTF-8 mapping file for font encoding C20
+Now handling font encoding C19 ...
+... no UTF-8 mapping file for font encoding C19
+Now handling font encoding C40 ...
+... no UTF-8 mapping file for font encoding C40
+Now handling font encoding C42 ...
+... no UTF-8 mapping file for font encoding C42
+Now handling font encoding C43 ...
+... no UTF-8 mapping file for font encoding C43
+Now handling font encoding C50 ...
+... no UTF-8 mapping file for font encoding C50
+Now handling font encoding C52 ...
+... no UTF-8 mapping file for font encoding C52
+Now handling font encoding C49 ...
+... no UTF-8 mapping file for font encoding C49
+Now handling font encoding C60 ...
+... no UTF-8 mapping file for font encoding C60
+Now handling font encoding C61 ...
+... no UTF-8 mapping file for font encoding C61
+Now handling font encoding C63 ...
+... no UTF-8 mapping file for font encoding C63
+Now handling font encoding C64 ...
+... no UTF-8 mapping file for font encoding C64
+Now handling font encoding C65 ...
+... no UTF-8 mapping file for font encoding C65
+Now handling font encoding C70 ...
+... no UTF-8 mapping file for font encoding C70
+Now handling font encoding C31 ...
+... no UTF-8 mapping file for font encoding C31
+Now handling font encoding C32 ...
+... no UTF-8 mapping file for font encoding C32
+Now handling font encoding C33 ...
+... no UTF-8 mapping file for font encoding C33
+Now handling font encoding C34 ...
+... no UTF-8 mapping file for font encoding C34
+Now handling font encoding C35 ...
+... no UTF-8 mapping file for font encoding C35
+Now handling font encoding C36 ...
+... no UTF-8 mapping file for font encoding C36
+Now handling font encoding C37 ...
+... no UTF-8 mapping file for font encoding C37
+Now handling font encoding C80 ...
+... no UTF-8 mapping file for font encoding C80
+Now handling font encoding C81 ...
+... no UTF-8 mapping file for font encoding C81
+Now handling font encoding C01 ...
+... no UTF-8 mapping file for font encoding C01
+Now handling font encoding C11 ...
+... no UTF-8 mapping file for font encoding C11
+Now handling font encoding C21 ...
+... no UTF-8 mapping file for font encoding C21
+Now handling font encoding C41 ...
+... no UTF-8 mapping file for font encoding C41
+Now handling font encoding C62 ...
+... no UTF-8 mapping file for font encoding C62
+)
+LaTeX Info: Redefining \selectfont on input line 755.
+\CJK@indent=\box56
+)
+(C:\Users\mauri\AppData\Local\Programs\MiKTeX\tex/latex/base\fontenc.sty
+Package: fontenc 2021/04/29 v2.0v Standard LaTeX package
+))
 \c@debug=\count292
 
 (C:\Users\mauri\AppData\Local\Programs\MiKTeX\tex/latex/l3backend\l3backend-pdf
 tex.def
 File: l3backend-pdftex.def 2021-08-04 L3 backend support: PDF output (pdfTeX)
 \l__color_backend_stack_int=\count293
-\l__pdf_internal_box=\box56
+\l__pdf_internal_box=\box57
 ) (Report.aux)
 \openout1 = `Report.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 44.
-LaTeX Font Info:    ... okay on input line 44.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 44.
-LaTeX Font Info:    ... okay on input line 44.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 44.
-LaTeX Font Info:    ... okay on input line 44.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 44.
-LaTeX Font Info:    ... okay on input line 44.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 44.
-LaTeX Font Info:    ... okay on input line 44.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 44.
-LaTeX Font Info:    ... okay on input line 44.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 44.
-LaTeX Font Info:    ... okay on input line 44.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 44.
-LaTeX Font Info:    ... okay on input line 44.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 44.
-LaTeX Font Info:    ... okay on input line 44.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Checking defaults for C00/song/m/n on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Checking defaults for C05/song/m/n on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Checking defaults for C09/song/m/n on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Checking defaults for C10/song/m/n on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Checking defaults for C20/song/m/n on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Checking defaults for C19/song/m/n on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Checking defaults for C40/song/m/n on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Checking defaults for C42/song/m/n on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Checking defaults for C43/song/m/n on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Checking defaults for C50/song/m/n on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Checking defaults for C52/song/m/n on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Checking defaults for C49/song/m/n on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Checking defaults for C60/mj/m/n on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Checking defaults for C61/mj/m/n on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Checking defaults for C63/mj/m/n on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Checking defaults for C64/mj/m/n on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Checking defaults for C65/mj/m/n on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Checking defaults for C70/song/m/n on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Checking defaults for C31/song/m/n on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Checking defaults for C32/song/m/n on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Checking defaults for C33/song/m/n on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Checking defaults for C34/song/m/n on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Checking defaults for C35/song/m/n on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Checking defaults for C36/song/m/n on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Checking defaults for C37/song/m/n on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Checking defaults for C80/song/m/n on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Checking defaults for C81/song/m/n on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Checking defaults for C01/song/m/n on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Checking defaults for C11/song/m/n on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Checking defaults for C21/song/m/n on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Checking defaults for C41/song/m/n on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
+LaTeX Font Info:    Checking defaults for C62/song/m/n on input line 45.
+LaTeX Font Info:    ... okay on input line 45.
 \c@lstlisting=\count294
 
 (C:\Users\mauri\AppData\Local\Programs\MiKTeX\tex/context/base/mkii\supp-pdf.mk
@@ -355,7 +503,7 @@ ii
 [Loading MPS to PDF converter (version 2006.09.02).]
 \scratchcounter=\count295
 \scratchdimen=\dimen167
-\scratchbox=\box57
+\scratchbox=\box58
 \nofMPsegments=\count296
 \nofMParguments=\count297
 \everyMPshowfont=\toks28
@@ -375,7 +523,7 @@ Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 4
 fg
 File: epstopdf-sys.cfg 2021/03/18 v2.0 Configuration of epstopdf for MiKTeX
 ))
-Package hyperref Info: Link coloring OFF on input line 44.
+Package hyperref Info: Link coloring OFF on input line 45.
 
 (C:\Users\mauri\AppData\Local\Programs\MiKTeX\tex/latex/hyperref\nameref.sty
 Package: nameref 2021-04-02 v2.47 Cross-referencing by name of section
@@ -389,9 +537,9 @@ Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
 )
 \c@section@level=\count301
 )
-LaTeX Info: Redefining \ref on input line 44.
-LaTeX Info: Redefining \pageref on input line 44.
-LaTeX Info: Redefining \nameref on input line 44.
+LaTeX Info: Redefining \ref on input line 45.
+LaTeX Info: Redefining \pageref on input line 45.
+LaTeX Info: Redefining \nameref on input line 45.
  (Report.out) (Report.out)
 \@outlinefile=\write3
 \openout3 = `Report.out'.
@@ -431,16 +579,23 @@ LaTeX Info: Redefining \nameref on input line 44.
 * \@reversemarginfalse
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
-<./Image/polito_logo_2021_blu.jpg, id=31, 3522.15875pt x 2491.3075pt>
-File: ./Image/polito_logo_2021_blu.jpg Graphic file (type jpg)
-<use ./Image/polito_logo_2021_blu.jpg>
-Package pdftex.def Info: ./Image/polito_logo_2021_blu.jpg  used on input line 5
-1.
-(pdftex.def)             Requested size: 338.5863pt x 239.48973pt.
+<./Image/tongji-university1.png, id=27, 602.25pt x 315.1775pt>
+File: ./Image/tongji-university1.png Graphic file (type png)
+<use ./Image/tongji-university1.png>
+Package pdftex.def Info: ./Image/tongji-university1.png  used on input line 52.
+
+(pdftex.def)             Requested size: 217.6621pt x 113.91106pt.
+<./Image/polito_logo_2021_blu_resized.png, id=28, 602.25pt x 301.125pt>
+File: ./Image/polito_logo_2021_blu_resized.png Graphic file (type png)
+<use ./Image/polito_logo_2021_blu_resized.png>
+Package pdftex.def Info: ./Image/polito_logo_2021_blu_resized.png  used on inpu
+t line 53.
+(pdftex.def)             Requested size: 217.6621pt x 108.83223pt.
 [1
 
-{C:/Users/mauri/AppData/Local/MiKTeX/pdftex/config/pdftex.map} <./Image/polito_
-logo_2021_blu.jpg>] (Report.toc)
+{C:/Users/mauri/AppData/Local/MiKTeX/pdftex/config/pdftex.map} <./Image/tongji-
+university1.png (PNG copy)> <./Image/polito_logo_2021_blu_resized.png>]
+(Report.toc)
 \tf@toc=\write4
 \openout4 = `Report.toc'.
 
@@ -448,30 +603,73 @@ pdfTeX warning (ext4): destination with the same identifier (name{page.1}) has
 been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.70 \newpage
-              [1] [2] [3] [4] (Report.aux)
+l.72 \newpage
+              [1]
+(C:\Users\mauri\AppData\Local\Programs\MiKTeX\tex/latex/cjk/UTF8\UTF8.bdg
+File: UTF8.bdg 2015/04/18 4.8.4
+)
+(C:\Users\mauri\AppData\Local\Programs\MiKTeX\tex/latex/cjk/UTF8\UTF8.enc
+File: UTF8.enc 2015/04/18 4.8.4
+)
+(C:\Users\mauri\AppData\Local\Programs\MiKTeX\tex/latex/cjk/UTF8\UTF8.chr
+File: UTF8.chr 2015/04/18 4.8.4
+)
+LaTeX Font Info:    Trying to load font information for C70+gbsn on input line 
+79.
+
+(C:\Users\mauri\AppData\Local\Programs\MiKTeX\tex/latex/cjk/UTF8\c70gbsn.fd
+File: c70gbsn.fd 2015/04/18 4.8.4
+)
+(C:\Users\mauri\AppData\Local\Programs\MiKTeX\tex/latex/cjk/UTF8\c70gbsn.fdx
+File: c70gbsn.fdx 2015/04/18 4.8.4
+)
+[2] [3] [4] [5]
+LaTeX Font Info:    Trying to load font information for T1+cmtt on input line 1
+68.
+
+(C:\Users\mauri\AppData\Local\Programs\MiKTeX\tex/latex/base\t1cmtt.fd
+File: t1cmtt.fd 2019/12/16 v2.5j Standard LaTeX font definitions
+)
+Underfull \hbox (badness 10000) in paragraph at lines 187--190
+[]$\T1/cmtt/m/n/14.4 https : / / www . reinventingparking . org / 2013 / 02 /
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 192--195
+[]$\T1/cmtt/m/n/14.4 https : / / scholarship . law . upenn . edu / cgi / viewco
+ntent . cgi ?
+ []
+
+[6] (Report.aux)
 Package rerunfilecheck Info: File `Report.out' has not changed.
-(rerunfilecheck)             Checksum: 7422D913E4D6B0C27992B57FAAA10D47;650.
+(rerunfilecheck)             Checksum: AC455D401897F5D3D23558E774906ADE;578.
  ) 
 Here is how much of TeX's memory you used:
- 10632 strings out of 478927
- 159326 string characters out of 2852535
- 465461 words of memory out of 3000000
- 28348 multiletter control sequences out of 15000+600000
- 410206 words of font info for 39 fonts, out of 8000000 for 9000
+ 11821 strings out of 478927
+ 173491 string characters out of 2852535
+ 488611 words of memory out of 3000000
+ 29448 multiletter control sequences out of 15000+600000
+ 412723 words of font info for 46 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 60i,6n,66p,706b,371s stack positions out of 5000i,500n,10000p,200000b,80000s
- <C:\Users\mauri\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx
-1728.pk> <C:\Users\mauri\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi60
-0\ecrm1440.pk> <C:\Users\mauri\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec
-/dpi600\ecbx1440.pk> <C:\Users\mauri\AppData\Local\MiKTeX\fonts/pk/ljfour/jknap
-pen/ec/dpi600\ecbx2074.pk> <C:\Users\mauri\AppData\Local\MiKTeX\fonts/pk/ljfour
-/jknappen/ec/dpi600\ecrm1728.pk> <C:\Users\mauri\AppData\Local\MiKTeX\fonts/pk/
-ljfour/jknappen/ec/dpi600\ecrm2074.pk> <C:\Users\mauri\AppData\Local\MiKTeX\fon
-ts/pk/ljfour/jknappen/ec/dpi600\ecbx2488.pk>
-Output written on Report.pdf (5 pages, 2170419 bytes).
+ 60i,6n,66p,706b,812s stack positions out of 5000i,500n,10000p,200000b,80000s
+ <C:\Users\mauri\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ectt
+1440.pk> <C:\Users\mauri\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi60
+0\ecti1440.pk> <C:\Users\mauri\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec
+/dpi600\ecbx1728.pk> <C:\Users\mauri\AppData\Local\MiKTeX\fonts/pk/ljfour/jknap
+pen/ec/dpi600\tcrm1440.pk> <C:\Users\mauri\AppData\Local\MiKTeX\fonts/pk/ljfour
+/jknappen/ec/dpi600\ecrm1440.pk> <C:\Users\mauri\AppData\Local\MiKTeX\fonts/pk/
+ljfour/jknappen/ec/dpi600\ecbx1440.pk> <C:\Users\mauri\AppData\Local\MiKTeX\fon
+ts/pk/ljfour/jknappen/ec/dpi600\ecbx2074.pk> <C:\Users\mauri\AppData\Local\MiKT
+eX\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm1728.pk> <C:\Users\mauri\AppData\Loca
+l\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecrm2074.pk> <C:\Users\mauri\AppDat
+a\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecbx2488.pk><C:/Users/mauri/A
+ppData/Local/Programs/MiKTeX/fonts/type1/arphic/gbsnu/gbsnu54.pfb><C:/Users/mau
+ri/AppData/Local/Programs/MiKTeX/fonts/type1/arphic/gbsnu/gbsnu59.pfb><C:/Users
+/mauri/AppData/Local/Programs/MiKTeX/fonts/type1/arphic/gbsnu/gbsnu5b.pfb><C:/U
+sers/mauri/AppData/Local/Programs/MiKTeX/fonts/type1/arphic/gbsnu/gbsnu6d.pfb>
+Output written on Report.pdf (7 pages, 300038 bytes).
 PDF statistics:
- 239 PDF objects out of 1000 (max. 8388607)
- 13 named destinations out of 1000 (max. 500000)
- 62 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 450 PDF objects out of 1000 (max. 8388607)
+ 21 named destinations out of 1000 (max. 500000)
+ 75 words of extra memory for PDF output out of 10000 (max. 10000000)
 

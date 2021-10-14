@@ -35,7 +35,8 @@
 %Tab 
 \def\tab{\hspace*{15pt}}
 
-\def\remo{\emph{REMO }}
+\usepackage{CJKutf8}
+\newcommand{\zh}[1]{\begin{CJK}{UTF8}{gbsn}#1\end{CJK}}
 
 %debug 1 -> debug, 0 -> finale
 \newcounter{debug}
@@ -48,20 +49,21 @@
 
 \begin{titlepage}
 	\begin{figure}[t]
-    		\centering\includegraphics[width=0.7\textwidth]{./Image/polito_logo_2021_blu.jpg}
+    		\centering\includegraphics[width=0.45\textwidth]{./Image/tongji-university1.png}
+    		\centering\includegraphics[width=0.45\textwidth]{./Image/polito_logo_2021_blu_resized.png}
 		\vspace{10mm}
 	\end{figure}
 
 	\begin{center}
-	    	\textbf{ \LARGE{University\\}}
+	    	\textbf{ \LARGE{Tongji University\\}}
 		%\textnormal{ \Large{Dipartimento di Automatica e Informatica Collegio di Ingegneria Informatica, del Cinema e Meccatronica\\}}
 		\ss
 		\textnormal{ \Large {MAURIZIO VASSALLO\\}}
 		\textnormal{ \large {Student ID: \\}}
-		\textnormal{ \large {Compan\\}}
 		\textnormal{ \large {Academic Tutor: a\\}}
 		%\vspace{30mm}
-	    		\vspace{\fill}\textbf{\LARGE{HIP\\}}\vspace*{\fill}%vertical align
+	    		\vspace{\fill}\textbf{\LARGE{A Collision Avoidance System Using
+Reinforcement Learning\\}}\vspace*{\fill}%vertical align
 	\end{center}
 	
 \end{titlepage}
@@ -74,16 +76,41 @@
 	\sp
 \end{center}
 \begin{flushleft}
-	This report is drawn up 
+	This report is drawn up after the development of the thesis project at Tongji University (\textbf{\zh{同济大学}}) for the Double Degree project Politong.
+	\pp
+	The thesis project aims to develop a machine learning algorithm that allows an autonomous vehicle to avoid obstacles. \\
+	The research will focus on Reinforcement Learning methods.
+
+\ppn
+Nowadays it is possible to hear more and more about Autonomous Driving Vehicles. According to research firm, autonomous vehicles will match or exceed human safety by late 2020s and fulfill all mobility needs in 2040s to 2060s. Optimists predict that by 2030, autonomous vehicles will be sufficiently reliable, affordable and 
+common to displace most human driving, providing huge savings and benefits. However, there are good reasons to be skeptical. There is considerable uncertainty concerning autonomous vehicle development, benefits and costs, travel impacts, and consumer demand. Considerable progress is needed before autonomous vehicles can operate reliably in mixed urban traffic, heavy rain and snow, unpaved and unmapped roads, and where wireless access is unreliable\cite{AVfirm}.
+
+\ppn
+The autonomous cars(also known as a self-driving cars or a driverless cars) are a vehicle that are capable of sensing its environment and navigating without human input
+The ability of autonomous vehicles to operate without human intervention depends
+on their level of technological sophistication, in accordance with the current six-degree
+autonomy scale proposed by the International Society of Automotive Engineers (\textbf{SAE})\cite{AVtaxonomy}.
+There are 6 levels of driving automation, from level 0 (no automation) to level 5 (full unlimited automation); intermidiate levels (1 to 3) are considered semi-autonomous\cite{AVlevels,AVlevels2}. \\
+Currently we are between level 2 and 3, so even if the current technology is behind the famous Level 5 of driving automation, there is lot of work to make it happen.
+
+\ppn
+The idea behind these cars is quite simple: outfit the vehicles with sensors that can track all the objects around and make the cars understand the world around them. Autonomous vehicles are driven using technology such as GPS, odometry, radars, laser lights and other devices\cite{AVlevels2}.
+ These sensors themselves do not make the car ‘smart’, what make it autonomous are the big computers inside and the algorithms they are running. Usually these softwares run neural networks: these take as input the sensor recordings, elaborate them and output some values like steering angle, accelerate, brake or other important values.
+ Even if the idea behind these technological innovative vehicles is simple the implementation is not: not enough hardware computation, not enough training data, problems with handle different weather conditions(fog, rain, snow, etc.),  the current regolation remains in a nascent stage.
+ \pp
+ Even if this tecnology is not diffused yet, there are many potential benefits that autonomous vehicles could introduce in our society:
+ \begin{itemize}
+ \item \textbf{Transportation Safety}. The most notable predicted benefit of autonomous vehicle technology is a substantial reduction in the human and economic toll of traffic accidents. ndeed,  impairment,  distractions,  and  fatigue  alone  account  for over 50\% of all fatal crashes. The use of autonomous vehicles could significantly reduce the incidence of such crashes, as vehicles with no human operators  are  never  drunk,  distracted,  fatigued,  or  otherwise  susceptible  to human failings.
+\item \textbf{Access to Transportation}. Another important potential benefit of autonomous vehicle technology  is  increased  mobility  for  populations  currently  unable  or  not 
+permitted  to  operate  traditional  vehicles. These  populations  include  older 
+citizens, the disabled, people too young to drive, and others without a driver’s 
+license.
+\item \textbf{Traffic Congestion and Land Use}. Autonomous vehicles could reduce congestion and change the way in which cities are planned. Most car are moving only for 5\% of their lives, for the 95\% they are parked\cite{AVparking}! For this reason lot of space is dedicated to parking lots; the same space that could be used for different purposes (green spaces, etc.).
+\item \textbf{Energy and Emissions}. Autonomous vehicle technology has the potential to reduce both energy consumption and pollution thanks to efficiencies gained through smoother acceleration and deceleration and  increased  roadway capacity.\cite{AVbenefit}
+ \end{itemize}
+
 	\ss
 \end{flushleft}
-
-	\subsection{The}
-	\sp
-\begin{flushleft}ake the rehabilitation process of
-	\ss
-\end{flushleft}
-
 
 \newpage
 \begin{center}
@@ -130,5 +157,44 @@ enrich the Curriculum Vitae.
 I am fully satisfied with the internship as AI researcher and developer and I am satisfied with the atmosphere of serenity and professionalism that I lived in the company thanks to the kind and extremely helpful colleagues.
 	\ss
 \end{flushleft}
+
+%References
+\newpage
+\begin{thebibliography}{999}
+
+\bibitem{AVfirm}
+  Todd Litman. 2021.
+  \emph{Autonomous Vehicle Implementation Predictions}.\\
+  \url{https://www.vtpi.org/avip.pdf}
+  
+   \bibitem{AVtaxonomy}
+  SAE. 2016.
+  \emph{Taxonomy and Definitions for Terms Related to Driving Automation Systems for On-Road Motor Vehicles}.\\
+  \url{https://www.sae.org/standards/content/j3016_201806/}
+   
+  \bibitem{AVlevels}
+  Monika Stoma, Agnieszka Dudziak, Jacek Caban and Paweł Drozdzie. 2021.
+  \emph{The Future of Autonomous Vehicles in the Opinion of Automotive
+Market Users}.\\
+  \url{https://www.mdpi.com/1996-1073/14/16/4777/pdf}
+   
+   \bibitem{AVlevels2}
+  Piotr CZECH, Katarzyna TUROŃ, Jacek BARCIK. 2018.
+  \emph{AUTONOMOUS VEHICLES: BASIC ISSUES}.\\
+  \url{https://doi.org/10.20858/sjsutst.2018.100.2}
+  
+     \bibitem{AVparking}
+  Paul Barter. 2013.
+  \emph{"Cars are parked 95\% of the time". Let's check!}.\\
+  \url{https://www.reinventingparking.org/2013/02/cars-are-parked-95-of-time-lets-check.html}
+  
+   \bibitem{AVbenefit}
+  Jeremy A. Carp. 2018.
+  \emph{AUTONOMOUS VEHICLES: PROBLEMS AND PRINCIPLES FOR FUTURE REGULATION }.\\
+  \url{ https://scholarship.law.upenn.edu/cgi/viewcontent.cgi?article=1048&context=jlpa}
+ 
+   
+
+\end{thebibliography}
 
 \end{document}
