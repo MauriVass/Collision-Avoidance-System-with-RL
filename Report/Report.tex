@@ -1,5 +1,6 @@
+
 \documentclass[14pt]{extarticle}
-\usepackage{amsmath}
+\usepackage{amsmath,amssymb}
 \usepackage{float}
 \usepackage{listings}
 \lstset{
@@ -139,10 +140,10 @@ people are unable to provide precise specifications for desired program behavior
 where examples of desired behavior are available, or where it is possible to assign a
 measure of goodness to examples of behavior\cite{RLandSL}.
 \\
-There are mainly 3 methods to train Machine Learning algorithms, each with its advantages and disavantages. These 3 methods are:
+There are mainly 3 methods to train Machine Learning algorithms, each with its advantages and disavantages. The 3 methods are:
 \begin{itemize}
-\item Supervised Learning. In this method the algorithm is trained with labeled data; the training examples are of the form ($x_i$,$y_i$), with $x_i$ a \emph{n-dimentional} vector and $y_i$ a scalar (it can represent either a class or a floating value). The learner (either a classifier or a predictor) tries to find an `approximated' mapping fuction that maps an input $x_i$ to its correspoding $y_i$. During this learning process the error between the $y_i$ predicted and the actuall value is calculated and used to make the method learning (usually with Gradient Descent and Back Propagation) and decresing the error over time. A popular example is to classify and image given the raw pixels.
-\item Unsupervised Learning. The main difference between Unsupervised Learning and Supervised Learning is that in the former method data does not have labels. In this setting, the goal is usually find the relationship in the elements of the dataset. This is done calculating the distance (Euclidian, Hamming, etc.) between the points. A popular example is detecting a person purchase preferences analyzing his shopping list with other people shopping's lists.
+\item Supervised Learning. In this method the algorithm is trained with labeled data; the training examples are of the form ($x_i$,$y_i$), with $x_i$ a \emph{n-dimentional} vector and $y_i$ a scalar (it can represent either a class or a floating value). The learner (either a classifier or a predictor) tries to find a good mapping fuction that maps an input $x_i$ to its correspoding $y_i$. During this learning process the error between the $y_i$ predicted and the actuall value is calculated and used to make the method learning (usually with Gradient Descent and Back Propagation) and decresing the error over time. A popular example is to classify and image given the raw pixels.
+\item Unsupervised Learning. The main difference between Unsupervised Learning and Supervised Learning is that in the former method data does not have labels. In this setting, the goal is usually find the relationship in the elements of the dataset. This is done calculating the distance (Euclidian, Hamming, etc.) between the points: if the distance between the points is small, they may share similar characteristics. A popular example is detecting a person purchase preferences analyzing his shopping list with other people shopping's lists.
 \item Reinforcement Learning. Reinforcement Learning comes into play when examples of desired behavior are not available but where it is possible to score examples of behavior according to some performance criterion\cite{RLandSL}. In general, in Reinforcement Learning the goal is to maximized an unknown reward fuction through and trial and error process. A popular example is a car that learns to drive in a given enviroment, with no given prior knowledge given.
 \end{itemize}
 Supervised and Reinforcement Learning could be considered similar but there are few key differences, in particual the goal in Supervised Learning is to predict the right label while in Reinforcement Learning the goal is to find an action $x^*$ in other to maximized the reward. For this reason instead of minimizing the error between the predicted class and the real class, the goal is to choose an action that maximize the cumulative reward in a given state.
@@ -157,15 +158,61 @@ Some possible application of RL:
 \item many other applications\cite{RLapplications}.
 \end{itemize}
 
-\subsection{Mathematical formulation}
-Using a nomenclature $s_t$, $a_t$, $r_t$ respectively the state, action and reward at time $t$, it is possible to write the cumulative reward as:
-\[ \sum_{i=0}^{t} r_{i} \]
+\subsection{Formal definition}
+The Reinforcement Learning can be formulated as a Markov Decision Process (MDP), indeed a MDP express the problem of sequential decision-making, where for each state $s$ the dicision maker can choose any action $a$ available in that state $s$. The process respond moving with some probability to the state $s^\prime$ and giving the decision maker a reward $R_a(s,s^\prime)$ (read as: `the reward when in state $s$ the action $a$ is chosen')
+\\
+The MDP is defined as a tuple of 4 elements (S, A, P, R), where:
+\begin{itemize}
+\item S is a set of states, called the \emph{state space}.
+\item A is a set of actions, called the \emph{action space}.
+\item P is the probability from state $s$, at time $t$, of reaching state $s^\prime$, at time $t+1$ with action $a$:
+\[P_a(s,s^\prime) = Pr(s_{t+1} = s^\prime | s_t = s, a_t = t)\]
+\item $R_a(s,s^\prime)$ is the immediate reward received after transitioning from state $s$ s to state $s^\prime$, due to action $a$.
+\end{itemize}
+The state and action spaces may be finite or infinite.
+\\
+The MDP is controlled by a sequence of descrete time steps that create a trajectory 
+\[s_0 \xrightarrow{a_0} s_1 \xrightarrow{a_1} s_2 \xrightarrow{a_2} s_3 \xrightarrow{a_3} \dotso\]
+where the states follow the state transition $P_a(s,s^\prime)$. The transition function and thereward function are determined only by the current state, and not from the previous states. This property is called Markov property, which is a characterize the MDP and it means that the process is memory-less and that the future states depends only on the current one and not on its history.
+
+\ppn
+The goal of the MDP is to find a good policy for the dicision maker: a function $\pi$ that specifies the action $\pi(s)$ that will be chosen when in state $s$. The policy $\pi$ found will maximize the cumulative reward over a trajectory $\upsilon$:
+\[ G(\upsilon) = \sum_{t=0}^{\infty} R_{a_t}(s_t, s_{t+1}) \] 
+%R_{a_0}(s_0, s_{1}) + R_{a_1}(s_1, s_{2}) + \dotso =
+This return value has the problem that all the rewards contribute in the same weight and this can create some problems for the lack of information. A better return would be to give some more importance to the short-term memories and giving less importance to the one far in the future. This is solved introducing a \textbf{discount factor}, denoted with $\gamma$. Then the correct formula is:
+\[ G(\upsilon) = \sum_{t=0}^{\infty} \gamma^t R_{a_t}(s_t, s_{t+1}) \]
+with value of $\gamma$ satisfying $ 0 \leq \gamma \leq 1$. A lower discount factor motivates the decision maker to take actions that a close in time instead of actions that a far in the future.
+
+\ppn
+Another important notion in MDP and Reinforcement Learning is the value fuction. While the return $G(\upsilon)$ gives the reward over a trajectory it does not tell much about how good are the single states. The value fuction does exactly this, it estimates how good is for the decision maker to be in a given state. The notion of "how good" is defined in terms of future rewards that can be expected in terms of expected return.
+\\
+The value fuction $V_{\pi}(s)$ can be formally defined as: 
+\[V_{\pi}(s) = \mathbb{E}_{\pi}(R_t|s_t=s) = \mathbb{E}(\sum_{t=0}^{\infty} \gamma^t R_{a_t}(s_t, s_{t+1})|s_t=s)\]
+\vspace{-1.1cm}
+\begin{center}
+The expected return when starting at state $s$ and following policy $\pi$.
+\end{center}
+
+Similary, another notion: the action-value fuction, the expected return from state $s$ with an initial action $a$:
+\[Q_{\pi}(s,a) = \mathbb{E}_{\pi}(R_t|s_t=s, a_t=a) = \mathbb{E}(\sum_{t=0}^{\infty} \gamma^t R_{a_t}(s_t, s_{t+1})|s_t=s,a_t=a)\]
+The value fuction and the action-value fuction are called V-fuction and Q-fuction. They are related and satisfy a particular relationship, used in many Reinforcement Learning contests, that for any policy $\pi$ and state $s$, the following condition holds:
+\[V_{\pi}(s) = \mathbb{E}_{\pi}(Q_{\pi}(s,a))\]
+
+The V-fuction can be decomposed in 2 terms:
+\[V_{\pi}(s) = \mathbb{E}_{\pi}(R_t|s_t=s) = 
+					\underbrace{\mathbb{E}_{\pi}(R_{t+1}|s_t=s)}_{\text{immidiate reward}} + 
+					\underbrace{\mathbb{E}_{\pi}(\gamma V_{\pi}(s_{t+1}|s_t=s))}_{\text{discounted value of next state}} \]
+This is the Bellman Equation that defines the value fuction recursively, enabling the estimations of the next states.
+Similary it is possible to write Bellman equation for the Q-fuction :
+%(using the V-fuction and Q-fuction relationship)
+\[Q_{\pi}(s,a) = \mathbb{E}_{\pi}(R_t|s_t=s, a_t=a) = \mathbb{E}_{\pi}[R_t + \gamma Q_{\pi}(s_{t+1},a_{t+1})| s_t=s, a_t=a] \]
+In this way the V-fuction nad Q-fuction are updated with the values of the successive states without the need to know the trajectory to the end
 \end{flushleft} 
 
-\subsection{Complex-Analysis} \label{complex}
+\subsection{Q-Learning} \label{complex}
 \sp
 \begin{flushleft}
-This part concerns the st
+
 \subsubsection{Dataset }
 m movements
 \end{flushleft}

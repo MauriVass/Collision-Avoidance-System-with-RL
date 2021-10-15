@@ -3,7 +3,7 @@
 \contentsline {subsection}{\numberline {2.1}Introduction}{4}{subsection.2.1}%
 \contentsline {subsection}{\numberline {2.2}Reinforcement Learning compared to other methods}{4}{subsection.2.2}%
 \contentsline {subsection}{\numberline {2.3}Application of Reinforcement Learning}{5}{subsection.2.3}%
-\contentsline {subsection}{\numberline {2.4}Mathematical formulation}{6}{subsection.2.4}%
-\contentsline {subsection}{\numberline {2.5}Complex-Analysis}{6}{subsection.2.5}%
-\contentsline {subsubsection}{\numberline {2.5.1}Dataset }{6}{subsubsection.2.5.1}%
-\contentsline {section}{\numberline {3}Conclusion}{7}{section.3}%
+\contentsline {subsection}{\numberline {2.4}Formal definition}{6}{subsection.2.4}%
+\contentsline {subsection}{\numberline {2.5}Q-Learning}{8}{subsection.2.5}%
+\contentsline {subsubsection}{\numberline {2.5.1}Dataset }{8}{subsubsection.2.5.1}%
+\contentsline {section}{\numberline {3}Conclusion}{9}{section.3}%
