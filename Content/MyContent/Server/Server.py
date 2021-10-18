@@ -13,15 +13,20 @@ tf.random.set_seed(RANDOM_SEED)
 np.random.seed(RANDOM_SEED)
 
 class DDDQN_template(tf.keras.Model):
-	def __init__(self,num_inputs,num_actions):
+	def __init__(self,num_actions):
 		super(DDDQN_template, self).__init__(name='')
 		#First layer
 		self.dense1 = tf.keras.layers.Dense(units=32,
 										activation='relu',
 										kernel_initializer='RandomNormal')
+		self.dense1 = tf.keras.Sequential([
+							tf.keras.layers.Flatten(),
+							self.dense1
+						])
+		
 		# Here we separate into two streams
 		# The one that calculate V(s)
-		self.value_fc = tf.keras.layers.Dense(units=32,
+		self.value_fc = tf.keras.layers.Dense(units=16,
 										activation='relu',
 										kernel_initializer='RandomNormal')
 
@@ -29,8 +34,8 @@ class DDDQN_template(tf.keras.Model):
 										activation=None,
 										kernel_initializer='RandomNormal')
 		# The one that calculate A(s,a)
-		self.advantage_fc = tf.keras.layers.Dense(units=32,
-											activation=tf.nn.elu,
+		self.advantage_fc = tf.keras.layers.Dense(units=16,
+											activation='relu',
 											kernel_initializer='RandomNormal')
 
 		self.advantage_out = tf.keras.layers.Dense(units=num_actions,
@@ -38,21 +43,21 @@ class DDDQN_template(tf.keras.Model):
 											kernel_initializer='RandomNormal')
 
 	def call(self, input_tensor):
+		#input_tensor = tf.squeeze(input_tensor)
 		x = self.dense1(input_tensor)
 
 		value = self.value_fc(x)
 		value = self.value_out(value)
 
 		advantage = self.advantage_fc(x)
-		advantage = self.value_out(advantage)
+		advantage = self.advantage_out(advantage)
 
 		# Agregating layer
 		# Q(s,a) = V(s) + (A(s,a) - 1/|A| * sum A(s,a'))
 		output = value + tf.subtract(advantage, tf.reduce_mean(advantage, axis=1, keepdims=True))
-		output = tf.squeeze(output, -1)
+		#output = tf.squeeze(output, -1)
 		return output
-
-
+		
 class Network():
 	def __init__(self):
 		self.batchsize = 64
@@ -101,14 +106,15 @@ class Network():
 
 		self.policyNetwork = self.ModelTemplate()
 
+		#if(self.model_specification==1):
 		if(self.model_specification!=0):
 			self.targetNetwork = self.ModelTemplate()
 			self.copyNN()
+
 		print(self.policyNetwork.summary())
 		self.t1 = time.time()
 
 	def ModelTemplate(self):
-		model = ''
 		if(self.model_specification!=2):
 			model = tf.keras.Sequential([
 							tf.keras.layers.Flatten(),
@@ -117,7 +123,7 @@ class Network():
 							tf.keras.layers.Dense(self.num_actions, activation='linear', kernel_initializer='RandomNormal') #softmax
 						])
 		else:
-			model = DDDQN_template(self.num_inputs,self.num_actions)
+			model = DDDQN_template(self.num_actions)
 		model.build(input_shape=(1,self.num_inputs))
 		return model
 
@@ -126,7 +132,7 @@ class Network():
 
 		for l in self.file.readlines():
 			exp = self.dictFromExperienceRaw(l.strip())
-			if(self.prioritize and exp['d']==1):
+			if(self.prioritize and exp['done']==1):
 				self.prioritize_experiences.append(exp)
 			else:
 				self.experiences_prepros.append(exp)
@@ -166,7 +172,6 @@ class Network():
 		reward = float(elements[3])
 		gameEnded = True if int(elements[4])==1 else False
 		
-		# exp = {'s': currentState, 'a': action, 'ns': nextAction, 'r': reward, 'done': gameEnded}
 		exp = {'s': currentState, 'a': action, 'ns': nextAction, 'r': reward, 'done': gameEnded}
 		return exp
 
@@ -209,7 +214,7 @@ class Network():
 
 			if(self.model_specification==0):
 				value_next = np.max(self.policyNetwork(next_states),axis=1) #Max next values according to the Target Network
-			else: #if(self.model_specification==1):
+			else:
 				value_next = np.max(self.targetNetwork(next_states),axis=1) #Max next values according to the Target Network
 			
 			actual_values = np.where(dones, rewards, rewards+self.gamma*value_next) #Max values according to Bellman's equation
@@ -218,7 +223,7 @@ class Network():
 			# t1 = time.time()
 			with tf.GradientTape() as tape:
 				tape.watch(states)
- 
+
 				a = self.policyNetwork(states) * tf.one_hot(actions, self.num_actions)
 				selected_action_values = tf.math.reduce_sum(a , axis=1)
 
@@ -259,16 +264,13 @@ class Network():
 				# print(f'Fit: 5 copy weights: {(time.time()-t1):.3f}')
 		#else
 		exp = self.dictFromExperienceRaw(exp.strip())
-		if(self.prioritize and exp['r']==self.negative_hit_reward):
+		if(self.prioritize and exp['done']==1):
 			self.prioritize_experiences.append(exp)
 		else:
 			self.experiences_prepros.append(exp)
 
 	def predictPN(self, input):
-		if(self.model_specification==2):
-			a=0
-		else:
-			return self.policyNetwork(np.atleast_2d(input))
+		return self.policyNetwork(np.atleast_2d(input))
 	
 	def copyNN(self, soft=False):
 		if(soft):
@@ -390,4 +392,3 @@ file = open('run.losses.csv','w')
 for i in network.losses:
 	file.write(str(i.numpy())+'\n')
 file.close()
-
