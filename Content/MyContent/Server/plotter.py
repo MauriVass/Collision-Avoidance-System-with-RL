@@ -6,18 +6,20 @@ import numpy as np
 losses = pd.read_csv('run.losses.csv')
 rewards = pd.read_csv('run.rewards.csv')
 
-plot_losses = False
+plot_losses = True
 
 if(plot_losses is True):
 	fig = plt.figure(figsize=(24,8))
 	ax = plt.axes()
-
+	
+	y_avg = losses.rolling(400).mean()
 	x = np.arange(len(losses))
 	y = np.array(losses)
 	#y = np.clip(y, 0, 0.01)
 
-	#ax.scatter(x, y, s=0.1)
-	ax.plot(x,y,linewidth=.05, marker='o', markersize=0.5)
+	ax.scatter(x, y, s=0.1)
+	#ax.plot(x,y,linewidth=.05, marker='o', markersize=0.5)
+	ax.plot(x,y_avg,linewidth=1,c='r')
 else:
 	for i in range(4):
 		colors = []
