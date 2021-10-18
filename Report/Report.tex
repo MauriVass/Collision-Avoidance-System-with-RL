@@ -3,6 +3,7 @@
 \usepackage{amsmath,amssymb}
 \usepackage{float}
 \usepackage{listings}
+\usepackage{multirow}
 \lstset{
     %numbers=left,
     breaklines=true,
@@ -83,11 +84,8 @@ Reinforcement Learning\\}}\vspace*{\fill}%vertical align
 	The research will focus on Reinforcement Learning methods.
 
 \ppn
-Nowadays it is possible to hear more and more about Autonomous Driving Vehicles. According to research firm, autonomous vehicles will match or exceed human safety by late 2020s and fulfill all mobility needs in 2040s to 2060s. Optimists predict that by 2030, autonomous vehicles will be sufficiently reliable, affordable and 
-common to displace most human driving, providing huge savings and benefits. However, there are good reasons to be skeptical. There is considerable uncertainty concerning autonomous vehicle development, benefits and costs, travel impacts, and consumer demand. Considerable progress is needed before autonomous vehicles can operate reliably in mixed urban traffic, heavy rain and snow, unpaved and unmapped roads, and where wireless access is unreliable\cite{AVfirm}.
-
-\ppn
-The autonomous cars(also known as a self-driving cars or a driverless cars) are a vehicle that are capable of sensing its environment and navigating without human input
+Nowadays it is possible to hear more and more about Autonomous Driving Vehicles.
+The autonomous cars(also known as a self-driving cars or a driverless cars) are a vehicle that are capable of sensing their environment and to navigate without human input.
 The ability of autonomous vehicles to operate without human intervention depends
 on their level of technological sophistication, in accordance with the current six-degree
 autonomy scale proposed by the International Society of Automotive Engineers (\textbf{SAE})\cite{AVtaxonomy}.
@@ -95,15 +93,17 @@ There are 6 levels of driving automation, from level 0 (no automation) to level 
 Currently we are between level 2 and 3, so even if the current technology is behind the famous Level 5 of driving automation, there is lot of work to make it happen.
 
 \ppn
-The idea behind these cars is quite simple: outfit the vehicles with sensors that can track all the objects around and make the cars understand the world around them. Autonomous vehicles are driven using technology such as GPS, odometry, radars, laser lights and other devices\cite{AVlevels2}.
- These sensors themselves do not make the car ‘smart’, what make it autonomous are the big computers inside and the algorithms they are running. Usually these softwares run neural networks: these take as input the sensor recordings, elaborate them and output some values like steering angle, accelerate, brake or other important values.
- Even if the idea behind these technological innovative vehicles is simple the implementation is not: not enough hardware computation, not enough training data, problems with handle different weather conditions(fog, rain, snow, etc.),  the current regolation remains in a nascent stage.
+According to research firm, autonomous vehicles will match or exceed human safety by late 2020s and fulfill all mobility needs in 2040s to 2060s. Optimists predict that by 2030, autonomous vehicles will be sufficiently reliable, affordable and 
+common to displace most human driving, providing huge savings and benefits. However, there are good reasons to be skeptical. There is considerable uncertainty concerning autonomous vehicle development, benefits and costs, travel impacts, and consumer demand. Considerable progress is needed before autonomous vehicles can operate reliably in mixed urban traffic, heavy rain and snow, unpaved and unmapped roads, and where wireless access is unreliable\cite{AVfirm}.
+
+
+\ppn
+The idea behind these cars is quite simple: outfit the vehicles with sensors that can track all the objects nearby and make the cars understand the world around them. Autonomous vehicles are driven using technology such as GPS, odometry, radars, laser lights and other devices\cite{AVlevels2}. These sensors themselves do not make the car ‘smart’, what make it autonomous are the big computers inside and the algorithms they are running. Usually these softwares run neural networks: these take as input the sensor recordings, elaborate them and output some values like steering angle, accelerate, brake or other important values. Even if the idea behind these technological innovative vehicles is simple the implementation is not so straightforward, for some reasons: not enough hardware computation, not enough training data, problems with handle different weather conditions (fog, rain, snow, etc.),  the current regolation remains in a nascent stage.
  \pp
- Even if this tecnology is not diffused yet, there are many potential benefits that autonomous vehicles could introduce in our society:
+Even if this tecnology is not diffused yet, there are many potential benefits that autonomous vehicles could introduce in our society:
  \begin{itemize}
- \item \textbf{Transportation Safety}. The most notable predicted benefit of autonomous vehicle technology is a substantial reduction in the human and economic toll of traffic accidents. ndeed,  impairment,  distractions,  and  fatigue  alone  account  for over 50\% of all fatal crashes. The use of autonomous vehicles could significantly reduce the incidence of such crashes, as vehicles with no human operators  are  never  drunk,  distracted,  fatigued,  or  otherwise  susceptible  to human failings.
-\item \textbf{Access to Transportation}. Another important potential benefit of autonomous vehicle technology  is  increased  mobility  for  populations  currently  unable  or  not 
-permitted  to  operate  traditional  vehicles. These  populations  include  older 
+ \item \textbf{Transportation Safety}. The most notable predicted benefit of autonomous vehicle technology is a substantial reduction in the human and economic toll of traffic accidents. Indeed, impairment, distractions, and fatigue alone account for over 50\% of all fatal crashes. The use of autonomous vehicles could significantly reduce the incidence of such crashes, as vehicles with no-human operators are never drunk, distracted, fatigued, or otherwise susceptible to human failings.
+\item \textbf{Access to Transportation}. Another important potential benefit of autonomous vehicle technology is increased mobility for populations currently unable or not permitted to operate traditional vehicles. These populations include older
 citizens, the disabled, people too young to drive, and others without a driver’s 
 license.
 \item \textbf{Traffic Congestion and Land Use}. Autonomous vehicles could reduce congestion and change the way in which cities are planned. Most car are moving only for 5\% of their lives, for the 95\% they are parked\cite{AVparking}! For this reason lot of space is dedicated to parking lots; the same space that could be used for different purposes (green spaces, etc.).
@@ -130,11 +130,10 @@ Inspired by how animals and humans learn, \textbf{Reinforcement Learning} is bui
 \pp
 Reinforcement Learning tries to solve the problem in which a decision-maker, Agent, can perform some action inside a world, called Enviroment. The agent senses the enviroment through the state; for each state the agent has to perform an action. These actions result in an effect: they change the agent's state and give it a feedback, the Reward. The reward is a value which indicated if the action performd is good, then the reward is positive, or it is bad, the reward is negative. Given these rewards the agent understand what action to perform in a given state to get a positive reward. 
 \\
-This cycle of state-action-reward is repeted many time. The goal of the agent is to find a policy such that the actions perform lead to the maximum reward possible. In particual the agent wants to maximize the cumulative reward, the sum of rewards over a period of time. The difference between maximizing the instant reward and cumulative reward is an important distinction because: choosing an action which lead to the maximum next reward could in the next state bring to an end state (game over); instead maximizing the cumulative reward means thinking in a long-term horizon, so that the next states should all have a positive reward (even if the action chosen in one state is not the one that the
+This cycle of state-action-reward is repeted many times. The goal of the agent is to find a policy such that the actions perform lead to the maximum reward possible. In particual the agent wants to maximize the cumulative reward, the sum of rewards over a period of time. The difference between maximizing the instant reward and cumulative reward is an important distinction because: choosing an action which lead to the maximum next reward could in the next state bring to an end state (game over); instead maximizing the cumulative reward means thinking in a long-term horizon, so that the next states should all have a positive reward (even if the action chosen in one state is not the one that the
 maximum reward).
 
 \subsection{Reinforcement Learning compared to other methods}
-\begin{flushleft}
 Machine learning is the science of getting computers to act without being explicitly programmed. Machine Learning methods are appropriate in application settings where
 people are unable to provide precise specifications for desired program behavior, but
 where examples of desired behavior are available, or where it is possible to assign a
@@ -144,10 +143,9 @@ There are mainly 3 methods to train Machine Learning algorithms, each with its a
 \begin{itemize}
 \item Supervised Learning. In this method the algorithm is trained with labeled data; the training examples are of the form ($x_i$,$y_i$), with $x_i$ a \emph{n-dimentional} vector and $y_i$ a scalar (it can represent either a class or a floating value). The learner (either a classifier or a predictor) tries to find a good mapping fuction that maps an input $x_i$ to its correspoding $y_i$. During this learning process the error between the $y_i$ predicted and the actuall value is calculated and used to make the method learning (usually with Gradient Descent and Back Propagation) and decresing the error over time. A popular example is to classify and image given the raw pixels.
 \item Unsupervised Learning. The main difference between Unsupervised Learning and Supervised Learning is that in the former method data does not have labels. In this setting, the goal is usually find the relationship in the elements of the dataset. This is done calculating the distance (Euclidian, Hamming, etc.) between the points: if the distance between the points is small, they may share similar characteristics. A popular example is detecting a person purchase preferences analyzing his shopping list with other people shopping's lists.
-\item Reinforcement Learning. Reinforcement Learning comes into play when examples of desired behavior are not available but where it is possible to score examples of behavior according to some performance criterion\cite{RLandSL}. In general, in Reinforcement Learning the goal is to maximized an unknown reward fuction through and trial and error process. A popular example is a car that learns to drive in a given enviroment, with no given prior knowledge given.
+\item Reinforcement Learning. Reinforcement Learning comes into play when examples of desired behavior are not available but where it is possible to score examples of behavior according to some performance criterion\cite{RLandSL}. In general, in Reinforcement Learning the goal is to maximized an unknown reward fuction through and trial and error process. A popular example is a car that learns to drive in a given enviroment with no prior knowledge given.
 \end{itemize}
 Supervised and Reinforcement Learning could be considered similar but there are few key differences, in particual the goal in Supervised Learning is to predict the right label while in Reinforcement Learning the goal is to find an action $x^*$ in other to maximized the reward. For this reason instead of minimizing the error between the predicted class and the real class, the goal is to choose an action that maximize the cumulative reward in a given state.
-\end{flushleft}
 
 \subsection{Application of Reinforcement Learning}
 Some possible application of RL:
@@ -159,7 +157,8 @@ Some possible application of RL:
 \end{itemize}
 
 \subsection{Formal definition}
-The Reinforcement Learning can be formulated as a Markov Decision Process (MDP), indeed a MDP express the problem of sequential decision-making, where for each state $s$ the dicision maker can choose any action $a$ available in that state $s$. The process respond moving with some probability to the state $s^\prime$ and giving the decision maker a reward $R_a(s,s^\prime)$ (read as: `the reward when in state $s$ the action $a$ is chosen')
+\sp
+The Reinforcement Learning can be formulated as a Markov Decision Process (MDP), indeed a MDP express the problem of sequential decision-making, where for each state $s$ the dicision maker can choose any action $a$ available in that state $s$. The process respond moving with some probability to the state $s^\prime$ and giving the decision maker a reward $R_a(s,s^\prime)$ (read as: `the reward given when in state $s$ and the action $a$ chosen brings to the next state $s^\prime$')
 \\
 The MDP is defined as a tuple of 4 elements (S, A, P, R), where:
 \begin{itemize}
@@ -170,25 +169,28 @@ The MDP is defined as a tuple of 4 elements (S, A, P, R), where:
 \item $R_a(s,s^\prime)$ is the immediate reward received after transitioning from state $s$ s to state $s^\prime$, due to action $a$.
 \end{itemize}
 The state and action spaces may be finite or infinite.
-\\
-The MDP is controlled by a sequence of descrete time steps that create a trajectory 
-\[s_0 \xrightarrow{a_0} s_1 \xrightarrow{a_1} s_2 \xrightarrow{a_2} s_3 \xrightarrow{a_3} \dotso\]
-where the states follow the state transition $P_a(s,s^\prime)$. The transition function and thereward function are determined only by the current state, and not from the previous states. This property is called Markov property, which is a characterize the MDP and it means that the process is memory-less and that the future states depends only on the current one and not on its history.
 
 \ppn
-The goal of the MDP is to find a good policy for the dicision maker: a function $\pi$ that specifies the action $\pi(s)$ that will be chosen when in state $s$. The policy $\pi$ found will maximize the cumulative reward over a trajectory $\upsilon$:
+The MDP is controlled by a sequence of descrete time steps that create a trajectory $\upsilon$:
+\[s_0 \xrightarrow{a_0} s_1 \xrightarrow{a_1} s_2 \xrightarrow{a_2} s_3 \xrightarrow{a_3} \dotso\]
+where the states follow the state transition $P_a(s,s^\prime)$. The transition function and the reward function are determined only by the current state, and not from the previous states. This property is called Markov property, which is a characterize the MDP and it means that the process is memory-less and that the future states depends only on the current one and not on its history.
+
+\ppn
+The goal of the MDP is to find a good policy for the decision maker: a function $\pi$ that specifies the action $\pi(s)$ that will be chosen when in state $s$. The policy $\pi$ found will maximize the cumulative reward over a trajectory $\upsilon$:
 \[ G(\upsilon) = \sum_{t=0}^{\infty} R_{a_t}(s_t, s_{t+1}) \] 
 %R_{a_0}(s_0, s_{1}) + R_{a_1}(s_1, s_{2}) + \dotso =
-This return value has the problem that all the rewards contribute in the same weight and this can create some problems for the lack of information. A better return would be to give some more importance to the short-term memories and giving less importance to the one far in the future. This is solved introducing a \textbf{discount factor}, denoted with $\gamma$. Then the correct formula is:
+This return value has the problem that all the rewards contribute in the same weight and this can create some problems due to the lack of information. A better return value would be to give some more importance to the short-term memories and giving less importance to the one far in the future. This is solved introducing a \textbf{discount factor}, denoted with $\gamma$. Then the corrected formula is:
 \[ G(\upsilon) = \sum_{t=0}^{\infty} \gamma^t R_{a_t}(s_t, s_{t+1}) \]
 with value of $\gamma$ satisfying $ 0 \leq \gamma \leq 1$. A lower discount factor motivates the decision maker to take actions that a close in time instead of actions that a far in the future.
 
 \ppn
-Another important notion in MDP and Reinforcement Learning is the value fuction. While the return $G(\upsilon)$ gives the reward over a trajectory it does not tell much about how good are the single states. The value fuction does exactly this, it estimates how good is for the decision maker to be in a given state. The notion of "how good" is defined in terms of future rewards that can be expected in terms of expected return.
+http://incompleteideas.net/book/ebook/node34.html
+https://cims.nyu.edu/~donev/Teaching/WrittenOral/Projects/XintianHan-WrittenAndOral.pdf
+Another important notion in MDP and Reinforcement Learning is the value fuction. While the return $G(\upsilon)$ gives the reward over a trajectory it does not tell much about how good are the single states. The value fuction does exactly this, it estimates how good is for the decision maker to be in a given state. The notion of "how good" is defined in terms of future rewards that can the decision maker expect in terms of expected return.
 \\
-The value fuction $V_{\pi}(s)$ can be formally defined as: 
+the value fuction $V_{\pi}(s)$ can be formally defined as: 
 \[V_{\pi}(s) = \mathbb{E}_{\pi}(R_t|s_t=s) = \mathbb{E}(\sum_{t=0}^{\infty} \gamma^t R_{a_t}(s_t, s_{t+1})|s_t=s)\]
-\vspace{-1.1cm}
+\vspace{-9.3mm}
 \begin{center}
 The expected return when starting at state $s$ and following policy $\pi$.
 \end{center}
@@ -198,26 +200,104 @@ Similary, another notion: the action-value fuction, the expected return from sta
 The value fuction and the action-value fuction are called V-fuction and Q-fuction. They are related and satisfy a particular relationship, used in many Reinforcement Learning contests, that for any policy $\pi$ and state $s$, the following condition holds:
 \[V_{\pi}(s) = \mathbb{E}_{\pi}(Q_{\pi}(s,a))\]
 
+\ppn
 The V-fuction can be decomposed in 2 terms:
-\[V_{\pi}(s) = \mathbb{E}_{\pi}(R_t|s_t=s) = 
-					\underbrace{\mathbb{E}_{\pi}(R_{t+1}|s_t=s)}_{\text{immidiate reward}} + 
-					\underbrace{\mathbb{E}_{\pi}(\gamma V_{\pi}(s_{t+1}|s_t=s))}_{\text{discounted value of next state}} \]
-This is the Bellman Equation that defines the value fuction recursively, enabling the estimations of the next states.
+\begin{equation} \label{eq:1}
+V_{\pi}(s) = \mathbb{E}_{\pi}(R_t|s_t=s) = 
+					\underbrace{\mathbb{E}_{\pi}(R_{t}|s_t=s)}_{\text{immidiate reward}} + 
+					\underbrace{\mathbb{E}_{\pi}(\gamma V_{\pi}(s_{t+1}|s_t=s))}_{\text{discounted value of next state}}
+\end{equation}
+This is the Bellman Equation (\ref{eq:1}) that defines the value fuction recursively, enabling the estimations of the next states.
 Similary it is possible to write Bellman equation for the Q-fuction :
 %(using the V-fuction and Q-fuction relationship)
 \[Q_{\pi}(s,a) = \mathbb{E}_{\pi}(R_t|s_t=s, a_t=a) = \mathbb{E}_{\pi}[R_t + \gamma Q_{\pi}(s_{t+1},a_{t+1})| s_t=s, a_t=a] \]
-In this way the V-fuction nad Q-fuction are updated with the values of the successive states without the need to know the trajectory to the end
-\end{flushleft} 
+In this way the V-fuction and the  Q-fuction are updated with the values of the successive states without the need to know the trajectory till the end.
 
 \subsection{Q-Learning} \label{complex}
 \sp
-\begin{flushleft}
+Q-learning is an off-policy reinforcement learning algorithm that tries to find the best action to take given the current state. It's considered off-policy because the q-learning function learns from actions that are outside the current policy, like taking random actions. Off-policy means that the update can be made independently from the policy that has gathered the expirence. This means that off-policy algorithms can use experiecens collected in the past to improve the policy.\\
+Q-Learning is also a TD algorithm (Temporal Difference algorithm\cite{TDl}) and it inherits from the TD learning the characteristics of one-step learning.\\
+These two elements (TD and off-policy property) are important; indeed the goal of Q-learning is to approximate the Q-fuction using the action the maximize the Q-value of the next state. Formally:
+\begin{equation} \label{eq:2}
+ Q(s_t,a_t) = Q(s_t,a_t) + 
+\alpha[r_t + \gamma \text{max}_{a}Q(s_{t+1},a) - Q(s_t,a_t)] 
+\end{equation}
+where $\alpha$ is the learning rate, that indicated how much the Q-value will be updated, and $\gamma$ the discount factor, that gives more importance to the short-term actions and gives less importance to the long-term ones. \\
+This modified version of the Bellman equation updates the value of the current Q-value using only the next step (using the TD one-step learning property) and it is an off-policy 
+algorithm since it uses the $\text{max}_{a}$ to choose $a_{t+1}$.
 
-\subsubsection{Dataset }
-m movements
+\ppn
+Simple Q-learning problems can be solved using a Q-table, where for each state there are all the Q-values for all possible the actions:
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+\multirow{2}{*}{\textbf{States}} & \multicolumn{4}{c|}{\textbf{Actions}}                                \\ \cline{2-5} 
+                                 & \textbf{$a_1$} & \textbf{$a_2$} & \textbf{$\dotso$} & \textbf{$a_m$} \\ \hline
+$s_1$  				& $Q(s_1,a_1)$   				& $Q(s_1,a_2)$  				&  $\dotso$  				& $Q(s_1,a_m)$                \\ \hline
+$s_2$  				& $Q(s_2,a_1)$   				& $Q(s_2,a_2)$  				&  $\dotso$  				& $Q(s_2,a_m)$                \\ \hline
+$\dotso$      &  $\dotso$              	& $\dotso$              	&  $\dotso$              & $\dotso$              \\ \hline
+$s_n$  				& $Q(s_n,a_1)$   				& $Q(s_n,a_2)$  				&  $\dotso$  				& $Q(s_n,a_m)$                \\ \hline
+\end{tabular}
+\caption{state-action Q-values}
+\label{tab:my-table}
+\end{table}
+with $s_i$ a \emph{t-dimentional} array (imagine a possible car's state which at each instant record $t$ values from different sensors).
+During training the Q-values are updated using equation the Bellman equation for Q-learning (\ref{eq:2}).
+\\
+This implementation has 2 main problems:
+\begin{itemize}
+\item It is possible to to see that the size of the table increases exponentially with the increasing number of states ($n$) and the number of actions ($m$), increasing the memory required to store the table.
+\item The amount of time required to explore each state to create the required Q-table would be increase too.
+\end{itemize}
+%The space complexity would be $\Omega(t \times n \times m)$!
+
+\ppn
+One way to solve this problem is to use a neural network. This new architecture assumes the name of \textbf{Deep Q-learning}. Deep Q-learning replaces the Q-table with a neural network that approximate the Q-value fuction; moreover rather than mapping a state-action pair to a Q-value, a neural netowk maps an input state to an \emph{(action, Q-value)}.
+\\
+This solution overcomes the 2 problems mentioned above.
+\pp
+In this contest, the objective is to change the neural network's weights $\theta$, so that $Q_{\theta}$ is an optimal Q-value fuction. In order to change the weights, as common with neural networks, the Gradient Descend is employed. In particular the weights are changed with the following formula:
+\[ \theta = \theta - \alpha\nabla_{\theta}\mathbb{E}_{(s,a,r,s^\prime)}[(Q_{\theta}(s_i,a_i) - \text{target}_i)^2]\]
+where:
+\[Q_{\theta}(s_i,a_i)\]
+\vspace{-13mm}
+\begin{center}
+is the value the neural network output;
+\end{center}
+
+\[\text{target}_i = r_i + \gamma\text{max}_{a_i^\prime}Q_{\theta}(s_i^{\prime},a_i^{\prime})\]
+\vspace{-13mm}
+\begin{center}
+is the value the neural network should output;
+\end{center}
+
+\[\mathbb{E}_{(s,a,r,s^\prime)}[(Q_{\theta}(s_i,a_i) - \text{target}_i)^2\] 
+\vspace{-12mm}
+\begin{center}
+is the Mean Square Error over a batch iteration;
+\end{center}
+
+
+
+\[\nabla_{\theta}\]
+\vspace{-13mm}
+\begin{center}
+is the gradient of the loss w.r.t the neural network's weights.
+\end{center}
+
 \end{flushleft}
 
 
+\newpage
+\begin{center}
+	\section{Project Development}
+	\sp
+\end{center}
+\begin{flushleft}
+
+\end{flushleft}
 
 \newpage
 \begin{center}
@@ -283,6 +363,12 @@ Market Users}.\\
   Yuxi Li. 2019.
   \emph{REINFORCEMENT LEARNING APPLICATIONS}.\\
   \url{https://arxiv.org/pdf/1908.06973.pdf}
+  
+  \bibitem{TDl}
+  Scholarpedia.org
+  \emph{Temporal difference learning}.\\
+  \url{http://www.scholarpedia.org/article/Temporal_difference_learning}
+  
   
    
 
