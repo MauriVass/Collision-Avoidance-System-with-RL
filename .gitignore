@@ -1,3 +1,9 @@
+#Latex
+Report/*.aux
+Report/*.log
+Report/*.gz
+Report/*.toc
+
 # Visual Studio 2015 user specific files
 .vs/
 
