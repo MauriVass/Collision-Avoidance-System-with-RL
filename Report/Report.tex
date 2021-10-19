@@ -213,7 +213,7 @@ Similary it is possible to write Bellman equation for the Q-fuction :
 \[Q_{\pi}(s,a) = \mathbb{E}_{\pi}(R_t|s_t=s, a_t=a) = \mathbb{E}_{\pi}[R_t + \gamma Q_{\pi}(s_{t+1},a_{t+1})| s_t=s, a_t=a] \]
 In this way the V-fuction and the  Q-fuction are updated with the values of the successive states without the need to know the trajectory till the end.
 
-\subsection{Q-Learning} \label{complex}
+\subsection{Q-Learning}
 \sp
 Q-learning is an off-policy reinforcement learning algorithm that tries to find the best action to take given the current state. It's considered off-policy because the q-learning function learns from actions that are outside the current policy, like taking random actions. Off-policy means that the update can be made independently from the policy that has gathered the expirence. This means that off-policy algorithms can use experiecens collected in the past to improve the policy.\\
 Q-Learning is also a TD algorithm (Temporal Difference algorithm\cite{TDl}) and it inherits from the TD learning the characteristics of one-step learning.\\
@@ -296,6 +296,62 @@ is the gradient of the loss w.r.t the neural network's weights.
 	\sp
 \end{center}
 \begin{flushleft}
+	The goal of the project is to use some Reinforcement Learning algorithms to teach an actor to avoid obstacles. The \textbf{Agent} is put in an \textbf{Environment} it does not know and it will learn a good \textbf{Policy} in order to avoid the walls using a trial and error approch. The agent will be given with positive or negative \textbf{Rewards} depending on the \textbf{Actions} it performs. 
+	
+	\subsection{Environment}
+	\sp
+	In this projecta deterministic environment will be used since the next state of the environment can always be determined based on the current state and the agent’s action. In particular the are 2 main environments:A simple track, and a difficult one used for testing purposes. Both track where modelled in \textbf{Blender} version 2.93\cite{Blender}. \\
+	These models are used inside of Unreal Engine 4 \cite{UE4}, a powerful game and physics engine.
+	
+	\subsubsection{Simple Track}
+	This simple track is used for training and validation. Since this is used for training it does not have long straightaways or sharp turns.
+	\ifnum\value{debug}=0 {
+	\begin{figure}[H]
+    		\centering\includegraphics[width=0.4\textwidth]{./Image/Environment/Easy/perspective.png}
+    		\centering\includegraphics[width=0.4\textwidth]{./Image/Environment/Easy/top_mod.png}
+		\vspace{10mm}
+		\caption{Simple track images. On the left there is the perspective view and on the rigth the orthogonal top view with its measurings.}
+	\end{figure}
+	}\fi
+	During training the track is run clockwise and counterclockwise so that the agent learns to turn right and left.
+	
+	\subsubsection{Difficult Track}
+	This difficult track is used for testing. This will have more long straightaways or sharp turns.
+	\ifnum\value{debug}=0 {
+	\begin{figure}[H]
+    		\centering\includegraphics[width=0.4\textwidth]{./Image/Environment/Med/perspective.png}
+    		\centering\includegraphics[width=0.4\textwidth]{./Image/Environment/Med/top_mod.png}
+		\vspace{10mm}
+		\caption{Difficult track images. On the left there is the perspective view and on the rigth the orthogonal top view with its measurings.}
+	\end{figure}
+	}\fi
+	
+	\subsection{Agent}
+	\sp
+	The agent is a car available on the Vehicle Variety pack \cite{VVp} asset of Unreal Engine 4. From this packet only the `SportCar' content is used and some settings are modified (drag coefficient and other physical values).
+	\begin{figure}[H]
+    		\centering\includegraphics[width=0.8\textwidth]{./Image/Agent/car.png}
+    		\caption{The used car as Agent with its own measurements}
+	\end{figure}
+	
+	\subsection{State}
+	\sp
+	The agent senses the environment around it using some LIDAR sensors (light detection and ranging \cite{Lidar}). \\
+	The number of Lidar to use is an important hyper-parameter: in this case good results were found using 32 Lidar sensors. This 32 sensors are equally spaces in an angle range of $170^{\circ}$, this is another important hyper-parameter. Multiple tests were made to set these hypre-parameters, in particular:
+	\begin{itemize}
+	\item Too many Lidar sensors requires more training time, they increase the performance but sometimes the model did not converge.
+	\item Too few Lidar sensors the algorithm did not have enough information to learn properly.
+	\item Too wide angle decresed the sensor density and decresed the focus on the most important part: the front and the sides of the car.
+	\item Too small angle increased the sensor desity and increased the focus only on some specific region: the front.
+	\end{itemize}
+	So a trade-off between training time and performances were reached with 32 sensors and a $170^{\circ}$ angle
+	
+	\subsection{Policy}
+	\sp
+	\subsection{Reward Fuction}
+	\sp
+	\subsection{Actions}
+	\sp
 
 \end{flushleft}
 
@@ -368,8 +424,23 @@ Market Users}.\\
   Scholarpedia.org
   \emph{Temporal difference learning}.\\
   \url{http://www.scholarpedia.org/article/Temporal_difference_learning}
+ 
+  \bibitem{Blender}
+  \emph{Blender}.\\
+  \url{https://www.blender.org/}
+   
+     \bibitem{UE4}
+  \emph{Unreal Engine 4}.\\
+  \url{https://www.unrealengine.com/}
+   
+   
+   \bibitem{VVp}
+  \emph{Vehicle Variety Pack}.\\
+  \url{https://www.unrealengine.com/marketplace/en-US/product/bbcb90a03f844edbb20c8b89ee16ea32}
   
-  
+     \bibitem{Lidar}
+  \emph{LIDAR}.\\
+  \url{https://en.wikipedia.org/wiki/Lidar}
    
 
 \end{thebibliography}
