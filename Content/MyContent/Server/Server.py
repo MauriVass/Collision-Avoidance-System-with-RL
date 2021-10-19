@@ -75,7 +75,6 @@ class Network():
 		self.number_prioritize_experiences_batch = 2
 		self.prioritize_experiences = []
 
-		self.is_action_space_descrete = True
 		# self.prioritize = True
 		# self.negative_hit_reward = -10
 		# self.readExperiencesFromFile()
@@ -94,9 +93,8 @@ class Network():
 		self.t2=0
 		self.f = open('updates','w')
 
-	def Initialization(self, num_inputs, is_action_space_descrete, num_actions,negative_reward,model_specification, prioritize):
+	def Initialization(self, num_inputs, num_actions,negative_reward,model_specification, prioritize):
 		self.num_inputs = num_inputs
-		self.is_action_space_descrete = is_action_space_descrete
 		self.num_actions = num_actions
 		self.negative_hit_reward = negative_reward
 		self.model_specification = model_specification
@@ -305,12 +303,11 @@ def INITIALIZATION():
 	msg = request.data.decode("utf-8")
 	input = np.array(msg.split(':'))
 	num_sensors = int(input[0])
-	is_action_space_descrete = False if input[1]=='False' else True
-	num_actions = int(input[2])
-	negative_reward = float(input[3])
-	model_specification = int(input[4])
-	prioritize = False if input[5]=='False' else True
-	network.Initialization(num_sensors,is_action_space_descrete,num_actions,negative_reward,model_specification,prioritize)
+	num_actions = int(input[1])
+	negative_reward = float(input[2])
+	model_specification = int(input[3])
+	prioritize = False if input[4]=='False' else True
+	network.Initialization(num_sensors,num_actions,negative_reward,model_specification,prioritize)
 	return 'initialization'
 
 @app.route('/fit', methods=['POST'])
