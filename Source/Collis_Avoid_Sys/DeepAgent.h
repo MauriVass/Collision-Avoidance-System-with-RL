@@ -53,7 +53,6 @@ public:
 		bool GetManualControll();
 	UFUNCTION(BlueprintCallable)
 		float GetAverageSpeed();
-	bool GetIsActionSpaceDescrete();
 
 
 private:
@@ -107,7 +106,6 @@ private:
 
 	int ModelSpecification;
 
-	bool IsActionSpaceDescrete;
 	int Action;
 	float ThrottleAction;
 	float SteerAction;

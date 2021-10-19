@@ -37,27 +37,26 @@ void ADeepAgent::BeginPlay() {
 
 	ADeepAgent::IsTraining = true;
 	ADeepAgent::IsStateSpaceDescrete = true;
-	ADeepAgent::IsActionSpaceDescrete = true;
 	ADeepAgent::Clockwise = true;
 	ADeepAgent::Episode = 0;
 	ADeepAgent::NumberActions = 5;
 	ADeepAgent::Epsilon = 1.0;
-	ADeepAgent::EpsilonDecay = 6.5 * FMath::Pow(10,-5);
+	ADeepAgent::EpsilonDecay = 7 * FMath::Pow(10,-5);
 	ADeepAgent::MinEpsilon = 0.03;
 	ADeepAgent::MaxNumberSteps = 2000;
 	ADeepAgent::NumberFitSteps = 1;
 	ADeepAgent::AngleExtension = 170;
-	ADeepAgent::NegativeReward = -10;
+	ADeepAgent::NegativeReward = -5;
 
-	//0 -> Deep Q-Network
+	//0-> Deep Q-Network
 	//1-> Double Deep Q-Network
 	//2-> Dueling Deep Q-Network
-	ADeepAgent::ModelSpecification = 1;
+	ADeepAgent::ModelSpecification = 0;
 
 	ADeepAgent::TickTime = 0.02;
 
-	bool prioritize = true;
-	ADeepAgent::Client->SendMetadata(ADeepAgent::NumberSensor, ADeepAgent::IsActionSpaceDescrete, ADeepAgent::NumberActions, ADeepAgent::NegativeReward, ADeepAgent::ModelSpecification, prioritize);
+	bool prioritize = false;
+	ADeepAgent::Client->SendMetadata(ADeepAgent::NumberSensor, ADeepAgent::NumberActions, ADeepAgent::NegativeReward, ADeepAgent::ModelSpecification, prioritize);
 	ADeepAgent::RestartGame();
 	UE_LOG(LogTemp, Error, TEXT("Begin"));
 
@@ -77,6 +76,9 @@ void ADeepAgent::Tick(float DeltaTime) {
 	if (!ADeepAgent::ManualControll) {
 		timer += DeltaTime;
 		if (timer > ADeepAgent::TickTime) {
+			if (ADeepAgent::Episode >= 150)
+				ADeepAgent::IsGameStarting = false;
+
 			ADeepAgent::Step();
 			timer = 0;
 		}
@@ -209,10 +211,6 @@ float ADeepAgent::GetAverageSpeed()
 {
 	return ADeepAgent::AverageSpeed / ADeepAgent::NumberSteps;
 }
-bool ADeepAgent::GetIsActionSpaceDescrete()
-{
-	return ADeepAgent::IsActionSpaceDescrete;
-}
 
 void ADeepAgent::RewardFunction(TArray<float> currentState)
 {
@@ -274,7 +272,8 @@ void ADeepAgent::RewardFunction(TArray<float> currentState)
 	}
 	rewardAngle /= 10;
 	float rewardSpeed = (ADeepAgent::GetMesh()->GetPhysicsLinearVelocity().Size() - 250) / 1000;
-	//UE_LOG(LogTemp, Error, TEXT("%f %f %f cross %f"), angle, rewardAngle, rewardSpeed, sign);
+	//Convert to km/h -> ADeepAgent::GetMesh()->GetPhysicsLinearVelocity().Size()/50*3.6 
+	
 	ADeepAgent::Reward = rewardAngle + rewardSpeed;
 
 	//UE_LOG(LogTemp, Error, TEXT("%f %f %f"),ADeepAgent::Reward, ADeepAgent::GetMesh()->GetComponentVelocity().Size(), );
@@ -362,13 +361,7 @@ void ADeepAgent::Step()
 	}
 	else {
 		//Choose random action
-		if (ADeepAgent::IsActionSpaceDescrete) {
-			ADeepAgent::Action = FMath::RandRange(0, ADeepAgent::NumberActions - 1);
-		}
-		else {//Choose random actions
-			ADeepAgent::ThrottleAction = FMath::FRandRange(0, 1);
-			ADeepAgent::SteerAction = FMath::FRandRange(-1, 1);
-		}
+		ADeepAgent::Action = FMath::RandRange(0, ADeepAgent::NumberActions - 1);
 
 		if (ADeepAgent::Epsilon > ADeepAgent::MinEpsilon) {
 			ADeepAgent::Epsilon -= ADeepAgent::EpsilonDecay;
@@ -408,12 +401,7 @@ void ADeepAgent::Step()
 			try
 			{
 				if (counter % ADeepAgent::NumberFitSteps == 0)//&& (ADeepAgent::Epsilon > ADeepAgent::MinEpsilon)
-					if (!ADeepAgent::IsActionSpaceDescrete) {
-						ADeepAgent::Client->SendExperience(currentState, ADeepAgent::ThrottleAction, ADeepAgent::SteerAction, nextState, ADeepAgent::Reward, ADeepAgent::IsGameEnded);
-						//UE_LOG(LogTemp, Error, TEXT("%d"), ADeepAgent::IsGameEnded)
-					}
-					else
-						ADeepAgent::Client->SendExperience(currentState, ADeepAgent::Action, nextState, ADeepAgent::Reward, ADeepAgent::IsGameEnded);
+					ADeepAgent::Client->SendExperience(currentState, ADeepAgent::Action, nextState, ADeepAgent::Reward, ADeepAgent::IsGameEnded);
 
 			}
 			catch (const std::exception&)

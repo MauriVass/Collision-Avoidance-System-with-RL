@@ -29,9 +29,8 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	void SendMetadata(int numSensors, bool actionDescrete, int numActions, float negativeReward, int modelSpecification, bool prioritize);
+	void SendMetadata(int numSensors, int numActions, float negativeReward, int modelSpecification, bool prioritize);
 	void SendExperience(TArray<float> currentState, int action, TArray<float> nextState, float reward, bool endGame);
-	void SendExperience(TArray<float> currentState, float throttleAction, float steerAction, TArray<float> nextState, float reward, bool endGame);
 	void Predict(TArray<float> currentState);
 
 	void SetDeepAgent(ADeepAgent* Agent);

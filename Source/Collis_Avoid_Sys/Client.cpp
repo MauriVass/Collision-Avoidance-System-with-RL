@@ -31,10 +31,10 @@ void AClient::Tick(float DeltaTime)
 
 }
 
-void AClient::SendMetadata(int numSensors, bool actionDescrete, int numActions, float negativeReward, int modelSpecification, bool prioritize)
+void AClient::SendMetadata(int numSensors, int numActions, float negativeReward, int modelSpecification, bool prioritize)
 {
-	FString data = FString::FromInt(numSensors) + ":" + (actionDescrete? "True" : "False") + ":" + FString::FromInt(numActions) + ":" + FString::SanitizeFloat(negativeReward) + ":" + FString::FromInt(modelSpecification) + ":" + (prioritize ? "True" : "False");
-	UE_LOG(LogTemp, Error, TEXT("Sending data: \n%s \nnumSensors, actionDescrete, numActions, negativeReward, modelSpecification, prioritize"), *data);
+	FString data = FString::FromInt(numSensors) + ":" + FString::FromInt(numActions) + ":" + FString::SanitizeFloat(negativeReward) + ":" + FString::FromInt(modelSpecification) + ":" + (prioritize ? "True" : "False");
+	UE_LOG(LogTemp, Error, TEXT("Sending data: \n%s \nnumSensors, numActions, negativeReward, modelSpecification, prioritize"), *data);
 
 	FHttpModule* Http = &FHttpModule::Get();
 	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> HttpRequest = Http->CreateRequest();
@@ -58,19 +58,6 @@ void AClient::SendExperience(TArray<float> currentState, int action, TArray<floa
 {
 	//FString data = Experience::ConstructData(currentState, action, nextState, reward, endGame);
 	FString data = Experience::ConstructData(currentState, action, nextState, reward, endGame);
-
-	FHttpModule* Http = &FHttpModule::Get();
-	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> HttpRequest = Http->CreateRequest();
-	HttpRequest->SetVerb("Post");
-	HttpRequest->SetHeader("Content-Type", "text/plain");
-	HttpRequest->SetURL(AClient::UrlAddress + "fit");
-	HttpRequest->SetContentAsString(data);
-	HttpRequest->ProcessRequest();
-}
-void AClient::SendExperience(TArray<float> currentState, float throttleAction, float steerAction, TArray<float> nextState, float reward, bool endGame)
-{
-	//FString data = Experience::ConstructData(currentState, action, nextState, reward, endGame);
-	FString data = Experience::ConstructData(currentState, throttleAction, steerAction, nextState, reward, endGame);
 
 	FHttpModule* Http = &FHttpModule::Get();
 	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> HttpRequest = Http->CreateRequest();
@@ -113,16 +100,9 @@ void AClient::GetPrediction(FHttpRequestPtr request, FHttpResponsePtr Response, 
 		TArray<FString> result;
 		response.ParseIntoArray(result, TEXT(";"), true);
 
-		if (AClient::Agent->GetIsActionSpaceDescrete()) {
-			//1 action
-			AClient::Agent->SetAction(FCString::Atoi(*result[0]));
-			//AClient::Agent->SetConfidence(FCString::Atof(*result[1]));
-		}
-		else {
-			//2 actions
-			AClient::Agent->SetThrottleAction(FCString::Atof(*result[0]));
-			AClient::Agent->SetSteerAction(FCString::Atof(*result[1]));
-		}
+		//1 action
+		AClient::Agent->SetAction(FCString::Atoi(*result[0]));
+		//AClient::Agent->SetConfidence(FCString::Atof(*result[1]));
 	}
 }
 
