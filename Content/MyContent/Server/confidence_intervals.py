@@ -33,7 +33,7 @@ for i in range(n):
 	runs_reward.append(data['totalReward'])
 	runs_speed.append(data['averageSpeed'])
 avg_r, lbs_r, ubs_r, _ = evaluate_conf_interval(runs_reward,confidence_level)
-avg_s, lbs_s, ubs_s, _ = evaluate_conf_interval(runs_reward,confidence_level)
+avg_s, lbs_s, ubs_s, _ = evaluate_conf_interval(runs_speed,confidence_level)
 
 f = open(f'Runs/Model{model}/statistics_{model}.csv','w')
 f.write('AvgR,LbR,UbR,AvgS,LbS,UbS\n')
