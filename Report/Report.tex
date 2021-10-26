@@ -25,6 +25,8 @@
  }
 
 \usepackage{changepage}
+\usepackage{tikz}
+\usetikzlibrary{positioning}
 
 %Legend
 %\vspace{10pt} interlinea nome section - testo o Titolo elenco - descrizione elenco (Variable) 
@@ -261,31 +263,31 @@ This solution overcomes the 2 problems mentioned above.
 \pp
 In this contest, the objective is to change the neural network's weights $\theta$, so that $Q_{\theta}$ is an optimal Q-value fuction. \\
 In order to change the weights, as common with neural networks, the \textbf{Gradient Descend} is employed. In particular the weights are changed with the following formula:
-\[ \theta = \theta - \alpha\nabla_{\theta}\mathbb{E}_{(s,a,r,s^\prime)}[(Q_{\theta}(s_i,a_i) - \text{target}_i)^2]\]
+\[ \theta = \theta - \alpha\nabla_{\theta}\mathbb{E}_{(s,a,r,s^\prime)}[(Q_{\theta}(s,a) - \text{target})^2]\]
 where:
 
 \begin{equation} \label{eq:target}
-\text{target}_i = r_i + \gamma\text{max}_{a_i^\prime}Q_{\theta}(s_i^{\prime},a_i^{\prime})
+\text{target} = r + \gamma\text{max}_{a^\prime}Q_{\theta}(s^{\prime},a^{\prime})
 \end{equation}
-\vspace{-13mm}
+\vspace{-10mm}
 \begin{center}
 is the value the neural network should predict;
 \end{center}
 
-\[Q_{\theta}(s_i,a_i)\]
-\vspace{-13mm}
+\[Q_{\theta}(s,a)\]
+\vspace{-10mm}
 \begin{center}
 is the value the neural network prediction;
 \end{center}
 
-\[\mathbb{E}_{(s,a,r,s^\prime)}[(Q_{\theta}(s_i,a_i) - \text{target}_i)^2\] 
-\vspace{-12mm}
+\[\mathbb{E}_{(s,a,r,s^\prime)}[(Q_{\theta}(s,a) - \text{target})^2\] 
+\vspace{-10mm}
 \begin{center}
 is the average Mean Square Error over a batch iteration;
 \end{center}
 
 \[\nabla_{\theta}\]
-\vspace{-13mm}
+\vspace{-10mm}
 \begin{center}
 is the gradient of the loss w.r.t the neural network's weights.
 \end{center}
@@ -384,10 +386,76 @@ and the loss:
 \[\mathbb{E}_{(s,a,r,s^\prime)}[(Q_{\theta}(s_i,a_i) - \text{target}_i)^2\] 
 
 	One possible problem with this implementation is that both the current Q-value ($Q_{\theta}(s_i,a_i)$) and the next best Q-value ($\text{max}_{a_i^\prime}Q_{\theta}(s_i^{\prime},a_i^{\prime}$) are calculated using the same network ($Q_{\theta}$). This can bring to overestimations of the values, resulting in overoptimistic value estimates. (add reference)
-	\\
+	
+\tikzset{%
+  every neuron/.style={
+    circle,
+    draw,
+    minimum size=1cm
+  },
+  neuron missing/.style={
+    draw=none, 
+    scale=4,
+    text height=0.333cm,
+    execute at begin node=\color{black}$\vdots$
+  },
+}
+
+\begin{center}
+	\begin{tikzpicture}[x=25mm, y=0.09\textwidth, >=stealth]
+	
+	\foreach \m/\l [count=\y] in {1,2,3,missing,4}
+	  \node [every neuron/.try, neuron \m/.try] (input-\m) at (0,2.5-\y) {};
+	
+	\foreach \m [count=\y] in {1,missing,2}
+	  \node [every neuron/.try, neuron \m/.try ] (hidden-\m) at (2,2-\y*1.25) {};
+	
+	\foreach \m [count=\y] in {1,missing,2}
+	  \node [every neuron/.try, neuron \m/.try ] (output-\m) at (4,1.5-\y) {};
+	
+	\foreach \l [count=\i] in {1,2,3,n}
+	  \draw [<-] (input-\i) -- ++(-1,0)
+	    node [above, midway] {$S_\l$};
+	
+	\foreach \l [count=\i] in {1,m}
+	  \node [above] at (hidden-\i.north) {$H_\l$};
+	
+	\foreach \l [count=\i] in {1,l}
+	  \draw [->] (output-\i) -- ++(1,0)
+	    node [above, midway] {$O_\l$};
+	
+	\foreach \i in {1,...,4}
+	  \foreach \j in {1,...,2}
+	    \draw [->] (input-\i) -- (hidden-\j);
+	
+	\foreach \i in {1,...,2}
+	  \foreach \j in {1,...,2}
+	    \draw [->] (hidden-\i) -- (output-\j);
+	
+	\foreach \l [count=\x from 0] in {Input, Hidden, Ouput}
+	  \node [align=center, above] at (\x*2,2) {\l \\ layer};
+	
+	\end{tikzpicture}
+\end{center}
+	
 	One possible solution is to use a Double Deep Q-network.
+	
 	\subsubsection{Double Deep Q-Network}
 	\sp
+	In Double Deep Q-learning 2 networks are used: $Q_{\theta}$ (policy network) and $Q_{\theta^{-}}$ (target network). The 2 networks have the same structure and the weights are initialized with the same values using a RandomNormal kernel initializer. \\
+	In this case target and loss are calculated as follow:
+	\[
+\text{target}_i = r_i + \gamma\text{max}_{a_i^\prime}Q_{\theta^{-}}(s_i^{\prime},a_i^{\prime})
+\]
+\[\mathbb{E}_{(s,a,r,s^\prime)}[(Q_{\theta}(s_i,a_i) - \text{target}_i)^2\] 
+With this solution current Q-value ($Q_{\theta}(s_i,a_i)$) and the next best Q-value ($\text{max}_{a_i^\prime}Q_{\theta^{-}}(s_i^{\prime},a_i^{\prime}$) are calculated using the 2 different networks ($Q_{\theta}$ and $Q_{\theta^{-}}$). This reduces the bias and increases the score.
+\\
+Over time the loss between $Q_{\theta}$ and $Q_{\theta^{-}}$ is minimized. The weights of network $Q_{\theta}$ are updated every step using the gradient descent formula while the target network's weights ($Q_{\theta^{-}}$) are update every N steps using Polyak averaging: 
+\[ \theta^{-} = \tau\theta + (1-\tau)\theta^{-} \]
+This is a soft averaging (an hard averaging would be $\theta^{-}=\theta$) weighted by the value $\tau$. $\tau$ represents how much information it has to be kept from the policy network ($\tau=1$ only the information of the policy network, $\tau=0$ only the information of the target network is keep, no update in this case). \cite{DDQN}
+\\
+Both N and $\tau$ are hyper-parameters, in this project they are $N=64$ and $\tau=0.99$
+
 	\subsubsection{Duelling Double Deep Q-Network}
 	%http://proceedings.mlr.press/v48/wangf16.pdf
 	\sp
@@ -495,6 +563,12 @@ Market Users}.\\
      \bibitem{Lidar}
   \emph{LIDAR}.\\
   \url{https://en.wikipedia.org/wiki/Lidar}
+  
+   \bibitem{DDQN}
+  Swagat Kumar. 2020.
+  \emph{Balancing a CartPole System with Reinforcement Learning}.\\
+  \url{https://arxiv.org/pdf/2006.04938v2.pdf}
+  
    
 
 \end{thebibliography}
