@@ -314,7 +314,7 @@ In this way over many interaction the weights are updated to reduce the loss and
 	\ifnum\value{debug}=0 {
 	\begin{figure}[H]
     		\centering\includegraphics[width=0.45\textwidth]{./Image/Environment/Easy/perspective.png}
-    		\centering\includegraphics[width=0.45\textwidth]{./Image/Environment/Easy/top_top.png}
+    		\centering\includegraphics[width=0.45\textwidth]{./Image/Environment/Easy/top_mod.png}
 		\vspace{5mm}
 		\caption{Simple track images. On the left there is the perspective view and on the rigth the orthogonal top view with its measurings.}
 	\end{figure}
@@ -401,46 +401,10 @@ and the loss:
   },
 }
 
-\begin{center}
-	\begin{tikzpicture}[x=25mm, y=0.09\textwidth, >=stealth]
-	
-	\foreach \m/\l [count=\y] in {1,2,3,missing,4}
-	  \node [every neuron/.try, neuron \m/.try] (input-\m) at (0,2.5-\y) {};
-	
-	\foreach \m [count=\y] in {1,missing,2}
-	  \node [every neuron/.try, neuron \m/.try ] (hidden-\m) at (2,2-\y*1.25) {};
-	
-	\foreach \m [count=\y] in {1,missing,2}
-	  \node [every neuron/.try, neuron \m/.try ] (output-\m) at (4,1.5-\y) {};
-	
-	\foreach \l [count=\i] in {1,2,3,n}
-	  \draw [<-] (input-\i) -- ++(-1,0)
-	    node [above, midway] {$S_\l$};
-	
-	\foreach \l [count=\i] in {1,m}
-	  \node [above] at (hidden-\i.north) {$H_\l$};
-	
-	\foreach \l [count=\i] in {1,l}
-	  \draw [->] (output-\i) -- ++(1,0)
-	    node [above, midway] {$O_\l$};
-	
-	\foreach \i in {1,...,4}
-	  \foreach \j in {1,...,2}
-	    \draw [->] (input-\i) -- (hidden-\j);
-	
-	\foreach \i in {1,...,2}
-	  \foreach \j in {1,...,2}
-	    \draw [->] (hidden-\i) -- (output-\j);
-	
-	\foreach \l [count=\x from 0] in {Input, Hidden, Ouput}
-	  \node [align=center, above] at (\x*2,2) {\l \\ layer};
-	
-	\end{tikzpicture}
-\end{center}
 	
 	One possible solution is to use a Double Deep Q-network.
 	
-	\subsubsection{Double Deep Q-Network}
+	\subsubsection{Double Deep Q-Network} \label{DDQN}
 	\sp
 	In Double Deep Q-learning 2 networks are used: $Q_{\theta}$ (policy network) and $Q_{\theta^{-}}$ (target network). The 2 networks have the same structure and the weights are initialized with the same values using a RandomNormal kernel initializer. \\
 	In this case target and loss are calculated as follow:
@@ -452,13 +416,24 @@ With this solution current Q-value ($Q_{\theta}(s_i,a_i)$) and the next best Q-v
 \\
 Over time the loss between $Q_{\theta}$ and $Q_{\theta^{-}}$ is minimized. The weights of network $Q_{\theta}$ are updated every step using the gradient descent formula while the target network's weights ($Q_{\theta^{-}}$) are update every N steps using Polyak averaging: 
 \[ \theta^{-} = \tau\theta + (1-\tau)\theta^{-} \]
-This is a soft averaging (an hard averaging would be $\theta^{-}=\theta$) weighted by the value $\tau$. $\tau$ represents how much information it has to be kept from the policy network ($\tau=1$ only the information of the policy network, $\tau=0$ only the information of the target network is keep, no update in this case). \cite{DDQN}
-\\
+This is a soft averaging (an hard averaging would be $\theta^{-}=\theta$) weighted by the value $\tau$. $\tau$ represents how much information it has to be kept from the policy network ($\tau=1$ only the information of the policy network, $\tau=0$ only the information of the target network is keep, no update in this case). \cite{DDQN1,DDQN2}
+\pp
 Both N and $\tau$ are hyper-parameters, in this project they are $N=64$ and $\tau=0.99$
 
 	\subsubsection{Duelling Double Deep Q-Network}
 	%http://proceedings.mlr.press/v48/wangf16.pdf
 	\sp
+	The Q-value Q(s,a) tells us how good it is to take an action a being at state s. This Q-value can be decomposed as the sum of $V(s)$, the value of being at that state, and $A(s,a)$, the advantage of taking that action at the state (from all other possible actions). Mathematically, we can write this as:
+	\[ Q(s,a) = V(s) + A(s,a)\]
+Dueling Deep Q-network uses two separate estimators for these two components which are then combined together through a special aggregation layer to get an estimate of Q(s,a). By decoupling the estimation, intuitively the Dueling DQN can learn which states are (or are not) valuable without having to learn the effect of each action at each state. This is particularly useful for states where actions do not affect the environment in a meaningful way. \cite{DDQN2} %In these cases, it is unnecessary to evaluate each action for such states and could be skipped to speed up the learning process.
+	
+The key insight behind this architecture is that for many states, it is unnecessary to es- timate the value of each action choice. For example, in the Enduro game setting \cite{Enduro}, knowing whether to move left or right only matters when a collision is imminent. In some states, it is of paramount importance to know which action to take, but in many other states the choice of action has no repercussion on what happens. For bootstrapping based algorithms, however, the estimation of state values is of great importance for every state \cite{DDDQN1}. 
+
+With this implementation, the Q-value estimate can be obtained by aggregation:
+\[ Q(s,a) = V_{\beta}(s) + A_{\alpha}(s,a) - \frac{1}{|A|} \sum_{a^{\prime}}{A_{\alpha}(s,a^{\prime})}\]
+where $\beta$ and $\alpha$ are the weights for the networks $V(s)$ and $A(s,a)$ respectively.
+	Training of the dueling architectures, as with standard Q-networks, requires only back-propagation. The estimates $V(s)$ and $A(s,a)$ are computed automatically without any extra supervision or algorithmic modifications. In particular this network share the same $N$ and $\tau$ as the Double Deep Q-network \ref{DDQN}
+	
 	
 	
 	\subsection{Reward Fuction} \label{rewardfuc}
@@ -499,8 +474,10 @@ I am fully satisfied with the internship as AI researcher and developer and I am
 
 %References
 \newpage
+\section{References}
+\begingroup
+\renewcommand{\section}[2]{}
 \begin{thebibliography}{999}
-
 \bibitem{AVfirm}
   Todd Litman. 2021.
   \emph{Autonomous Vehicle Implementation Predictions}.\\
@@ -564,11 +541,24 @@ Market Users}.\\
   \emph{LIDAR}.\\
   \url{https://en.wikipedia.org/wiki/Lidar}
   
-   \bibitem{DDQN}
+  \bibitem{DDQN1}
+  Hado van Hasselt and Arthur Guez and David SilverGoogle DeepMind. 2015.
+  \emph{Deep Reinforcement Learning with Double Q-learning}.\\
+  \url{  https://arxiv.org/pdf/1509.06461.pdf}
+   \bibitem{DDQN2}
   Swagat Kumar. 2020.
   \emph{Balancing a CartPole System with Reinforcement Learning}.\\
   \url{https://arxiv.org/pdf/2006.04938v2.pdf}
-  
+ 
+ 
+  \bibitem{Enduro}
+  	Atari 2600. 1983.
+  \emph{Enduro (video game)}.\\
+  \url{https://en.wikipedia.org/wiki/Enduro_(video_game)}
+  \bibitem{DDDQN1}
+  	Ziyu Wang, Tom Schaul, Matteo Hessel, Hado van Hasselt, Marc Lanctot, Nando de Freitas. Google DeepMind, London, UK. 2015.
+  \emph{Dueling Network Architectures for Deep Reinforcement Learning}.\\
+  \url{https://en.wikipedia.org/wiki/Enduro_(video_game)}
    
 
 \end{thebibliography}
