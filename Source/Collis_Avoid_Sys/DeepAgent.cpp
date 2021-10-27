@@ -41,7 +41,7 @@ void ADeepAgent::BeginPlay() {
 	ADeepAgent::Episode = 0;
 	ADeepAgent::NumberActions = 5;
 	ADeepAgent::Epsilon = 1.0;
-	ADeepAgent::EpsilonDecay = 7 * FMath::Pow(10,-5);
+	ADeepAgent::EpsilonDecay = 7.5 * FMath::Pow(10,-5);
 	ADeepAgent::MinEpsilon = 0.03;
 	ADeepAgent::MaxNumberSteps = 2000;
 	ADeepAgent::NumberFitSteps = 1;
@@ -51,9 +51,9 @@ void ADeepAgent::BeginPlay() {
 	//0-> Deep Q-Network
 	//1-> Double Deep Q-Network
 	//2-> Dueling Deep Q-Network
-	ADeepAgent::ModelSpecification = 0;
+	ADeepAgent::ModelSpecification = 1;
 
-	ADeepAgent::TickTime = 0.02;
+	ADeepAgent::TickTime = 0.022;
 
 	bool prioritize = false;
 	ADeepAgent::Client->SendMetadata(ADeepAgent::NumberSensor, ADeepAgent::NumberActions, ADeepAgent::NegativeReward, ADeepAgent::ModelSpecification, prioritize);
@@ -62,7 +62,9 @@ void ADeepAgent::BeginPlay() {
 
 	//todo: remove full-path
 	ADeepAgent::SaveDirectory = FString("C:/Users/mauri/Desktop/Mauri/software_per_programmazione/progetti/UnrealEngine/Collis_Avoid_Sys/CollisionAvoidanceSystem/Content/MyContent/Server");
-	ADeepAgent::FileName = FString("run.rewards.csv");
+	ADeepAgent::FileName = FString("run.rewards_");
+	ADeepAgent::FileName.AppendInt(ADeepAgent::ModelSpecification);
+	ADeepAgent::FileName.Append("_.csv");
 	ADeepAgent::WriteToFile(0,0,0,0,false,false,false);
 
 	ADeepAgent::IsGameStarting = true;
@@ -124,24 +126,6 @@ void ADeepAgent::ToggleIsGameStarting()
 	GetWorld()->GetFirstPlayerController()->SetPause(!ADeepAgent::IsGameStarting);
 }
 
-float ADeepAgent::GetEpsilon()
-{
-	return ADeepAgent::Epsilon;
-}
-float ADeepAgent::GetReward()
-{
-	return ADeepAgent::Reward;
-}
-float ADeepAgent::GetCumulativeReward()
-{
-	return ADeepAgent::CumulativeReward;
-}
-int ADeepAgent::GetNumberSteps() {
-	return ADeepAgent::NumberSteps;
-}
-int ADeepAgent::GetEpisode() {
-	return ADeepAgent::Episode;
-}
 TArray<float> ADeepAgent::GetInput() {
 	TArray<float> currentSate;
 
@@ -193,7 +177,36 @@ TArray<float> ADeepAgent::GetInput() {
 		currentSate.Add(value);
 	}
 
+	if (Hit[0].Distance == 0) {
+		ADeepAgent::MinDistance = Hit[ADeepAgent::NumberSensor - 1].Distance;
+	}
+	else if (Hit[ADeepAgent::NumberSensor - 1].Distance == 0) {
+		ADeepAgent::MinDistance = Hit[0].Distance;
+	}
+	else
+		ADeepAgent::MinDistance = FMath::Min(Hit[0].Distance, Hit[ADeepAgent::NumberSensor-1].Distance);
+
+	ADeepAgent::MinDistance = (ADeepAgent::MinDistance - maxDistance / 2) / maxDistance;
+
 	return currentSate;
+}
+float ADeepAgent::GetEpsilon()
+{
+	return ADeepAgent::Epsilon;
+}
+float ADeepAgent::GetReward()
+{
+	return ADeepAgent::Reward;
+}
+float ADeepAgent::GetCumulativeReward()
+{
+	return ADeepAgent::CumulativeReward;
+}
+int ADeepAgent::GetNumberSteps() {
+	return ADeepAgent::NumberSteps;
+}
+int ADeepAgent::GetEpisode() {
+	return ADeepAgent::Episode;
 }
 bool ADeepAgent::GetIsTraining()
 {
@@ -274,7 +287,9 @@ void ADeepAgent::RewardFunction(TArray<float> currentState)
 	float rewardSpeed = (ADeepAgent::GetMesh()->GetPhysicsLinearVelocity().Size() - 250) / 1000;
 	//Convert to km/h -> ADeepAgent::GetMesh()->GetPhysicsLinearVelocity().Size()/50*3.6 
 	
-	ADeepAgent::Reward = rewardAngle + rewardSpeed;
+	float rewardDistance = ADeepAgent::MinDistance;
+	//UE_LOG(LogTemp, Error, TEXT("%f"), rewardDistance);
+	ADeepAgent::Reward = rewardAngle + rewardSpeed; //+ rewardDistance;
 
 	//UE_LOG(LogTemp, Error, TEXT("%f %f %f"),ADeepAgent::Reward, ADeepAgent::GetMesh()->GetComponentVelocity().Size(), );
 	if (ADeepAgent::IsGameEnded) {

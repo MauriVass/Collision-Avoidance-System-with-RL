@@ -113,6 +113,7 @@ private:
 	int counter=0;
 
 	float totalDistance;
+	float MinDistance;
 	float TickTime;
 
 

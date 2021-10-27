@@ -23,9 +23,9 @@ def evaluate_conf_interval(data,confidence_level):
 		ubs.append(ave+ci)
 	return avgs, lbs, ubs, ci
 
-confidence_level = 0.95
-n = 3
-model = 0
+confidence_level = 0.9
+n = 1
+model = 1
 runs_reward = []
 runs_speed = []
 for i in range(n):
@@ -44,8 +44,8 @@ f.close()
 
 fig, ax = plt.subplots(figsize=(12, 6))
 
-ax.plot(range(len(avg_r)),avg_r, markersize=1.5, marker="o")
+ax.plot(range(len(avg_r)),avg_r, markersize=3, marker="o")
 ax.fill_between(range(len(avg_r)), lbs_r, ubs_r, alpha=0.2)
-plt.ylim([0, 2000])
+plt.ylim([0, 2500])
 plt.show()
 

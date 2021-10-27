@@ -3,10 +3,11 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
-losses = pd.read_csv('run.losses.csv')
-rewards = pd.read_csv('run.rewards.csv')
+model = 1
+# losses = pd.read_csv(f'run.losses_{model}_0.csv')
+rewards = pd.read_csv(f'run.rewards_{model}_0.csv')
 
-plot_losses = True
+plot_losses = False
 
 if(plot_losses is True):
 	fig = plt.figure(figsize=(24,8))
@@ -21,7 +22,7 @@ if(plot_losses is True):
 	#ax.plot(x,y,linewidth=.05, marker='o', markersize=0.5)
 	ax.plot(x,y_avg,linewidth=1,c='r')
 else:
-	for i in range(4):
+	for i in range(5):
 		colors = []
 		for r in rewards['IsClockwise']:
 			if(r==0):
