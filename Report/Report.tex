@@ -28,6 +28,36 @@
 \usepackage{tikz}
 \usetikzlibrary{positioning}
 
+
+\usepackage{listings}
+\usepackage{xcolor}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+
+\lstset{style=mystyle}
+
 %Legend
 %\vspace{10pt} interlinea nome section - testo o Titolo elenco - descrizione elenco (Variable) 
 \def\sp{\vspace{5pt}}
@@ -354,7 +384,7 @@ In this way over many interaction the weights are updated to reduce the loss and
 	\end{itemize}
 	So a trade-off between training time and performances were reached with 32 sensors and a $170^{\circ}$ angle
 	\ifnum\value{debug}=0 {
-	\begin{figure}[H]
+	\begin{figure}[H] \label{carState}
     		\centering\includegraphics[width=0.7\textwidth]{./Image/State/carSensors.png}
 		\vspace{5mm}
 		\caption{The image shows how the agent senses the world around it. It is possible to see the $32$ beams equally spaced on a $170^{\circ}$ range. \\
@@ -595,6 +625,42 @@ where $\beta$ and $\alpha$ are the weights for the networks $V(s)$ and $A(s,a)$ 
 	
 	\subsection{Reward Fuction} \label{rewardfuc}
 	\sp
+	Reward function is an important fuction that tells the agent what is correct and what is wrong using reward and punishments. \\
+	Example of reward fuction can be found in the letterature in similar tasks:
+	\begin{itemize}
+	\item \cite{Paper1} proposes a method where the agent's position and orientation are compared some ideals values. The desired position, is inversely proportional to the distance from the middle of the lane. This reward is maximum equal to 0 when agent is exactly in the middle of the lane and goes to -1 when reaching a maximum distance from lane. The desired rotation is inversely proportional to the difference in angle between the agent and the optimal orientation of the trajectory.
+	\item \cite{Paper2} proposed a reward fuction:
+	\[
+	 r = v cos(\theta)
+	\]
+	where the reward $r$ is calculated using the speed $v$ of the car and its angle $\theta$ with respect to the road.
+	\item other methods employ some checkpoints along the track. Usually this checkpoint are placed manually bu humans.
+	\end{itemize}
+	These methods need some external information, for example where the middle of the road is, where is the next checkpoint and so on.
+	\pp 
+	The proposed reward fuction in this project tries only to get information from the car sensors. \\
+To explain the reward fuction an angle $\theta$ must be introduced. This angle is the between the blue ray and orange ray, as shown in figure \ref{carAngle}.
+
+\ifnum\value{debug}=0 {
+\begin{figure}[H] \label{carAngle}
+    		\centering\includegraphics[width=0.7\textwidth]{./Image/RF/carAngle.png}
+		\vspace{5mm}
+    		\caption{The used car as Agent with its own measurements.}
+	\end{figure}
+} \fi
+	Given the angle $\theta$ the reward fuction is defined as follow:
+\begin{lstlisting}[mathescape=true, language=Python]
+	if (	($\theta$ > 0 && chosen_action > 2) ||
+				($\theta$ < 0 && chosen_action < 2) ||
+				(math.abs($\theta$) < forward_angle && chosen_action == 2))
+	{
+		angle_reward = (number_green_rays - 1) / 10;
+	}
+	speed_reward = (agent_speed - 250) / 1000;
+	
+	total_reward = angle_reward + speed_reward;
+\end{lstlisting}
+	Where \emph{chosen\_action} is the action choosen either by exploration or eploitation, \emph{forward\_angle} is an hyper-parameter (on it depends when the agent should go forward with the max acceleration), \emph{number\_green\_rays} is the number of green rays (short reminder: the agent can sense the world with rays, these can be visualized as green and red \ref{carState}), \emph{agent\_speed} is the magnitude of agent's velocity vector, \emph{-1} and \emph{-250} are hyper-parametes and they are incentive factors (they push the agent to perform better: for example, the factor\emph{-250} on the emph{speed\_reward} means that the agent has to have a speed greater than 250 otherwise the reward is negative; similarly for the emph{angle\_reward}), \emph{/10} and \emph{/1000} are hyper-parametes and they are scaling factors. Finally the emph{total\_reward} is given by the sum of the 2 rewards.
 	\subsection{Actions}
 	\sp
 
@@ -717,6 +783,26 @@ Market Users}.\\
   \emph{Dueling Network Architectures for Deep Reinforcement Learning}.\\
   \url{https://en.wikipedia.org/wiki/Enduro_(video_game)}
    
+   
+   \bibitem{Paper1}
+  	Marin Toromanoff, Emilie Wirbel, Fabien Moutarde. 2020.
+  \emph{End-to-End Model-Free Reinforcement Learning
+for Urban Driving using Implicit Affordances}.\\
+  \url{https://openaccess.thecvf.com/content_CVPR_2020/papers/Toromanoff_End-to-End_Model-Free_Reinforcement_Learning_for_Urban_Driving_Using_Implicit_Affordances_CVPR_2020_paper.pdf}
+
+  \bibitem{Paper2}
+  	Rohan Chopra and Sanjiban Sekhar Roy. 2020.
+  \emph{End-to-End Reinforcement Learning
+for Self-driving Car}.\\
+  \url{http://eprints.kmu.ac.ir/30207/8/SPRINGER\%20book-compressed.pdf\#page=65}
+  
+  
+  
+   \bibitem{PaperRef}
+  	Shumin Feng, Bijo Sebastian and Pinhas Ben-Tzvi. 2021.
+  \emph{A Collision Avoidance Method Based on Deep
+Reinforcement Learning}.\\
+  \url{https://www.mdpi.com/2218-6581/10/2/73/pdf}
 
 \end{thebibliography}
 
