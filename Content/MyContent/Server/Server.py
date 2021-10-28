@@ -43,7 +43,6 @@ class DDDQN_template(tf.keras.Model):
 											kernel_initializer='RandomNormal')
 
 	def call(self, input_tensor):
-		#input_tensor = tf.squeeze(input_tensor)
 		x = self.dense1(input_tensor)
 
 		value = self.value_fc(x)
@@ -55,7 +54,6 @@ class DDDQN_template(tf.keras.Model):
 		# Agregating layer
 		# Q(s,a) = V(s) + (A(s,a) - 1/|A| * sum A(s,a'))
 		output = value + tf.subtract(advantage, tf.reduce_mean(advantage, axis=1, keepdims=True))
-		#output = tf.squeeze(output, -1)
 		return output
 		
 class Network():
@@ -64,10 +62,10 @@ class Network():
 		self.discount_rate = 0.95
 		self.lr = 0.000025
 		self.gamma = 0.99
-		self.tau = 0.99
+		self.tau = 0.95
 		self.optimizer = tf.optimizers.Adam(self.lr)
 		
-		self.filepath = 'experiences.csv'
+		#self.filepath = 'experiences.csv'
 		self.file = '' #initialize after
 		self.experiences_prepros = []
 
@@ -81,7 +79,7 @@ class Network():
 		# t1 = time.time()
 		# print(f'Reading {time.time()-t1}')
 
-		self.minNumExperiences = self.batchsize * 2
+		self.minNumExperiences = self.batchsize * 50
 		self.maxNumExperiences = 4*10**4
 		self.steps = 0
 		self.copyWeightSteps = 64
@@ -100,6 +98,7 @@ class Network():
 		self.model_specification = model_specification
 		self.prioritize = prioritize
 		
+		self.filepath = f'experiences_{model_specification}.csv'
 		self.readExperiencesFromFile()
 
 		self.policyNetwork = self.ModelTemplate()
@@ -116,7 +115,7 @@ class Network():
 		if(self.model_specification!=2):
 			model = tf.keras.Sequential([
 							tf.keras.layers.Flatten(),
-							tf.keras.layers.Dense(32, activation='relu', kernel_initializer='RandomNormal'),
+							tf.keras.layers.Dense(64, activation='relu', kernel_initializer='RandomNormal'),
 							#tf.keras.layers.Dense(64, activation='relu', kernel_initializer='RandomNormal'),
 							tf.keras.layers.Dense(self.num_actions, activation='linear', kernel_initializer='RandomNormal') #softmax
 						])
@@ -276,7 +275,7 @@ class Network():
 			policyN_weights = self.policyNetwork.get_weights()
 			new_weights = []
 			for t,p in zip(targetN_weights,policyN_weights):
-				new_weights.append(self.tau * t + (1-self.tau) * p)
+				new_weights.append(self.tau * p + (1-self.tau) * t)
 			self.targetNetwork.set_weights(new_weights)
 		else:
 			self.targetNetwork.set_weights(self.policyNetwork.get_weights())
@@ -288,7 +287,8 @@ class Network():
 		return path
 	def loadModel(self,name):
 		self.policyNetwork = tf.keras.models.load_model(f"Models/{name}")
-		self.copyNN()
+		if(self.model_specification!=0):
+			self.copyNN()
 		print(self.policyNetwork.summary())
 
 network = Network()
@@ -385,7 +385,7 @@ for i in network.fit_times:
 	file.write(str(i)+'\n')
 file.close()
 
-file = open('run.losses.csv','w')
+file = open(f'run.losses_{network.model_specification}_1.csv','w')
 for i in network.losses:
 	file.write(str(i.numpy())+'\n')
 file.close()
