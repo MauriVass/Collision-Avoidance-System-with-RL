@@ -373,12 +373,12 @@ In this way over many interaction the weights are updated to reduce the loss and
 	
 	\subsection{State}
 	\sp
-	The agent senses the environment around it using some LIDAR sensors (light detection and ranging \cite{Lidar}). \\
-	The number of Lidar to use is an important hyper-parameter: in this case good results were found using 32 Lidar sensors. This 32 sensors are equally spaces in an angle range of $170^{\circ}$, this is another important hyper-parameter. \\
+	The agent senses the environment around it using some LiDAR sensors (light detection and ranging \cite{LiDAR}). \\
+	The number of LiDAR to use is an important hyper-parameter: in this case good results were found using 32 LiDAR sensors. This 32 sensors are equally spaces in an angle range of $170^{\circ}$, this is another important hyper-parameter. \\
 	Multiple tests were made to set these hypre-parameters, in particular:
 	\begin{itemize}
-	\item Too many LIDAR sensors requires more training time, they increase the performance but sometimes the model did not converge.
-	\item With too few LIDAR sensors the algorithm did not have enough information to learn properly.
+	\item Too many LiDAR sensors requires more training time, they increase the performance but sometimes the model did not converge.
+	\item With too few LiDAR sensors the algorithm did not have enough information to learn properly.
 	\item Too wide angle decresed the sensor density and decresed the focus on the most important part: the front and the sides of the car.
 	\item Too small angle increased the sensor desity and increased the focus only on some specific region: the front.
 	\end{itemize}
@@ -629,7 +629,7 @@ where $\beta$ and $\alpha$ are the weights for the networks $V(s)$ and $A(s,a)$ 
 	Example of reward fuction can be found in the letterature in similar tasks:
 	\begin{itemize}
 	\item \cite{Paper1} proposes a method where the agent's position and orientation are compared some ideals values. The desired position, is inversely proportional to the distance from the middle of the lane. This reward is maximum equal to 0 when agent is exactly in the middle of the lane and goes to -1 when reaching a maximum distance from lane. The desired rotation is inversely proportional to the difference in angle between the agent and the optimal orientation of the trajectory.
-	\item \cite{Paper2} proposed a reward fuction:
+	\item In a similar way, \cite{Paper2} proposes a reward fuction:
 	\[
 	 r = v cos(\theta)
 	\]
@@ -639,7 +639,7 @@ where $\beta$ and $\alpha$ are the weights for the networks $V(s)$ and $A(s,a)$ 
 	These methods need some external information, for example where the middle of the road is, where is the next checkpoint and so on.
 	\pp 
 	The proposed reward fuction in this project tries only to get information from the car sensors. \\
-To explain the reward fuction an angle $\theta$ must be introduced. This angle is the between the blue ray and orange ray, as shown in figure \ref{carAngle}.
+To explain the reward fuction an angle $\theta$ must be introduced. This angle is the between the blue ray and orange ray, as shown in figure \ref{carAngle}, where the orange ray is the vectorial sum of all green rays and the blue ray is the car's forward direction.
 
 \ifnum\value{debug}=0 {
 \begin{figure}[H] \label{carAngle}
@@ -660,9 +660,35 @@ To explain the reward fuction an angle $\theta$ must be introduced. This angle i
 	
 	total_reward = angle_reward + speed_reward;
 \end{lstlisting}
-	Where \emph{chosen\_action} is the action choosen either by exploration or eploitation, \emph{forward\_angle} is an hyper-parameter (on it depends when the agent should go forward with the max acceleration), \emph{number\_green\_rays} is the number of green rays (short reminder: the agent can sense the world with rays, these can be visualized as green and red \ref{carState}), \emph{agent\_speed} is the magnitude of agent's velocity vector, \emph{-1} and \emph{-250} are hyper-parametes and they are incentive factors (they push the agent to perform better: for example, the factor\emph{-250} on the emph{speed\_reward} means that the agent has to have a speed greater than 250 otherwise the reward is negative; similarly for the emph{angle\_reward}), \emph{/10} and \emph{/1000} are hyper-parametes and they are scaling factors. Finally the emph{total\_reward} is given by the sum of the 2 rewards.
+	Where \emph{chosen\_action} is the action choosen either by exploration or eploitation, \emph{forward\_angle} is an hyper-parameter (on it depends when the agent should go forward with the max acceleration), \emph{number\_green\_rays} is the number of green rays (short reminder: the agent can sense the world with rays, these can be visualized as green and red \ref{carState}), \emph{agent\_speed} is the magnitude of agent's velocity vector, \emph{-1} and \emph{-250} are hyper-parametes and they are incentive factors (they push the agent to perform better: for example, the factor\emph{-250} on the emph{speed\_reward} means that the agent has to have a speed greater than 250 otherwise the reward is negative; similarly for the emph{angle\_reward}), \emph{/10} and \emph{/1000} are hyper-parametes and they are scaling factors. Finally the \emph{total\_reward} is given by the sum of the 2 rewards.
+	\\
+	If the car hits a wall the reward is $-5$.
+	
 	\subsection{Actions}
 	\sp
+	There are 2 possible actions the agent is allowed to perform: throttle and steer. These are descretize into 5 actions, from $a_0$ to $a_4$:
+	\begin{itemize}
+	\item $a_0$, steer to the left:
+		\begin{lstlisting}[mathescape=true, language=Python]
+		  SetThrottleInput(0.3);
+		  SetSteeringInput(-0.9); \end{lstlisting}
+	\item $a_1$, slightly steer to the left:
+		\begin{lstlisting}[mathescape=true, language=Python]
+		  SetThrottleInput(0.6);
+		  SetSteeringInput(-0.5); \end{lstlisting}
+	\item $a_2$, go fully forward:
+		\begin{lstlisting}[mathescape=true, language=Python]
+		  SetThrottleInput(0.9); \end{lstlisting}
+	\item $a_3$, slightly steering to the right:
+		\begin{lstlisting}[mathescape=true, language=Python]
+		  SetThrottleInput(0.6);
+		  SetSteeringInput(0.5); \end{lstlisting}
+	\item $a_4$, steer to the right:
+		\begin{lstlisting}[mathescape=true, language=Python]
+		  SetThrottleInput(0.3);
+		  SetSteeringInput(0.9); \end{lstlisting}
+	\end{itemize}
+	These values are hyper-parameters.
 
 \end{flushleft}
 
@@ -760,9 +786,9 @@ Market Users}.\\
   \emph{Vehicle Variety Pack}.\\
   \url{https://www.unrealengine.com/marketplace/en-US/product/bbcb90a03f844edbb20c8b89ee16ea32}
   
-     \bibitem{Lidar}
-  \emph{LIDAR}.\\
-  \url{https://en.wikipedia.org/wiki/Lidar}
+     \bibitem{LiDAR}
+  \emph{LiDAR}.\\
+  \url{https://en.wikipedia.org/wiki/LiDAR}
   
   \bibitem{DDQN1}
   Hado van Hasselt and Arthur Guez and David SilverGoogle DeepMind. 2015.
