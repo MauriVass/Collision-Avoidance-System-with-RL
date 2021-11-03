@@ -622,6 +622,33 @@ where $\beta$ and $\alpha$ are the weights for the networks $V(s)$ and $A(s,a)$ 
 \end{center}
 \end{figure}
 
+
+	\subsection{Actions}
+	\sp
+	There are 2 possible actions the agent is allowed to perform: throttle and steer. These are descretize into 5 actions, from $a_0$ to $a_4$:
+	\begin{itemize}
+	\item $a_0$, steer to the left:
+		\begin{lstlisting}[mathescape=true, language=Python]
+		  SetThrottleInput(0.3);
+		  SetSteeringInput(-0.9); \end{lstlisting}
+	\item $a_1$, slightly steer to the left:
+		\begin{lstlisting}[mathescape=true, language=Python]
+		  SetThrottleInput(0.6);
+		  SetSteeringInput(-0.5); \end{lstlisting}
+	\item $a_2$, go fully forward:
+		\begin{lstlisting}[mathescape=true, language=Python]
+		  SetThrottleInput(0.9); \end{lstlisting}
+	\item $a_3$, slightly steering to the right:
+		\begin{lstlisting}[mathescape=true, language=Python]
+		  SetThrottleInput(0.6);
+		  SetSteeringInput(0.5); \end{lstlisting}
+	\item $a_4$, steer to the right:
+		\begin{lstlisting}[mathescape=true, language=Python]
+		  SetThrottleInput(0.3);
+		  SetSteeringInput(0.9); \end{lstlisting}
+	\end{itemize}
+	The values inside the parenthesis are scales to the maximum values (\emph{i.e} SetThrottleInput(-0.9) means that the steering angle il $45*(-0.9)=-40.5^{\circ}$ angle, turn left with the wheels' angle of $40.5^{\circ}$) and they are hyper-parameters.
+
 	
 	\subsection{Reward Fuction} \label{rewardfuc}
 	\sp
@@ -664,31 +691,23 @@ To explain the reward fuction an angle $\theta$ must be introduced. This angle i
 	\\
 	If the car hits a wall the reward is $-5$.
 	
-	\subsection{Actions}
-	\sp
-	There are 2 possible actions the agent is allowed to perform: throttle and steer. These are descretize into 5 actions, from $a_0$ to $a_4$:
-	\begin{itemize}
-	\item $a_0$, steer to the left:
-		\begin{lstlisting}[mathescape=true, language=Python]
-		  SetThrottleInput(0.3);
-		  SetSteeringInput(-0.9); \end{lstlisting}
-	\item $a_1$, slightly steer to the left:
-		\begin{lstlisting}[mathescape=true, language=Python]
-		  SetThrottleInput(0.6);
-		  SetSteeringInput(-0.5); \end{lstlisting}
-	\item $a_2$, go fully forward:
-		\begin{lstlisting}[mathescape=true, language=Python]
-		  SetThrottleInput(0.9); \end{lstlisting}
-	\item $a_3$, slightly steering to the right:
-		\begin{lstlisting}[mathescape=true, language=Python]
-		  SetThrottleInput(0.6);
-		  SetSteeringInput(0.5); \end{lstlisting}
-	\item $a_4$, steer to the right:
-		\begin{lstlisting}[mathescape=true, language=Python]
-		  SetThrottleInput(0.3);
-		  SetSteeringInput(0.9); \end{lstlisting}
-	\end{itemize}
-	These values are hyper-parameters.
+\subsection{Implementation}
+\sp
+The whole system can be divided in 2 parts: the environment part and the machine learning part. The environment part in developed in Unreal Engine and it includes the environment itself and the physical agent; from this part the agent senses the world, performs actions and get the rewards. The machine learning part is developed in Python and it is where the neural networks run (the policies, the brain of the agent).
+The 2 parts communicate through HTTP requests (Unreal Engine is the client and Python is the server). \\
+The main reason why there are two part and that they communicate throught HTTP requests is that: using Python tools (Tensorflow, etc.) is convinient when dealing with machine learning and write everything in C++ would be time consuming and error proning; Unreal Engine does not allow native communication with Python scripts.
+\subsubsection{Client}
+\sp
+The client starts creating the agent and sending some meta-data (the model to be trained: DQN, DDQN DDDQN, etc.) to the server to initialize it. After the initialiazation, the run can start with the first episode. An episode has a fixed length of 2000 steps (Unreal Engine updates) but it can end before reaching the 2000 steps if the agent hits an obstacle. An episode start with the positioning of the agent around a point with an offset of the x and y cordinates (this is done to avoid the agent to start always from start same exact point) and with a rotation of $0^{\circ}$ degrees or $180^{\circ}$ degrees so that the agent can circle the track clock or anti-clock wise. For each step after the next one:
+\begin{enumerate}
+\item the agent senses the world with LiDAR sensors and obtains the current state $s$: an array of 32 values that indicates if for each ray there is an obstacle or not. \label{point1}
+\item the agent chooses an action $a$, either random or from the neural network. In the former case the epsilon value $\epsilon$ is decresed, with the formula:
+\[epsilon -= epsilon\_decay\]
+In the latter case an HTTP request with the current state is send to the server that will reply with the best action to perform
+\item the agent perform the action chosen gets a reward $r$, senses the next state $s^{\prime}$ and evaluate if the next state is an terminal one or not (the agent hits the wall is an terminal state) $t$, either 0 or 1
+\item the information of this step is then send to the server as a tuple $(s,a,r,s^{\prime},t)$
+\item the agent is repositionating if the terminal state $t$ is 1 or the current step number is greater than 2000, otherwise the step number is incresed and the loops repeat with point 1 \ref{point1}.
+\end{enumerate}
 
 \end{flushleft}
 
@@ -697,8 +716,14 @@ To explain the reward fuction an angle $\theta$ must be introduced. This angle i
 	\section{Results}
 	\sp
 \end{center}
+
 \begin{flushleft}
+aa
 %Specifically, results show interesting zero-shot transferability of a trained agent in the context of (i) inter-city generalization (i.e., the agent is trained on one city and directly applied to another)
+
+\subsection{Possible future work}
+%\sp
+
 \end{flushleft}
 
 \newpage
