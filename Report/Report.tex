@@ -356,7 +356,9 @@ In this way over many interaction the weights are updated to reduce the loss and
 	\ifnum\value{debug}=0 {
 	\begin{figure}[H]
     		\centering\includegraphics[width=0.45\textwidth]{./Image/Environment/Med/perspective.png}
-    		\centering\includegraphics[width=0.45\textwidth]{./Image/Environment/Med/top.png}
+    		%\centering\includegraphics[width=0.45\textwidth]{./Image/Environment/Med/top.png}	
+			\centering\includegraphics[width=0.45\textwidth]{./Image/Environment/Med/top_w_line_mod.png}
+    		
 		\vspace{5mm}
 		\caption{Complex track images. On the left there is the perspective view and on the rigth the orthogonal top view with its measurings.}
 	\end{figure}
@@ -484,7 +486,9 @@ and the loss:
 With this solution current Q-value ($Q_{\theta}(s_i,a_i)$) and the next best Q-value ($\text{max}_{a_i^\prime}Q_{\theta^{-}}(s_i^{\prime},a_i^{\prime}$) are calculated using the 2 different networks ($Q_{\theta}$ and $Q_{\theta^{-}}$). This reduces the bias and increases the score.
 \\
 Over time the loss between $Q_{\theta}$ and $Q_{\theta^{-}}$ is minimized. The weights of network $Q_{\theta}$ are updated every step using the gradient descent formula while the target network's weights ($Q_{\theta^{-}}$) are update every N steps using Polyak averaging: 
-\[ \theta^{-} = \tau\theta + (1-\tau)\theta^{-} \]
+\begin{equation} \label{eq:updateweights}
+ \theta^{-} = \tau\theta + (1-\tau)\theta^{-} 
+ \end{equation}
 This is a soft averaging (an hard averaging would be $\theta^{-}=\theta$) weighted by the value $\tau$. $\tau$ represents how much information it has to be kept from the policy network ($\tau=1$ only the information of the policy network, $\tau=0$ only the information of the target network is keep, no update in this case). \cite{DDQN1,DDQN2}
 \pp
 Both N and $\tau$ are hyper-parameters, in this project they are $N=64$ and $\tau=0.99$
@@ -700,14 +704,23 @@ The main reason why there are two part and that they communicate throught HTTP r
 \sp
 The client starts creating the agent and sending some meta-data (the model to be trained: DQN, DDQN DDDQN, etc.) to the server to initialize it. After the initialiazation, the run can start with the first episode. An episode has a fixed length of 2000 steps (Unreal Engine updates) but it can end before reaching the 2000 steps if the agent hits an obstacle. An episode start with the positioning of the agent around a point with an offset of the x and y cordinates (this is done to avoid the agent to start always from start same exact point) and with a rotation of $0^{\circ}$ degrees or $180^{\circ}$ degrees so that the agent can circle the track clock or anti-clock wise. For each step after the next one:
 \begin{enumerate}
-\item the agent senses the world with LiDAR sensors and obtains the current state $s$: an array of 32 values that indicates if for each ray there is an obstacle or not. \label{point1}
+\item the agent senses the world with LiDAR sensors and obtains the current state $s$: an array of 32 values that indicates if for each ray there is an obstacle or not \label{point1}
 \item the agent chooses an action $a$, either random or from the neural network. In the former case the epsilon value $\epsilon$ is decresed, with the formula:
-\[epsilon -= epsilon\_decay\]
+\[epsilon = epsilon - epsilon\_decay\]
 In the latter case an HTTP request with the current state is send to the server that will reply with the best action to perform
 \item the agent perform the action chosen gets a reward $r$, senses the next state $s^{\prime}$ and evaluate if the next state is an terminal one or not (the agent hits the wall is an terminal state) $t$, either 0 or 1
-\item the information of this step is then send to the server as a tuple $(s,a,r,s^{\prime},t)$
-\item the agent is repositionating if the terminal state $t$ is 1 or the current step number is greater than 2000, otherwise the step number is incresed and the loops repeat with point 1 \ref{point1}.
+\item the information of this step is then send to the server the experience $(s,a,r,s^{\prime},t)$
+\item the agent is repositionating if the terminal state $t$ is 1 or the current step number is greater than 2000, otherwise the step number is incresed and the loops repeat with point 1.
 \end{enumerate}
+
+\subsubsection{Server}
+Once the server variables are initialized the server starts waiting for the client's requests. \\
+There are 2 main fuctions: fit and predict.
+\begin{itemize}
+\item Fit receives an experience as a string from the client and stores it in a list of experiences, query this list to obtain a batch of experiences with which the neural network is trained: the experiences pass through the network, the best next value is calculated with the neural network (either the policy or target network depending on the policy used), the target value is calculated with the Bellman equation. Using the the target and the best next value the loss is calculated and then back-propagate through the network to change weights. \\
+In the case of DDQN and DDDQN the weights of the target network are updated every N steps usign formula \ref{eq:updateweights}.
+\item Predict receives a state as string, this is converted to a variable and passed through the network chosen. The prediction is the action which has the the maximum Q-value and this is send back to the client.
+\end{itemize}
 
 \end{flushleft}
 
