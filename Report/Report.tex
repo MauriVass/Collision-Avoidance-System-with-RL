@@ -731,8 +731,64 @@ In the case of DDQN and DDDQN the weights of the target network are updated ever
 \end{center}
 
 \begin{flushleft}
-aa
-%Specifically, results show interesting zero-shot transferability of a trained agent in the context of (i) inter-city generalization (i.e., the agent is trained on one city and directly applied to another)
+The result shown for cumulative reward and the average speed of the 3 models are obtained from 5 different runs: the mean and the confidence intervals are calucalted using the t-distribution \cite{Tdistri}. A single run is 150 episodes long and it takes about 20 to 40 minutes.
+
+\subsection{Deep Q-network}
+\sp
+\ifnum\value{debug}=0 {
+	\begin{figure}[H]
+    		\centering\includegraphics[width=0.45\textwidth]{./Image/Results/D/reward.png}
+    		\centering\includegraphics[width=0.45\textwidth]{./Image/Results/D/speed.png}
+		\vspace{5mm}
+		\caption{}
+	\end{figure}
+	}\fi
+
+\subsection{Double Deep Q-network}
+\sp
+\ifnum\value{debug}=0 {
+	\begin{figure}[H]
+    		\centering\includegraphics[width=0.45\textwidth]{./Image/Results/DD/reward.png}
+    		\centering\includegraphics[width=0.45\textwidth]{./Image/Results/DD/speed.png}
+		\vspace{5mm}
+		\caption{}
+	\end{figure}
+	}\fi
+	
+\subsection{Duelling Double Deep Q-network}
+\sp
+\ifnum\value{debug}=0 {
+	\begin{figure}[H]
+    		\centering\includegraphics[width=0.45\textwidth]{./Image/Results/DDD/reward.png}
+    		\centering\includegraphics[width=0.45\textwidth]{./Image/Results/DDD/speed.png}
+		\vspace{5mm}
+		\caption{}
+	\end{figure}
+	}\fi
+	
+\subsection{Comparison between models}
+\sp
+\ifnum\value{debug}=0 {
+	\begin{figure}[H]
+    		\centering\includegraphics[width=0.45\textwidth]{./Image/Results/DDD/reward.png}
+    		\centering\includegraphics[width=0.45\textwidth]{./Image/Results/DDD/speed.png}
+		\vspace{5mm}
+		\caption{}
+	\end{figure}
+	}\fi
+	
+\subsection{Analysis}
+\sp
+It is possible to see that the model X performs better then the other models this is expected since X is a improvement of the previous models. \pp
+An interesting fact is that, the training phase can be divided in 5 periods:
+\begin{enumerate}
+\item At the beginning the agent does not know anything about the environment and move randomly, usually hitting a wall in the first steps
+\item after some episodes, the agent start to learn what action to perform in the different states but it is not confident so the speed is relatively low. It hits a wall after some time, usually because the turn are taken too sharply
+\item then the agent, improves and can confidently finish some laps. The speed increase and the turns are performed with some distance from the walls. Still the agent is not able to reach the 2000 steps.
+\item the agent is very good, reach the maximum speed and it is able to reach the 2000 steps without hitting a wall. An interesting fact is that in this period the agent takes the turn sharp to increase the speed (this is was a bad behivior in period 2 but the agent understands that is the better way to drive to increase the cumulative reward).
+\end{enumerate}
+\ppn
+Results show interesting zero-shot transferability \cite{Zero-shot} of a trained agent in the context of simple track and generalize the knowledge to the complex track. Indeed the simple track is used only for training purposed and the complex track is used to testing purposes (the agent is not trained on the complex track).
 
 \subsection{Possible future work}
 %\sp
@@ -860,6 +916,15 @@ for Urban Driving using Implicit Affordances}.\\
 for Self-driving Car}.\\
   \url{http://eprints.kmu.ac.ir/30207/8/SPRINGER\%20book-compressed.pdf\#page=65}
   
+  \bibitem{Tdistri}
+  	Wikipedia. Student's t-distribution.
+  \emph{Student's t-distribution}.\\
+  \url{https://en.wikipedia.org/wiki/Student%27s_t-distribution}
+  
+  \bibitem{Zero-shot}
+  	Daniele Gammelli, Kaidi Yang, James Harrison, Filipe Rodrigues, Francisco C. Pereira, Marco Pavone. 2021.
+  \emph{Graph Neural Network Reinforcement Learning for Autonomous Mobility-on-Demand Systems}.\\
+  \url{https://arxiv.org/pdf/2104.11434.pdf}
   
   
    \bibitem{PaperRef}
