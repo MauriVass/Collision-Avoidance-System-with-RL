@@ -62,7 +62,7 @@ class Network():
 		self.discount_rate = 0.95
 		self.lr = 0.000025
 		self.gamma = 0.99
-		self.tau = 0.95
+		self.tau = 0.99
 		self.optimizer = tf.optimizers.Adam(self.lr)
 		
 		#self.filepath = 'experiences.csv'
@@ -80,7 +80,7 @@ class Network():
 		# print(f'Reading {time.time()-t1}')
 
 		self.minNumExperiences = self.batchsize * 50
-		self.maxNumExperiences = 4*10**4
+		self.maxNumExperiences = 5*10**4
 		self.steps = 0
 		self.copyWeightSteps = 64
 
@@ -89,7 +89,12 @@ class Network():
 		
 		self.t1 =0
 		self.t2=0
-		self.f = open('updates','w')
+
+		self.debug = False
+		self.prev_time = 0
+		self.max_time = 0.5
+		self.skipped = 0
+		self.fitted = 1
 
 	def Initialization(self, num_inputs, num_actions,negative_reward,model_specification, prioritize):
 		self.num_inputs = num_inputs
@@ -100,6 +105,7 @@ class Network():
 		
 		self.filepath = f'experiences_{model_specification}.csv'
 		self.readExperiencesFromFile()
+		self.f = open('updates','w')
 
 		self.policyNetwork = self.ModelTemplate()
 
@@ -109,7 +115,17 @@ class Network():
 			self.copyNN()
 
 		print(self.policyNetwork.summary())
-		self.t1 = time.time()
+
+		#if(len(self.experiences_prepros) self.batchsize):
+		t1 = time.time()
+		experiences = self.getBatchExperiences()
+		states = tf.convert_to_tensor(experiences['s']) #The current state
+		actions = np.asarray(experiences['a']) #The action performed (chosen randomly or by net)
+		rewards = np.asarray(experiences['r']) #The reward got
+		next_states = tf.convert_to_tensor(experiences['ns']) #The next state
+		dones = np.asarray(experiences['done']) #State of the game (ended or not)if(self.model_specification==0):
+		value_next = np.max(self.policyNetwork(next_states),axis=1) #Max next values according to the Target Network
+		print(f'\t first getBatchExperiences: {(time.time()-t1):.4f}')
 
 	def ModelTemplate(self):
 		if(self.model_specification!=2):
@@ -175,14 +191,16 @@ class Network():
 	def getBatchExperiences(self):
 		experiences = {'s': [], 'a': [], 'r': [], 'ns': [], 'done': []}
 
-		# t1 = time.time()
+		t1 = time.time()
 		if(self.prioritize):
 			indices = np.random.randint(len(self.experiences_prepros), size=self.batchsize-self.number_prioritize_experiences_batch)
 			indices_prior = np.random.randint(len(self.prioritize_experiences), size=self.number_prioritize_experiences_batch)
 		else:
 			indices = np.random.randint(len(self.experiences_prepros), size=self.batchsize)
-		# print(f'\t getBatchExperiences: 1 rand: {(time.time()-t1):.3f}')
+		if(self.debug):
+			print(f'\t getBatchExperiences: 1 rand: {(time.time()-t1):.4f}')
 
+		t1 = time.time()
 		for i in indices:
 			experience = self.experiences_prepros[i]
 			for k,v in experience.items():
@@ -192,18 +210,21 @@ class Network():
 				experience = self.prioritize_experiences[i]
 				for k,v in experience.items():
 					experiences[k].append(v)
+		if(self.debug):
+			print(f'\t getBatchExperiences: 1 ind: {(time.time()-t1):.4f}')
 		return experiences
 
 	def fit(self, exp):
 		if( (self.prioritize is False and len(self.experiences_prepros)>self.minNumExperiences)
 			or (self.prioritize and len(self.experiences_prepros)>self.minNumExperiences and len(self.prioritize_experiences)>self.number_prioritize_experiences_batch)):
 
-			# t1 = time.time()
+			t1 = time.time()
 			experiences = self.getBatchExperiences()
-			# print(f'Fit: 1 getbatch: {(time.time()-t1):.3f}')
+			if(self.debug):
+				print(f'Fit: 1 getbatch: {(time.time()-t1):.4f}')
 
-			# t1 = time.time()
-			states = tf.convert_to_tensor(experiences['s'], dtype=tf.float32) #The current state
+			t1 = time.time()
+			states = tf.convert_to_tensor(experiences['s']) #The current state
 			actions = np.asarray(experiences['a']) #The action performed (chosen randomly or by net)
 			rewards = np.asarray(experiences['r']) #The reward got
 			next_states = tf.convert_to_tensor(experiences['ns']) #The next state
@@ -215,9 +236,10 @@ class Network():
 				value_next = np.max(self.targetNetwork(next_states),axis=1) #Max next values according to the Target Network
 			
 			actual_values = np.where(dones, rewards, rewards+self.gamma*value_next) #Max values according to Bellman's equation
-			# print(f'Fit: 2 generate tensors: {(time.time()-t1):.3f}')
+			if(self.debug):
+				print(f'Fit: 2 generate tensors: {(time.time()-t1):.4f}')
 
-			# t1 = time.time()
+			t1 = time.time()
 			with tf.GradientTape() as tape:
 				tape.watch(states)
 
@@ -233,12 +255,13 @@ class Network():
 				tape.watch(loss)
 				print('#####\tloss\t#####', loss)
 				self.losses.append(loss)
-			# print(f'Fit: 3 gradient: {(time.time()-t1):.3f}')
+			if(self.debug):
+				print(f'Fit: 3 gradient: {(time.time()-t1):.4f}')
 
-			# t1 = time.time()
+			t1 = time.time()
 			variables = self.policyNetwork.trainable_variables
 			gradients = tape.gradient(loss, variables)
-			#gradients, _ = tf.clip_by_global_norm(gradients, 5.0)
+			gradients, _ = tf.clip_by_global_norm(gradients, 2.0)
 			# print('variables', type(variables), np.array(variables).shape)
 			# print('wv', tape.watched_variables())
 			# print('gradients', type(gradients), np.array(gradients).shape)
@@ -246,25 +269,30 @@ class Network():
 			# time.sleep(3)
 
 			self.optimizer.apply_gradients(zip(gradients, variables))
-			# print(f'Fit: 4 backprog: {(time.time()-t1):.3f}')
+			if(self.debug):
+				print(f'Fit: 4 backprog: {(time.time()-t1):.4f}')
 
 			self.steps+=1
 			if(self.model_specification!=0 and self.steps>=self.copyWeightSteps):
-				# t1 = time.time()
+				t1 = time.time()
 				self.steps=0
 				self.copyNN(soft=True)
 				self.t2 = time.time()
 				t = self.t2-self.t1
-				#print(f'\t\t\tTime from last update: {():.3f}')
+				#print(f'\t\t\tTime from last update: {():.4f}')
 				self.f.write(f'{t}\n')
 				self.t1 = self.t2
-				# print(f'Fit: 5 copy weights: {(time.time()-t1):.3f}')
-		#else
-		exp = self.dictFromExperienceRaw(exp.strip())
-		if(self.prioritize and exp['done']==1):
-			self.prioritize_experiences.append(exp)
-		else:
-			self.experiences_prepros.append(exp)
+				if(self.debug):
+					print(f'Fit: 5 copy weights: {(time.time()-t1):.4f}')
+		
+			t1 = time.time()
+			exp = self.dictFromExperienceRaw(exp.strip())
+			if(self.prioritize and exp['done']==1):
+				self.prioritize_experiences.append(exp)
+			else:
+				self.experiences_prepros.append(exp)
+			if(self.debug):
+					print(f'Fit: 6 appending exp: {(time.time()-t1):.4f}')
 
 	def predictPN(self, input):
 		return self.policyNetwork(np.atleast_2d(input))
@@ -291,7 +319,24 @@ class Network():
 			self.copyNN()
 		print(self.policyNetwork.summary())
 
+	def restart(self):
+		self.writeExperiencesToFile()
+		self.f.close()
+
+		file = open('time_elapsed','w')
+		for i in self.fit_times:
+			file.write(str(i)+'\n')
+		file.close()
+
+		file = open(f'run.losses_{self.model_specification}_0.csv','w')
+		for i in self.losses:
+			file.write(str(i.numpy())+'\n')
+		file.close()
+
 network = Network()
+if(network.debug):
+	network.Initialization(32, 5,-5, 1, False)
+
 
 @app.route('/')
 def home():
@@ -316,11 +361,15 @@ def FIT():
 	input = request.data.decode("utf-8") 
 
 	network.fit(input)
-	time_elaps = time.time()-time_start
-	network.fit_times.append(time_elaps)
-	print(f'Fit: elapsed time: {(time_elaps):.3f}\n')
-
-	return 'fitted'
+	network.prev_time = time.time()-time_start
+	print(f'Fit: {(network.prev_time):.4f}')
+	if(network.prev_time<network.max_time):
+		network.fitted+=1
+		return 'fitted'
+	else:
+		network.skipped+=1
+		network.prev_time=0
+		return "skipped"
 
 @app.route('/predict', methods=['POST'])
 def PREDICT():
@@ -338,7 +387,7 @@ def PREDICT():
 	# # print('target net', self.net.predictTN(input))
 	# out = '/'.join([str(o) for o in output.numpy()[0]])
 	time_end = time.time()
-	print(f'Predict: elapsed time: {(time_end-time_start):.3f}')
+	print(f'Predict: elapsed time: {(time_end-time_start):.4f}')
 	return output
 
 @app.route('/copy', methods=['GET'])
@@ -362,18 +411,18 @@ def LOAD_MODEL():
 
 @app.route("/shutdown", methods=['GET'])
 def shutdown():
+	print(f'{network.fitted} {network.skipped}. Ration skipped/total: {network.skipped/(network.skipped+network.fitted)}')
 	shutdown_func = request.environ.get('werkzeug.server.shutdown')
 	if shutdown_func is None:
 		raise RuntimeError('Not running werkzeug')
 	shutdown_func()
 	return "Shutting down..."
 
-	# def RESET(self):
-	# 	msg = cherrypy.request.body.readline().decode("utf-8")
-	# 	input = int(msg) #np.array(msg.split('.')).astype(int)
-	# 	print(input)
-	# 	self.net = Network(input)
-	# 	print('Reset')
+
+@app.route("/restart", methods=['GET'])
+def RESTART():
+	network.restart()
+	return 'restart'
 
 app.run(host='0.0.0.0')
 # network.closeFile()
@@ -385,7 +434,7 @@ for i in network.fit_times:
 	file.write(str(i)+'\n')
 file.close()
 
-file = open(f'run.losses_{network.model_specification}_1.csv','w')
+file = open(f'run.losses_{network.model_specification}_0.csv','w')
 for i in network.losses:
 	file.write(str(i.numpy())+'\n')
 file.close()
