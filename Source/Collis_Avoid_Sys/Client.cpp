@@ -67,7 +67,6 @@ void AClient::SendExperience(TArray<float> currentState, int action, TArray<floa
 	HttpRequest->SetContentAsString(data);
 	HttpRequest->ProcessRequest();
 }
-
 void AClient::Predict(TArray<float> currentState)
 {
 	FHttpModule* Http = &FHttpModule::Get();

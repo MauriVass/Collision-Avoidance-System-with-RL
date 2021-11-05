@@ -24,15 +24,17 @@ def evaluate_conf_interval(data,confidence_level):
 	return avgs, lbs, ubs, ci
 
 confidence_level = 0.9
+model = 2
 n = 1
-model = 1
 runs_reward = []
 runs_speed = []
 for i in range(n):
 	data = pd.read_csv(f'Runs/Model{model}/{i}/run.rewards_{model}_{i}.csv')
-	data['rolling_avg_reward'] = data['totalReward'].rolling(9).mean()
+	rolling = 9
+	data['rolling_avg_reward'] = data['totalReward'].rolling(rolling).mean()
+	data['rolling_avg_speed'] = data['averageSpeed'].rolling(rolling).mean()
 	runs_reward.append(data['rolling_avg_reward'])#totalReward
-	runs_speed.append(data['averageSpeed'])
+	runs_speed.append(data['rolling_avg_speed'])#averageSpeed
 avg_r, lbs_r, ubs_r, _ = evaluate_conf_interval(runs_reward,confidence_level)
 avg_s, lbs_s, ubs_s, _ = evaluate_conf_interval(runs_speed,confidence_level)
 

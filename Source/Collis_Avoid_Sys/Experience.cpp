@@ -54,7 +54,12 @@ FString Experience::ConstructData(TArray<float> currentState, int action, TArray
 	result.Append(";");
 
 	//REWARD GOT
-	result.Append(FString::SanitizeFloat(reward));
+	float r = reward;
+	if (reward > 1)
+		r = 1;
+	else if (reward < -1)
+		r = -1;
+	result.Append(FString::SanitizeFloat(r));
 	result.Append(";");
 
 	//THE GAME ENDED OR NOT (0 false, 1 true)

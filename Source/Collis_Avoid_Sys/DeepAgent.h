@@ -94,6 +94,7 @@ private:
 	float CumulativeReward;
 	float NegativeReward;
 	FVector TargetVector;
+	FVector TargetVector_all;
 	void RewardFunction(TArray<float> currentState);
 	float AverageSpeed;
 
@@ -115,6 +116,7 @@ private:
 	float totalDistance;
 	float MinDistance;
 	float TickTime;
+	float timer;
 
 
 };

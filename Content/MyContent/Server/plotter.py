@@ -3,9 +3,9 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
-model = 1
+model = 2
 # losses = pd.read_csv(f'run.losses_{model}_0.csv')
-rewards = pd.read_csv(f'run.rewards_{model}_0.csv')
+rewards = pd.read_csv(f'run.rewards_{model}_.csv')
 
 plot_losses = False
 
