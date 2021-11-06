@@ -1,6 +1,8 @@
 Plots/
 time_elapsed
 updates
+*.png
+plotter.py
 
 # Visual Studio 2015 user specific files
 .vs/

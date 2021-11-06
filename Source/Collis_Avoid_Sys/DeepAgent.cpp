@@ -54,9 +54,9 @@ void ADeepAgent::BeginPlay() {
 	ADeepAgent::ModelSpecification = 2;
 
 	ADeepAgent::timer = 0;
-	ADeepAgent::TickTime = 0.03; 
+	ADeepAgent::TickTime = 0.028; 
 	if(ADeepAgent::ModelSpecification == 2)
-		ADeepAgent::TickTime = 0.032;
+		ADeepAgent::TickTime = 0.03;
 
 	bool prioritize = false;
 	ADeepAgent::Client->SendMetadata(ADeepAgent::NumberSensor, ADeepAgent::NumberActions, ADeepAgent::NegativeReward, ADeepAgent::ModelSpecification, prioritize);
@@ -455,7 +455,7 @@ void ADeepAgent::RestartGame()
 	//Calculate new location
 	FVector pos = ADeepAgent::initialTransform.GetLocation();
 	float offset = 150;
-	float scaling_factor = 2.2;
+	float scaling_factor = 1.6;
 	pos.X += FMath::FRandRange(-offset* scaling_factor, offset * scaling_factor);
 	pos.Y += FMath::FRandRange(-offset, offset);
 	//this->GetMesh()->SetAllPhysicsPosition(pos);
