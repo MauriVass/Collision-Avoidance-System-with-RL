@@ -357,13 +357,13 @@ def INITIALIZATION():
 
 @app.route('/fit', methods=['POST'])
 def FIT():
-	time_start = time.time()
-	input = request.data.decode("utf-8") 
-
-	network.fit(input)
-	network.prev_time = time.time()-time_start
-	print(f'Fit: {(network.prev_time):.4f}')
 	if(network.prev_time<network.max_time):
+		time_start = time.time()
+		input = request.data.decode("utf-8") 
+
+		network.fit(input)
+		network.prev_time = time.time()-time_start
+		print(f'Fit: {(network.prev_time):.4f}')
 		network.fitted+=1
 		return 'fitted'
 	else:

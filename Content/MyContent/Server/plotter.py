@@ -4,10 +4,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 model = 2
-# losses = pd.read_csv(f'run.losses_{model}_0.csv')
-rewards = pd.read_csv(f'run.rewards_{model}_.csv')
+losses = pd.read_csv(f'run.losses_{model}_0.csv')
+#rewards = pd.read_csv(f'run.rewards_{model}_.csv')
 
-plot_losses = False
+plot_losses = True
 
 if(plot_losses is True):
 	fig = plt.figure(figsize=(24,8))
@@ -18,7 +18,7 @@ if(plot_losses is True):
 	y = np.array(losses)
 	#y = np.clip(y, 0, 0.01)
 
-	ax.scatter(x, y, s=0.1)
+	#ax.scatter(x, y, s=0.1)
 	#ax.plot(x,y,linewidth=.05, marker='o', markersize=0.5)
 	ax.plot(x,y_avg,linewidth=1,c='r')
 else:
