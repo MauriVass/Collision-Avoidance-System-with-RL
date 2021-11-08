@@ -486,12 +486,15 @@ and the loss:
 With this solution current Q-value ($Q_{\theta}(s_i,a_i)$) and the next best Q-value ($\text{max}_{a_i^\prime}Q_{\theta^{-}}(s_i^{\prime},a_i^{\prime}$) are calculated using the 2 different networks ($Q_{\theta}$ and $Q_{\theta^{-}}$). This reduces the bias and increases the score.
 \\
 Over time the loss between $Q_{\theta}$ and $Q_{\theta^{-}}$ is minimized. The weights of network $Q_{\theta}$ are updated every step using the gradient descent formula while the target network's weights ($Q_{\theta^{-}}$) are update every N steps using Polyak averaging: 
+%Value if tau
+%https://greentec.github.io/reinforcement-learning-third-en/#soft-update-target-network
 \begin{equation} \label{eq:updateweights}
  \theta^{-} = \tau\theta + (1-\tau)\theta^{-} 
  \end{equation}
-This is a soft averaging (an hard averaging would be $\theta^{-}=\theta$) weighted by the value $\tau$. $\tau$ represents how much information it has to be kept from the policy network ($\tau=1$ only the information of the policy network, $\tau=0$ only the information of the target network is keep, no update in this case). \cite{DDQN1,DDQN2}
+This is a soft averaging (an hard averaging would be $\theta^{-}=\theta$) weighted by the value $\tau$ (tau). $\tau$ represents how much information it has to be kept from the policy network ($\tau=1$ only the information of the policy network, $\tau=0$ only the information of the target network is keep, no update in this case) \cite{DDQN1,DDQN2}. \\
+The value of $\tau$ is usually quite small so that the target network will move slightly to the value of Q-network. Since the value of $tau$ is small, the update should be frequent so that the effect will be noticeable.
 \pp
-Both N and $\tau$ are hyper-parameters, in this project they are $N=64$ and $\tau=0.99$
+Both N and $\tau$ are hyper-parameters, in this project they are $N=64$ and $\tau=0.001$
 \begin{figure}[H]
 \begin{center}
 	\begin{tikzpicture}[x=25mm, y=0.09\textwidth, >=stealth]
@@ -685,13 +688,13 @@ To explain the reward fuction an angle $\theta$ must be introduced. This angle i
 				($\theta$ < 0 && chosen_action < 2) ||
 				(math.abs($\theta$) < forward_angle && chosen_action == 2))
 	{
-		angle_reward = (number_green_rays - 1) / 10;
+		angle_reward = (number_green_rays - ray_encou_factor) / ray_scal_factor;
 	}
-	speed_reward = (agent_speed - 250) / 1000;
+	speed_reward = (agent_speed - speed_encou_factor) / speed_scal_factor;
 	
 	total_reward = angle_reward + speed_reward;
 \end{lstlisting}
-	Where \emph{chosen\_action} is the action choosen either by exploration or eploitation, \emph{forward\_angle} is an hyper-parameter (on it depends when the agent should go forward with the max acceleration), \emph{number\_green\_rays} is the number of green rays (short reminder: the agent can sense the world with rays, these can be visualized as green and red \ref{carState}), \emph{agent\_speed} is the magnitude of agent's velocity vector, \emph{-1} and \emph{-250} are hyper-parametes and they are incentive factors (they push the agent to perform better: for example, the factor\emph{-250} on the emph{speed\_reward} means that the agent has to have a speed greater than 250 otherwise the reward is negative; similarly for the emph{angle\_reward}), \emph{/10} and \emph{/1000} are hyper-parametes and they are scaling factors. Finally the \emph{total\_reward} is given by the sum of the 2 rewards.
+	Where \emph{chosen\_action} is the action choosen either by exploration or eploitation, \emph{forward\_angle} is an hyper-parameter (on it depends when the agent should go forward with the max acceleration), \emph{number\_green\_rays} is the number of green rays (short reminder: the agent can sense the world with rays, these can be visualized as green and red \ref{carState}), \emph{agent\_speed} is the magnitude of agent's velocity vector, \emph{ray\_encou\_factor} and \emph{speed\_encou\_factor} are hyper-parametes and they are encouraging factors, respectively set to $1$ and $250$ (they push the agent to perform better: for example, the factor\emph{speed\_encou\_factor} on the emph{speed\_reward} means that the agent has to have a speed greater than 250 otherwise the reward is negative; similarly for the emph{angle\_reward}), \emph{ray\_scal\_factor} and \emph{speed\_scal\_factor}, set to $10$ and $1000$, are hyper-parametes and they are scaling factors so that the reward is not too large. Finally the \emph{total\_reward} is given by the sum of the 2 rewards.
 	\\
 	If the car hits a wall the reward is $-5$.
 	
@@ -731,7 +734,7 @@ In the case of DDQN and DDDQN the weights of the target network are updated ever
 \end{center}
 
 \begin{flushleft}
-The result shown for cumulative reward and the average speed of the 3 models are obtained from 5 different runs: the mean and the confidence intervals are calucalted using the t-distribution \cite{Tdistri}. A single run is 150 episodes long and it takes about 20 to 40 minutes.
+The result shown for cumulative reward and the average speed of the 3 models are obtained from 5 different runs: the mean and the confidence intervals are calucalted using the t-distribution \cite{Tdistri}. A single run is 150 episodes long and it takes about 30 to 50 minutes.
 
 \subsection{Deep Q-network}
 \sp
@@ -790,9 +793,6 @@ An interesting fact is that, the training phase can be divided in 5 periods:
 \ppn
 Results show interesting zero-shot transferability \cite{Zero-shot} of a trained agent in the context of simple track and generalize the knowledge to the complex track. Indeed the simple track is used only for training purposed and the complex track is used to testing purposes (the agent is not trained on the complex track).
 
-\subsection{Possible future work}
-%\sp
-
 \end{flushleft}
 
 \newpage
@@ -802,17 +802,13 @@ Results show interesting zero-shot transferability \cite{Zero-shot} of a trained
 \end{center}
 \begin{flushleft}
 
-This internship was a formative experience that allowed me to discover many new topics but also to understand how a company works. Moreover, it allowed me to understand that there is a substantial difference between the university environment and the corporate environment: university, as mentioned by some professors during the courses, has the task of giving a general knowledge of the topics and the real task is to give a way of thinking and analysing a problem to find a solution; indeed, during this period in the company I realized that computer knowledge was not always essential but it was more important to understand what was needed to be done and how to do it.
+This project was a formative experience that allowed me to discover many new topics. Moreover, it allowed me to understand that there is a substantial difference between the university environment and the research environment: university, as mentioned by some professors during the courses, has the task of giving a general knowledge of the topics and the real task is to give a way of thinking and analysing a problem to find a solution; indeed, during this project I realized that computer related knowledge was not always essential but it was more important to understand what was needed to be done and how to do it.
 \ppn
 
-I believe that this internship was very useful because it allowed me to deepen and learn about new topics and gave me an idea to understand if the tasks assigned could be addressed in a future university career or in a possible job.
-\newline
-This is also an experience that allows to grow both personally and professionally, not to mention that it is a way to
-enrich the Curriculum Vitae.
+ I am fully satisfied with the project as AI researcher and developer and I believe this project was very useful because it allowed me to deepen and learn about new topics and gave me an idea to understand if the tasks assigned could be addressed in a future university career or in a possible job.
+\\
+Moreover this was an experience that allows to grow both personally and professionally, not to mention that it is a way to enrich the Curriculum Vitae.
 
-\ppn
-I am fully satisfied with the internship as AI researcher and developer and I am satisfied with the atmosphere of serenity and professionalism that I lived in the company thanks to the kind and extremely helpful colleagues.
-	\ss
 \end{flushleft}
 
 %References
@@ -925,6 +921,23 @@ for Self-driving Car}.\\
   	Daniele Gammelli, Kaidi Yang, James Harrison, Filipe Rodrigues, Francisco C. Pereira, Marco Pavone. 2021.
   \emph{Graph Neural Network Reinforcement Learning for Autonomous Mobility-on-Demand Systems}.\\
   \url{https://arxiv.org/pdf/2104.11434.pdf}
+  
+  \bibitem{Nworks1}
+  	Riku Arakawa, Shintaro Shiba. 2020.
+  \emph{Exploration of Reinforcement Learning for Event Camera using
+Car-like Robots}.\\
+  \url{https://arxiv.org/pdf/2004.00801.pdf}
+  \bibitem{Nworks2}
+  	Peide Cai, Hengli Wang, Huaiyang Huang, Yuxuan Liu, and Ming Liu. 2021.
+  \emph{Vision-Based Autonomous Car Racing Using Deep
+Imitative Reinforcement Learning}.\\
+  \url{https://arxiv.org/pdf/2107.08325.pdf}
+  \bibitem{Nworks3}
+  Timothy P. Lillicrap, Jonathan J. Hunt, Alexander Pritzel, Nicolas Heess,
+Tom Erez, Yuval Tassa, David Silver and Daan Wierstra. Google Deepmind, 2019.
+  \emph{CONTINUOUS CONTROL WITH DEEP REINFORCEMENT
+LEARNING}.\\
+  \url{https://arxiv.org/pdf/1509.02971.pdf}
   
   
    \bibitem{PaperRef}
