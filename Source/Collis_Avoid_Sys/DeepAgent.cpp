@@ -230,6 +230,11 @@ float ADeepAgent::GetAverageSpeed()
 	return ADeepAgent::AverageSpeed / ADeepAgent::NumberSteps;
 }
 
+float ADeepAgent::GetAngle()
+{
+	return ADeepAgent::Angle;
+}
+
 void ADeepAgent::RewardFunction(TArray<float> currentState)
 {
 	//float ADeepAgent::Reward = 0.1;
@@ -273,14 +278,15 @@ void ADeepAgent::RewardFunction(TArray<float> currentState)
 	//###### Angle between direction and target ######
 	float dot = (FVector::DotProduct(ADeepAgent::TargetVector, carDirection)) / (ADeepAgent::TargetVector.Size() * carDirection.Size());
 	float cos_1 = FMath::Acos(dot);
-	float angle = FMath::RadiansToDegrees(cos_1);
+	ADeepAgent::Angle = FMath::RadiansToDegrees(cos_1);
 	float sign = FVector::CrossProduct(carDirection , ADeepAgent::TargetVector).Z; //// ADeepAgent::TargetVector.Size()
+	ADeepAgent::Angle = sign > 0 ? ADeepAgent::Angle : -ADeepAgent::Angle;
 
-	//UE_LOG(LogTemp,Error,TEXT("%f %f"), sign, angle)
+	//UE_LOG(LogTemp, Error, TEXT("%f %f"), sign, ADeepAgent::Angle);
 	float rewardAngle = -1;
-	if ((sign > 0 && ADeepAgent::Action > 2) ||
-		(sign < 0 && ADeepAgent::Action < 2) ||
-		(FMath::Abs(angle) < 20 && ADeepAgent::Action == 2))
+	if ((ADeepAgent::Angle > 0 && ADeepAgent::Action > 2) ||
+		(ADeepAgent::Angle < 0 && ADeepAgent::Action < 2) ||
+		(FMath::Abs(ADeepAgent::Angle) < 20 && ADeepAgent::Action == 2))
 	{
 		for (int i = 0; i < currentState.Num(); i++)
 		{

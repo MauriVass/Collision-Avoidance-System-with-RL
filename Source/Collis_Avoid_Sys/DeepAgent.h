@@ -53,6 +53,8 @@ public:
 		bool GetManualControll();
 	UFUNCTION(BlueprintCallable)
 		float GetAverageSpeed();
+	UFUNCTION(BlueprintCallable)
+		float GetAngle();
 
 
 private:
@@ -97,6 +99,7 @@ private:
 	FVector TargetVector_all;
 	void RewardFunction(TArray<float> currentState);
 	float AverageSpeed;
+	float Angle;
 
 	class Experience PreviousExperience;
 
