@@ -62,7 +62,7 @@ class Network():
 		self.discount_rate = 0.95
 		self.lr = 0.000025
 		self.gamma = 0.99
-		self.tau = 0.99
+		self.tau = 0.001
 		self.optimizer = tf.optimizers.Adam(self.lr)
 		
 		#self.filepath = 'experiences.csv'
@@ -286,6 +286,9 @@ class Network():
 					print(f'Fit: 5 copy weights: {(time.time()-t1):.4f}')
 		
 			t1 = time.time()
+			if(len(self.experiences_prepros)>self.maxNumExperiences):
+				self.experiences_prepros.pop(0)
+			
 			exp = self.dictFromExperienceRaw(exp.strip())
 			if(self.prioritize and exp['done']==1):
 				self.prioritize_experiences.append(exp)
