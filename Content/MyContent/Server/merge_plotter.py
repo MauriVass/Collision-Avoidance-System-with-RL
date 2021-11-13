@@ -32,6 +32,12 @@ for i in range(n):
 	# axs[1].set_xlabel('Epoch')
 	# axs[1].set_ylabel('Avg Velocity')
 	# plt.savefig(f'Plots/rewards_{rolling}')
+ax_r.set_ylim(0, 2500)
 ax_r.legend(loc='upper left')
+ax_r.set_xlabel('Episode')
+ax_r.set_ylabel('Cumulative Reward')
+
 ax_s.legend(loc='upper left')
+ax_s.set_xlabel('Episode')
+ax_s.set_ylabel('Average Speed [m/s]')
 plt.show()
