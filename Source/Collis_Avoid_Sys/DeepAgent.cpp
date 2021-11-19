@@ -345,6 +345,10 @@ void ADeepAgent::PerformAction(int action)
 	}*/
 
 	//3) 5 Actions
+	/*UE_LOG(LogTemp, Error, TEXT("%f %f %f"),
+		(ADeepAgent::MovementComponent->Velocity.Size()),
+		ADeepAgent::MovementComponent->GetMaxSpeed(),
+		ADeepAgent::MovementComponent->GetForwardSpeed());*/
 	switch (ADeepAgent::Action)
 	{
 	case 0:
@@ -449,7 +453,7 @@ void ADeepAgent::Step()
 	}
 
 	ADeepAgent::NumberSteps++;
-	if (ADeepAgent::IsGameEnded || (ADeepAgent::IsTraining && ADeepAgent::NumberSteps>=ADeepAgent::MaxNumberSteps)) {
+	if (ADeepAgent::IsGameEnded || (ADeepAgent::IsTraining && ADeepAgent::NumberSteps>=ADeepAgent::MaxNumberSteps) || (!ADeepAgent::IsTraining && ADeepAgent::NumberSteps >= ADeepAgent::MaxNumberSteps * 3)) {
 		ADeepAgent::RestartGame();
 	}
 }
@@ -470,7 +474,7 @@ void ADeepAgent::RestartGame()
 	bool changeDirection = ADeepAgent::Clockwise; // FMath::RandBool();
 	ADeepAgent::Clockwise = !ADeepAgent::Clockwise;
 	FQuat rot = ADeepAgent::initialTransform.GetRotation();
-	if (changeDirection) {
+	if (changeDirection && ADeepAgent::IsTraining) {
 		//Not sure why:
 		//The idea is to rotate the actor of 180 degrees so that it can travel both directions: clock and anti-clock wise
 		//but with 180 degrees in the InYaw parameter it rotates the actor of 90 degrees
