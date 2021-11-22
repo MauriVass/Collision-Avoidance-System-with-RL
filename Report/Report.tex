@@ -93,11 +93,11 @@
 		%\textnormal{ \Large{Dipartimento di Automatica e Informatica Collegio di Ingegneria Informatica, del Cinema e Meccatronica\\}}
 		\ss
 		\textnormal{ \Large {MAURIZIO VASSALLO\\}}
-		\textnormal{ \large {Student ID: \\}}
-		\textnormal{ \large {Academic Tutor: a\\}}
+		\textnormal{ \large {Student ID: 1556236\\}}
+		\textnormal{ \large {Academic Tutor: Professor Chen\\}}
 		%\vspace{30mm}
-	    		\vspace{\fill}\textbf{\LARGE{A Collision Avoidance System Using
-Reinforcement Learning\\}}\vspace*{\fill}%vertical align
+	    		\vspace{\fill}\textbf{\LARGE{Collision Avoidance Systems Using
+Reinforcement Learning Algorithms\\}}\vspace*{\fill}%vertical align
 	\end{center}
 	
 \end{titlepage}
@@ -122,11 +122,11 @@ The ability of autonomous vehicles to operate without human intervention depends
 on their level of technological sophistication, in accordance with the current six-degree
 autonomy scale proposed by the International Society of Automotive Engineers (\textbf{SAE})\cite{AVtaxonomy}.
 There are 6 levels of driving automation, from level 0 (no automation) to level 5 (full automation); intermidiate levels (1 to 3) are considered semi-autonomous\cite{AVlevels,AVlevels2}. \\
-Currently we are between level 2 and 3, so even if the current technology is behind the famous Level 5 of driving automation, there is lot of work to make it happen.
+Currently we are between level 2 and 3, so even if the current technology is behind the famous Level 5 of driving automation, there is lot of work and research to make it happen.
 
 \ppn
 According to research firm, autonomous vehicles will match or exceed human safety by late 2020s and fulfill all mobility needs in 2040s to 2060s. Optimists predict that by 2030, autonomous vehicles will be sufficiently reliable, affordable and 
-common to displace most human driving, providing huge savings and benefits. However, there are good reasons to be skeptical. There is considerable uncertainty concerning autonomous vehicles development, benefits, costs, travel impacts and consumers demand. Considerable progress is needed before autonomous vehicles can operate reliably in mixed urban traffic, heavy rain and snow, unpaved and unmapped roads, and where wireless access is unreliable\cite{AVfirm}.
+common to displace most human driving, providing huge savings and benefits. Still, there is considerable uncertainty concerning autonomous vehicles development, benefits, costs, travel impacts and consumers demand. Considerable progress is needed before autonomous vehicles can operate reliably in mixed urban traffic, unpaved and unmapped roads, and where wireless access is unreliable\cite{AVfirm}.
 
 
 \ppn
@@ -141,8 +141,6 @@ license.
 \item \textbf{Traffic Congestion and Land Use}. Autonomous vehicles could reduce congestion and change the way in which cities are planned. Most car are moving only for 5\% of their lives, for the 95\% they are parked\cite{AVparking}! For this reason lot of space is dedicated to parking lots; the same space that could be used for different purposes (green spaces, etc.).
 \item \textbf{Energy and Emissions}. Autonomous vehicle technology has the potential to reduce both energy consumption and pollution thanks to efficiencies gained through smoother acceleration and deceleration and  increased  roadway capacity.\cite{AVbenefit}
  \end{itemize}
- 
- To do: find a way to link this part with teh following one!!
 
 	\ss
 \end{flushleft}
@@ -160,7 +158,7 @@ Humans and animals learn through a process of trial and error. This process is b
 Inspired by how animals and humans learn, \textbf{Reinforcement Learning} is built around the idea trial and error from an interaction with the environment 
 %cite{andrea lonza book}.
 \pp
-Reinforcement Learning tries to solve the problem in which a decision-maker, \textbf{Agent}, can perform some \textbf{Actions} inside a world, called \textbf{Environment}. The agent senses the environment through the \textbf{State} and for each state the agent has to perform an action. These actions result in an effect: they change the agent's state and give it a feedback, the \textbf{Reward}. The reward is a value which indicated if the action performed is good, then the reward is positive, or it is bad, the reward is negative. Given these rewards the agent understand what action to perform in a given state to get a positive reward. 
+Reinforcement Learning tries to solve the problem in which a decision-maker, \textbf{agent}, can perform some \textbf{actions} inside a world, called \textbf{environment}. The agent senses the environment through the \textbf{state} and for each state the agent has to perform an action. These actions result in an effect: they change the agent's state and give it a feedback, the \textbf{reward}. The reward is a value which indicated if the action performed is good, then the reward is positive, or it is bad, the reward is negative. Given these rewards the agent understand what action to perform in a given state to get a positive reward. 
 \\
 This cycle of state-action-reward is repeted many times. The goal of the agent is to find a \textbf{policy} such that the actions performed lead to the maximum reward possible. In particual the agent wants to maximize the cumulative reward, the sum of rewards over a period of time. The difference between maximizing the instant reward and cumulative reward is an important distinction because: choosing an action which lead to the maximum next reward could in the next state bring to an end state (game over); instead maximizing the cumulative reward means thinking in a long-term horizon, so that the next states should all have a positive reward (even if the action chosen in one state is not the one that the
 maximum next reward).
@@ -208,7 +206,7 @@ The state and action spaces may be finite or infinite.
 \ppn
 The MDP is controlled by a sequence of descrete time steps that create a trajectory $\upsilon$:
 \[s_0 \xrightarrow{a_0} s_1 \xrightarrow{a_1} s_2 \xrightarrow{a_2} s_3 \xrightarrow{a_3} \dotso\]
-where the states follow the state transition $P_a(s,s^\prime)$. The transition function and the reward function are determined only by the current state, and not from the previous states. This property is called Markov property, which is a characterize the MDP and it means that the process is memory-less and that the future states depends only on the current one and not on its history.
+where the states follow the state transition $P_a(s,s^\prime)$. The transition function and the reward function are determined only by the current state, and not from the previous states. This property is called Markov property, which characterizes the MDP and it means that the process is memory-less and that the future states depends only on the current one and not on its history.
 
 \ppn
 The goal of the MDP is to find a good policy for the decision maker: a function $\pi$ that specifies the action $\pi(s)$ that will be chosen when in state $s$. The policy $\pi$ found will maximize the cumulative reward over a trajectory $\upsilon$:
@@ -216,12 +214,12 @@ The goal of the MDP is to find a good policy for the decision maker: a function 
 %R_{a_0}(s_0, s_{1}) + R_{a_1}(s_1, s_{2}) + \dotso =
 This return value has the problem that all the rewards contribute in the same weight and this can create some problems due to the lack of information. A better return value would be to give some more importance to the short-term memories and giving less importance to the one far in the future. This is solved introducing a \textbf{discount factor}, denoted with $\gamma$. Then the corrected formula is:
 \[ G(\upsilon) = \sum_{t=0}^{\infty} \gamma^t R_{a_t}(s_t, s_{t+1}) \]
-with value of $\gamma$ satisfying $ 0 \leq \gamma \leq 1$. A lower discount factor motivates the decision maker to take actions that are close in time instead of actions that a far in the future.
+with value of $\gamma$ satisfying $ 0 \leq \gamma \leq 1$. When $\gamma$ is closer to zero, the agent will tend to consider only immediate rewards wheter if $\gamma$ is closer to one, the agent will consider future rewards with greater weight, willing to delay the reward.
 
 \ppn
 %http://incompleteideas.net/book/ebook/node34.html
 %https://cims.nyu.edu/~donev/Teaching/WrittenOral/Projects/XintianHan-WrittenAndOral.pdf
-Another important notion in MDP and Reinforcement Learning is the value fuction. While the return $G(\upsilon)$ gives the reward over a trajectory it does not tell much about how good are the single states. The \textbf{value fuction} does exactly this, it estimates how good is for the decision maker to be in a given state. The notion of "how good" is defined in terms of future rewards that can the decision maker expect in terms of expected return.
+Another important notion in MDP and Reinforcement Learning is the \textbf{value fuction}. While the return $G(\upsilon)$ gives the reward over a trajectory it does not tell much about how good are the single states. The value fuction does exactly this, it estimates how good is for the decision maker to be in a given state. The notion of "how good" is defined in terms of future rewards that can the decision maker expect in terms of expected return.
 \\
 The value fuction $V_{\pi}(s)$ can be formally defined as: 
 \[V_{\pi}(s) = \mathbb{E}_{\pi}(R_t|s_t=s) = \mathbb{E}(\sum_{t=0}^{\infty} \gamma^t R_{a_t}(s_t, s_{t+1})|s_t=s)\]
@@ -233,7 +231,7 @@ The expected return when starting at state $s$ and following policy $\pi$.
 Similary, another notion: the \textbf{action-value fuction}, the expected return from state $s$ with an initial action $a$:
 \[Q_{\pi}(s,a) = \mathbb{E}_{\pi}(R_t|s_t=s, a_t=a) = \mathbb{E}(\sum_{t=0}^{\infty} \gamma^t R_{a_t}(s_t, s_{t+1})|s_t=s,a_t=a)\]
 
-Furthermore, the value fuction and the action-value fuction are called V-fuction and Q-fuction. They are related and satisfy a particular relationship, used in many Reinforcement Learning contests, that for any policy $\pi$ and state $s$, the following condition holds:
+Furthermore, the value fuction and the action-value fuction, called V-fuction and Q-fuction, are related and satisfy a particular relationship, used in many Reinforcement Learning contests, that for any policy $\pi$ and state $s$, the following condition holds:
 \[V_{\pi}(s) = \mathbb{E}_{\pi}(Q_{\pi}(s,a))\]
 
 \ppn
@@ -243,7 +241,7 @@ V_{\pi}(s) = \mathbb{E}_{\pi}(R_t|s_t=s) =
 					\underbrace{\mathbb{E}_{\pi}(R_{t}|s_t=s)}_{\text{immidiate reward}} + 
 					\underbrace{\mathbb{E}_{\pi}(\gamma V_{\pi}(s_{t+1}|s_t=s))}_{\text{discounted value of next state}}
 \end{equation}
-This is the Bellman Equation (\ref{eq:1}) that defines the value fuction recursively, enabling the estimations of the next states. \\
+This is the \textbf{Bellman Equation} (\ref{eq:1}) that defines the value fuction recursively, enabling the estimations of the next states. \\
 Similary it is possible to write Bellman equation for the Q-fuction :
 %(using the V-fuction and Q-fuction relationship)
 \[Q_{\pi}(s,a) = \mathbb{E}_{\pi}(R_t|s_t=s, a_t=a) = \mathbb{E}_{\pi}[R_t + \gamma Q_{\pi}(s_{t+1},a_{t+1})| s_t=s, a_t=a] \]
@@ -251,14 +249,14 @@ In this way the V-fuction and the  Q-fuction are updated with the values of the 
 
 \subsection{Q-Learning}
 \sp
-Q-learning is an off-policy reinforcement learning algorithm that tries to find the best action to take given the current state. It's considered off-policy because the Q-learning function learns from actions that are outside the current policy, like taking random actions and that the updates can be made independently from the policy that has gathered the expirence. In other words, this means that off-policy algorithms can use experiecens collected in the past to improve the policy.\\
-Q-Learning is also a \textbf{Temporal Difference} algorithm (TD\cite{TDl}) and it inherits from the TD learning the characteristics of one-step learning.\\
+Q-learning is an off-policy reinforcement learning algorithm that tries to find the best action to take given the current state. It's considered off-policy because the Q-learning function learns from actions that are outside the current policy, like taking random actions, and that the updates can be made independently from the policy that has gathered the expirence. In other words, this means that off-policy algorithms can use experiecens collected in the past to improve the policy.\\
+Q-Learning is also a Temporal Difference algorithm (\textbf{TD}\cite{TDl}) and it inherits from the TD learning the characteristics of one-step learning.\\
 These two elements (TD and off-policy property) are important; indeed the goal of Q-learning is to approximate the Q-fuction using the action the maximize the Q-value of the next state. Formally:
 \begin{equation} \label{eq:2}
  Q(s_t,a_t) = Q(s_t,a_t) + 
 \alpha[r_t + \gamma \text{max}_{a}Q(s_{t+1},a) - Q(s_t,a_t)] 
 \end{equation}
-where $\alpha$ is the learning rate, that indicated how much the Q-value will be updated, and $\gamma$ the discount factor, that, as mentioned, gives more importance to the short-term actions and gives less importance to the long-term ones. \\
+where $\alpha$ is the learning rate, that indicated how much the Q-value will be updated, and $\gamma$ the discount factor, that, as mentioned, gives more importance to the long-term actions and gives less importance to the short-term ones. \\
 This modified version of the Bellman equation updates the value of the current Q-value using only the next step (using the TD one-step learning property) and it is an off-policy 
 algorithm since it uses the $\text{max}_{a}$ to choose $a_{t+1}$.
 
@@ -290,30 +288,30 @@ This implementation has 2 main problems:
 %The space complexity would be $\Omega(t \times n \times m)$!
 
 \ppn
-One way to solve this problem is to use a method that approximate the Q-fuction: one possible candidate is to use neural networks, since they are considered universal approximator fuctions. This new architecture assumes the name of \textbf{Deep Q-learning} (DQN). Deep Q-learning replaces the Q-table with a neural network that approximate the Q-value fuction; moreover rather than mapping a state-action pair to a Q-value, a neural netowk maps an input state to an \emph{(action, Q-value)} pair.
+One way to solve this problem is to use a method that approximate the Q-fuction: one possible candidate is to use neural networks, since they are considered universal approximator fuctions. This new architecture assumes the name of Deep Q-learning (\textbf{DQN}). Deep Q-learning replaces the Q-table with a neural network that approximate the Q-value fuction; moreover rather than mapping a state-action pair to a Q-value, a neural netowk maps an input state to an \emph{(action, Q-value)} pair.
 \\
 This solution overcomes the 2 problems mentioned above.
 \pp
 In this contest, the objective is to change the neural network's weights $\theta$, so that $Q_{\theta}$ is an optimal Q-value fuction given the weights $\theta$. \\
 In order to change the weights, as common with neural networks, the \textbf{Gradient Descend} is employed. In particular the weights are changed with the following formula:
-\[ \theta = \theta - \alpha\nabla_{\theta}\mathbb{E}_{(s,a,r,s^\prime)}[(Q_{\theta}(s,a) - \text{target})^2]\]
+\[ \theta = \theta - \alpha\nabla_{\theta}\mathbb{E}_{(s_t,a_t,r_t,s_{t+1})}[(Q_{\theta}(s_t,a_t) - \text{target})^2]\]
 where:
 
 \begin{equation} \label{eq:target}
-\text{target} = r + \gamma\text{max}_{a^\prime}Q_{\theta}(s^{\prime},a^{\prime})
+\text{target} = r + \gamma\text{max}_{a^\prime}Q_{\theta}(s_{t+1},a^{\prime})
 \end{equation}
 \vspace{-10mm}
 \begin{center}
 is the value the neural network should predict;
 \end{center}
 
-\[Q_{\theta}(s,a)\]
+\[Q_{\theta}(s_t,a_t)\]
 \vspace{-10mm}
 \begin{center}
 is the value the neural network prediction;
 \end{center}
 
-\[\mathbb{E}_{(s,a,r,s^\prime)}[(Q_{\theta}(s,a) - \text{target})^2\] 
+\[\mathbb{E}_{(s_t,a_t,r_t,s_{t+1})}[(Q_{\theta}(s,a) - \text{target})^2\] 
 \vspace{-10mm}
 \begin{center}
 is the average Mean Square Error over a batch iteration;
@@ -335,17 +333,17 @@ In this way over many interaction the weights are updated to reduce the loss and
 	\sp
 \end{center}
 \begin{flushleft}
-	The goal of the project is to use some Reinforcement Learning algorithms to teach an actor to avoid obstacles. The \textbf{Agent} is put in an \textbf{Environment} it does not know and it will learn a good \textbf{Policy} in order to avoid the walls using a trial and error approch. The agent will be given with positive or negative \textbf{Rewards} depending on the \textbf{Actions} it performs. 
+	The goal of the project is to use some Reinforcement Learning algorithms to teach an actor to avoid obstacles. The \textbf{agent} is put in an \textbf{environment} it does not know and it will learn a good \textbf{policy} in order to avoid the walls using a trial and error approch. The agent will be given with positive or negative \textbf{rewards} depending on the \textbf{actions} it performs. 
 	
 	\subsection{Environment}
 	\sp
 	%In this project a deterministic environment will be used since the next state of the environment can always be determined based on the current state and the agent’s action. In particular 
 	The are 2 main environments: a simple track and a complex one. Both track where modelled in \textbf{Blender} version 2.93\cite{Blender}. \\
-	These models are used inside of Unreal Engine 4 \cite{UE4}, a powerful game and physics engine.
+	These models are used inside of \textbf{Unreal Engine 4} \cite{UE4}, a powerful game and physics engine.
 	
 	\subsubsection{Simple Track}
 	This simple track is used for training and validation. Since this is used for training it does not have long straightaways or sharp turns.
-	\ifnum\value{debug}=1 {
+	\ifnum\value{debug}=0 {
 	\begin{figure}[H]
     		\centering\includegraphics[width=0.45\textwidth]{./Image/Environment/Easy/perspective.png}
     		\centering\includegraphics[width=0.45\textwidth]{./Image/Environment/Easy/top_mod.png}
@@ -353,11 +351,11 @@ In this way over many interaction the weights are updated to reduce the loss and
 		\caption{Simple track images. On the left there is the perspective view and on the rigth the orthogonal top view with its measurings.}
 	\end{figure}
 	}\fi
-	During training the track is run clockwise and counterclockwise so that the agent learns to turn right and left.
+	During training the track is run clockwise and counter-clockwise so that the agent learns to turn right and left.
 	
 	\subsubsection{Complex Track}
 	This complex track is used for testing. This will have more long straightaways or sharp turns.
-	\ifnum\value{debug}=1 {
+	\ifnum\value{debug}=0 {
 	\begin{figure}[H]
     		\centering\includegraphics[width=0.45\textwidth]{./Image/Environment/Med/perspective.png}
     		%\centering\includegraphics[width=0.45\textwidth]{./Image/Environment/Med/top.png}	
@@ -380,7 +378,7 @@ In this way over many interaction the weights are updated to reduce the loss and
 	\subsection{State}
 	\sp
 	The agent senses the environment around it using some Light Detection and Ranging sensors (\textbf{LiDAR} \cite{LiDAR}). \\
-	The number of LiDAR to use is an important hyper-parameter: in this case good results were found using 32 LiDAR sensors. This 32 sensors are equally spaces in an angle range of $170^{\circ}$, this is another important hyper-parameter. \\
+	The number of LiDAR to use is an important hyper-parameter: in this case good results were found using 32 LiDAR sensors. These 32 sensors are equally spaces in an angle range of $170^{\circ}$, this is another important hyper-parameter. \\
 	Multiple tests were made to set these hypre-parameters, in particular:
 	\begin{itemize}
 	\item Too many LiDAR sensors requires more training time, they increase the performance but sometimes the model did not converge.
@@ -395,31 +393,31 @@ In this way over many interaction the weights are updated to reduce the loss and
 		\vspace{5mm}
 		\caption{The image shows how the agent senses the world around it. It is possible to see the $32$ beams equally spaced on a $170^{\circ}$ range. \\
 		The beam's color depends wether the ray has hit an obstacle or not: red object is near enough, green no hit. \\
-		There are also two other beams (yellow and blue) but they are only for visual puposes, in particular to make humans understand how the agent learns; these will be used in the Reward Fuction \ref{rewardfuc}.}
+		There are also two other beams (yellow and blue) they have for visual puposes, in particular to make humans understand how the agent learns; these will be used in the Reward Fuction \ref{rewardfuc}.}
 	\end{figure}
 	}\fi
 	
 	
 	\subsection{Policy}
 	\sp
-	The policy, as mentioned early, is a mapping from state to action, how the agent chooses an action. The goal is to improve the policy over time in order to increase the cumulative reward. \pp
+	The policy, as mentioned early, is a mapping from state to action: how the agent chooses an action. The goal is to improve the policy over time in order to increase the cumulative reward. \pp
 	
 	As common in Reinforcement Learning, the agent needs to explore the environment to get to know the world around it and after some time then apply this knowledge.  This is known as the \textbf{exploration-exploitation tradeoff}: at the beginng the agent chooses random actions (exploration), after it has learnt it uses what it knows to choose the correct action (exploitation). \pp
-	This exploration-exploitation tradeoff is implemented with a value $\epsilon$ commonly initialized to $1$: at each step a random value $c$ (with $c \in [0,1]$) is drawn, if $c\leq\epsilon$ then the agent chooses a random action and $\epsilon$ is decreased otherwise it select the action $a$ with the maximum Q-value given the current state $s$ ($\text{max}_{a}Q_{\theta}(s,a)$).
-	\\
-	The value of $\epsilon$ is decresed with a value $epsilon\_decay = 7.5 \cdot 10^{-5}$; once $\epsilon$ keep decreasing the probability that $c\leq\epsilon$ will be lower so preferring exploitation over exploration. This is know as \textbf{Epsilon greedy strategy}.\\
+	This exploration-exploitation tradeoff is implemented with a value $\epsilon$ initialized to $1$: at each step a random value $c$ (with $c \in [0,1]$) is drawn: if $c\leq\epsilon$ then the agent chooses a random action and $\epsilon$ is decreased otherwise it selects the action $a^\prime$ with the maximum Q-value given the current state $s$ ($\text{max}_{a^\prime}Q_{\theta}(s,a^\prime)$).
+	\pp
+	The value of $\epsilon$ is decresed with a value $epsilon\_decay = 7.5 \cdot 10^{-5}$; once $\epsilon$ keep decreasing the probability that $c\leq\epsilon$ will be lower so the actor will prefer exploitation over exploration. This is know as \textbf{Epsilon greedy strategy}.\\
 	The $epsilon\_decay$ is an hyper-parameter: the lower $epsilon\_decay$ is the more the agent will explore the environment increasing the training time. 
 	\pp
-	The performance of the policy depends on the neural network structure. In this project 3 different architecture are used. %The idea behind them is similar what changes is how the next target Q-value is calculated.; so basically the Bellman equation changes.
+	The performance of the policy depends on the neural network structure. In this project 3 different architectures are tested. %The idea behind them is similar what changes is how the next target Q-value is calculated.; so basically the Bellman equation changes.
 	
 	\subsubsection{Deep Q-Network}
 	\sp
 	As mentioned early Deep Q-networks use a neural network to calculate the Q-values given a state and they use \ref{eq:2} to calculate the next Q-value; in particular the target value is calculated with formula \ref{eq:target}, here reported:
 	\[
-\text{target}_i = r_i + \gamma\text{max}_{a_i^\prime}Q_{\theta}(s_i^{\prime},a_i^{\prime})
+\text{target}_t = r_t + \gamma\text{max}_{a^\prime}Q_{\theta}(s_{t+1},a^{\prime})
 \]
 and the loss:
-\[\mathbb{E}_{(s,a,r,s^\prime)}[(Q_{\theta}(s_i,a_i) - \text{target}_i)^2\] 
+\[\mathbb{E}_{(s_t,a_t,r_t,s_{t+1})}[(Q_{\theta}(s_t,a_t) - \text{target}_t)^2\] 
 
 \tikzset{%
   every neuron/.style={
@@ -475,7 +473,7 @@ and the loss:
 \end{center}
 \end{figure}
 
-	One possible problem with this implementation is that both the current Q-value ($Q_{\theta}(s_i,a_i)$) and the next best Q-value ($\text{max}_{a_i^\prime}Q_{\theta}(s_i^{\prime},a_i^{\prime}$) are calculated using the same network ($Q_{\theta}$). This can bring to overestimations of the values, resulting in overoptimistic value estimate. (add reference)
+	One possible problem with this implementation is that both the current Q-value ($Q_{\theta}(s_t,a_t)$) and the next best Q-value ($\text{max}_{a^\prime}Q_{\theta}(s_{t+1},a^{\prime}$) are calculated using the same network ($Q_{\theta}$). This can bring to overestimations of the values, resulting in overoptimistic value estimate. (add reference)
 		
 	One possible solution is to use a Double Deep Q-network.
 	
@@ -483,11 +481,11 @@ and the loss:
 	\sp
 	In Double Deep Q-learning 2 networks are used: $Q_{\theta}$ (policy network) and $Q_{\theta^{-}}$ (target network). The 2 networks have the same structure and the weights are initialized with the same values using, in this case, a RandomNormal kernel initializer. \\
 	In this case target and loss are calculated as follow:
-	\[
-\text{target}_i = r_i + \gamma\text{max}_{a_i^\prime}Q_{\theta^{-}}(s_i^{\prime},a_i^{\prime})
-\]
-\[\mathbb{E}_{(s,a,r,s^\prime)}[(Q_{\theta}(s_i,a_i) - \text{target}_i)^2\] 
-With this solution current Q-value ($Q_{\theta}(s_i,a_i)$) and the next best Q-value ($\text{max}_{a_i^\prime}Q_{\theta^{-}}(s_i^{\prime},a_i^{\prime}$) are calculated using the 2 different networks ($Q_{\theta}$ and $Q_{\theta^{-}}$). This reduces the bias and increases the score.
+
+\[\text{target}_t = r_t + \gamma\text{max}_{a^\prime}Q_{\theta^{-}}(s_{t+1},a^{\prime})\]
+\[\mathbb{E}_{(s_t,a_t,r_t,s_{t+1})}[(Q_{\theta}(s_t,a_t) - \text{target}_t)^2\] 
+
+With this solution current Q-value ($Q_{\theta}(s_t,a_t)$) and the next best Q-value ($\text{max}_{a^\prime}Q_{\theta^{-}}(s_{t+1},a^{\prime}$) are calculated using the 2 different networks ($Q_{\theta}$ and $Q_{\theta^{-}}$). This reduces the bias and increases the score.
 \\
 Over time the loss between $Q_{\theta}$ and $Q_{\theta^{-}}$ is minimized. The weights of network $Q_{\theta}$ are updated every step using the gradient descent formula while the target network's weights ($Q_{\theta^{-}}$) are update every N steps using \textbf{Polyak averaging}: 
 %Value if tau
@@ -555,7 +553,7 @@ With this implementation, the Q-value estimate can be obtained by aggregation:
  Q(s,a) = V_{\beta}(s) + A_{\alpha}(s,a) - \frac{1}{|A|} \sum_{a^{\prime}}{A_{\alpha}(s,a^{\prime})}
 \end{equation}
 where $\beta$ and $\alpha$ are the weights for the $V(s)$ and $A(s,a)$ networks respectively.
-	Training of the dueling architectures, as with standard DQ-networks, requires only back-propagation. The estimates $V(s)$ and $A(s,a)$ are computed automatically without any extra supervision or algorithmic modifications. In particular this network share the same $N$ and $\tau$ as the Double Deep Q-network \ref{DDQN}
+	Training of the dueling architectures, as with standard Deep Q-networks, requires only back-propagation. The estimates $V(s)$ and $A(s,a)$ are computed automatically without any extra supervision or algorithmic modifications. In particular, the Duelling Double Deep Q-network will be used, so there are a policy and a target network. This network share the same $N$ and $\tau$ as the Double Deep Q-network \ref{DDQN}
 	
 \begin{figure}[H]
 	\begin{center}
@@ -631,7 +629,7 @@ where $\beta$ and $\alpha$ are the weights for the $V(s)$ and $A(s,a)$ networks 
 	  \node [align=center, above] at (3,-1.75) {A layer};
 	  \node [align=center, above] at (4.1,3) {\textbf{Output} \\ \textbf{layers}};	
 	\end{tikzpicture}
-	\caption{The architecture of the Deep Q-network. The outputs ($V_{out}$ and $A_i$) are then used in formula \ref{eq:DDDQN}.}
+	\caption{The architecture of the Deep Q-network. The outputs ($V_{out}$ and $A_i$) are then aggregated in formula \ref{eq:DDDQN}.}
 \end{center}
 \end{figure}
 
@@ -674,16 +672,16 @@ where $\beta$ and $\alpha$ are the weights for the $V(s)$ and $A(s,a)$ networks 
 	 r = v cos(\theta)
 	\]
 	where the reward $r$ is calculated using the speed $v$ of the car and its angle $\theta$ with respect to the road.
-	\item other methods employ some checkpoints along the track. Usually this checkpoint are placed manually bu humans.
+	\item other methods employ some checkpoints along the track. Usually this checkpoint are placed manually by humans.
 	\end{itemize}
 	These methods need some external information, for example where the middle of the road is, where is the next checkpoint and so on.
 	\pp 
 	The proposed reward fuction in this project tries only to get information from the car sensors. \\
-To explain the reward fuction an angle $\theta$ must be introduced. This angle is the between the blue ray and orange ray, as shown in figure \ref{carAngle}, where the orange ray is the vectorial sum of all green rays and the blue ray is the car's forward direction.
+To explain the reward fuction an angle $\theta$ must be introduced. This is the angle between the blue ray and orange ray, as shown in figure \ref{carAngle}, where the orange ray is the vectorial sum of all green rays and the blue ray is the car's forward direction.
 
 \ifnum\value{debug}=0 {
 \begin{figure}[H] \label{carAngle}
-    		\centering\includegraphics[width=0.7\textwidth]{./Image/RF/carAngle.png}
+    		\centering\includegraphics[width=0.7\textwidth]{./Image/RF/carAngle2.png}
 		\vspace{5mm}
     		\caption{The used car as Agent with its own measurements.}
 	\end{figure}
@@ -700,33 +698,43 @@ To explain the reward fuction an angle $\theta$ must be introduced. This angle i
 	
 	total_reward = angle_reward + speed_reward;
 \end{lstlisting}
-	Where \emph{chosen\_action} is the action choosen either by exploration or eploitation, \emph{forward\_angle} is an hyper-parameter (on it depends when the agent should go forward with the max acceleration), \emph{number\_green\_rays} is the number of green rays (short reminder: the agent can sense the world with rays, these can be visualized as green and red \ref{carState}), \emph{agent\_speed} is the magnitude of agent's velocity vector, \emph{ray\_encou\_factor} and \emph{speed\_encou\_factor} are hyper-parametes and they are encouraging factors, respectively set to $1$ and $250$ (they push the agent to perform better: for example, the factor\emph{speed\_encou\_factor} on the emph{speed\_reward} means that the agent has to have a speed greater than 250 otherwise the reward is negative; similarly for the emph{angle\_reward}), \emph{ray\_scal\_factor} and \emph{speed\_scal\_factor}, set to $10$ and $1000$, are hyper-parametes and they are scaling factors so that the reward is not too large. Finally the \emph{total\_reward} is given by the sum of the 2 rewards.
-	\\
+	Where:
+	\begin{itemize}
+	\item \emph{chosen\_action} is the action choosen either by exploration or eploitation,
+	\item \emph{forward\_angle} is an hyper-parameter (on it depends when the agent should go forward with the max acceleration),
+	\item \emph{number\_green\_rays} is the number of green rays (short reminder: the agent can sense the world with rays, these can be visualized as green and red \ref{carState}),
+	\item \emph{agent\_speed} is the magnitude of agent's velocity vector, 
+	\item \emph{ray\_encou\_factor} and \emph{speed\_encou\_factor} are hyper-parametes and they are encouraging factors, respectively set to $1$ and $250$ (they push the agent to perform better: for example, the factor \emph{speed\_encou\_factor} on the \emph{speed\_reward} means that the agent has to have a speed greater than 250 otherwise the reward is negative; similarly for the emph{angle\_reward}), 
+\item \emph{ray\_scal\_factor} and \emph{speed\_scal\_factor}, set to $10$ and $1000$, are hyper-parametes and they are scaling factors so that the reward is not too large. Finally the \emph{total\_reward} is given by the sum of the 2 rewards.
+	\end{itemize}
+	
 	If the car hits a wall the reward is $-5$.
 	
 \subsection{Implementation}
 \sp
-The whole system can be divided in 2 parts: the environment part and the machine learning part. The environment part in developed in Unreal Engine and it includes the environment itself and the physical agent; from this part the agent senses the world, performs actions and get the rewards. The machine learning part is developed in Python and it is where the neural networks run (the policies, the brain of the agent).
-The 2 parts communicate through HTTP requests (Unreal Engine is the client and Python is the server). \\
+The whole system can be divided in 2 parts: the environment part and the machine learning part. The environment part in developed in Unreal Engine 4 and it includes the environment itself and the physical agent; from this part the agent senses the world, performs actions and get the rewards. The machine learning part is developed in Python and it is where the neural networks run.
+\\
+The 2 parts communicate through HTTP requests: Unreal Engine is the client and Python is the server. 
+\\
 The main reason why there are two part and that they communicate throught HTTP requests is that: using Python tools (Tensorflow, etc.) is convinient when dealing with machine learning and write everything in C++ would be time consuming and error proning; Unreal Engine does not allow native communication with Python scripts.
 \subsubsection{Client}
 \sp
-The client starts creating the agent and sending some meta-data (the model to be trained: DQN, DDQN DDDQN, etc.) to the server to initialize it. After the initialiazation, the run can start with the first episode. An episode has a fixed length of 2000 steps (Unreal Engine updates) but it can end before reaching the 2000 steps if the agent hits an obstacle. An episode start with the positioning of the agent around a point with an offset of the x and y cordinates (this is done to avoid the agent to start always from start same exact point) and with a rotation of $0^{\circ}$ degrees or $180^{\circ}$ degrees so that the agent can circle the track clock or anti-clock wise. For each step after the next one:
+The client starts creating the agent and sending some meta-data (the model to be trained: DQN, DDQN DDDQN, etc.) to the server to initialize it. After the initialiazation, the run can start with the first episode. An episode has a fixed length of 2000 steps, Unreal Engine updates, but it can end before reaching the 2000 steps if the agent hits an obstacle. An episode start with the positioning of the agent around a point with an offset of the x and y cordinates (this is done to avoid the agent to start always from start same exact point) and with a rotation of $0^{\circ}$ degrees or $180^{\circ}$ degrees so that the agent can circle the track clock or anti-clock wise. For each step $t$:
 \begin{enumerate}
-\item the agent senses the world with LiDAR sensors and obtains the current state $s$: an array of 32 values that indicates if for each ray there is an obstacle or not \label{point1}
-\item the agent chooses an action $a$, either random or from the neural network. In the former case the epsilon value $\epsilon$ is decresed, with the formula:
+\item the agent senses the world with LiDAR sensors and obtains the current state $s_t$: an array of 32 values that indicates if for each ray there is an obstacle or not \label{point1}
+\item the agent chooses an action $a_t$, either random or from the neural network. In the former case the epsilon value $\epsilon$ is decresed, with the formula:
 \[epsilon = epsilon - epsilon\_decay\]
 In the latter case an HTTP request with the current state is send to the server that will reply with the best action to perform
-\item the agent perform the action chosen gets a reward $r$, senses the next state $s^{\prime}$ and evaluate if the next state is an terminal one or not (the agent hits the wall is an terminal state) $t$, either 0 or 1
-\item the information of this step is then send to the server the experience $(s,a,r,s^{\prime},t)$
-\item the agent is repositionating if the terminal state $t$ is 1 or the current step number is greater than 2000, otherwise the step number is incresed and the loops repeat with point 1.
+\item the agent perform the action chosen gets a reward $r_t$, senses the next state $s_{t+1}$ and evaluate if the next state is an terminal one or not (the agent hits the wall is an terminal state, gameover) $g_t$, either 0 or 1
+\item the information of this step is then send to the server the experience $(s_t,a_t,r_t,s_{t+1},g_t)$
+\item the agent'position is resetted if the terminal state $g_t$ is 1 or the current step number is greater than 2000, otherwise the step number is incresed and the loop repeats with point 1.
 \end{enumerate}
 
 \subsubsection{Server}
 Once the server variables are initialized the server starts waiting for the client's requests. \\
 There are 2 main fuctions: fit and predict.
 \begin{itemize}
-\item Fit receives an experience as a string from the client and stores it in a list of experiences, query this list to obtain a batch of experiences with which the neural network is trained: the experiences pass through the network, the best next value is calculated with the neural network (either the policy or target network depending on the policy used), the target value is calculated with the Bellman equation. Using the the target and the best next value the loss is calculated and then back-propagate through the network to change weights. \\
+\item Fit receives an experience as a string from the client and stores it in a list of experiences, query this list to obtain a batch of experiences with which the neural network is trained: the experiences pass through the network, the best next value is calculated with the neural network (either the policy or target network depending on the model used), the target value is calculated with the Bellman equation. Using the the target and the best next value the loss is calculated and then back-propagate through the network to change weights. \\
 In the case of DDQN and DDDQN the weights of the target network are updated every N steps usign formula \ref{eq:updateweights}.
 \item Predict receives a state as string, this is converted to a variable and passed through the network chosen. The prediction is the action which has the the maximum Q-value and this is send back to the client.
 \end{itemize}
@@ -795,7 +803,7 @@ The comparison between the different models:
     		\centering\includegraphics[width=1\textwidth]{./Image/Results/Comparison/rewards.png}
     		\vspace{-5mm}
     		\centering\includegraphics[width=1\textwidth]{./Image/Results/Comparison/speeds.png}
-		%\caption{}
+		\caption{Plot of the results of the models. The confidence intervals on these plots are removed to have visually simpler graphs.}
 	\end{figure}
 	}\fi
 	From these plots it is posible to see some differences between the leanrning paths of the models. In particular:
@@ -804,7 +812,6 @@ The comparison between the different models:
 	\item The Double Deep Q-network is fast getting high rewards but it stops at around 2000.
 	\item The Duelling Double Deep Q-network is slower than the DDQN but it reaches a reward greater than 2000.
 	\end{itemize}
-	The confidence intervals on these plots are removed to have visually simpler graphs.
 	
 	\newpage
 	\begin{table}[!h]
@@ -818,8 +825,8 @@ The comparison between the different models:
 		\textbf{DDDQN} &   2060.3                 &  $+7.58\%$                    	\\ \hline
 		\end{tabular}
 	}
-		%\caption{}
-		\label{tab:my-table}
+		\caption{Results obtained during the training on the simple track.}
+		\label{tab:table-train}
 	\end{table}
 	\footnotetext{Improvement with respect to the previous model. These are calculated with the following formula: $increment = (previous\_model\_max - current\_model\_max) / previous\_model\_max * 100$}
 	
@@ -839,6 +846,38 @@ An interesting fact is that, the training phase can be divided in 5 periods:
 \end{enumerate}
 \ppn
 Results show interesting zero-shot transferability \cite{Zero-shot} of a trained agent in the context of simple track and generalize the knowledge to the complex track. Indeed the simple track is used only for training purposed and the complex track is used to testing purposes (the agent is not trained on the complex track).
+
+
+\subsection{Test on Complex Track}
+\sp
+The models are tested on the complex track. The result are here reported:
+
+\ifnum\value{debug}=0 {
+	\begin{figure}[H]
+    		\centering\includegraphics[width=1\textwidth]{./Image/Results/Test/rewards.png}
+    		\vspace{-5mm}
+    		\centering\includegraphics[width=1\textwidth]{./Image/Results/Test/speeds.png}
+		\caption{Results of the difference models on the test track. The plots show the average the upper and lower confidence intervals.}
+	\end{figure}
+	}\fi
+	
+\begin{table}[H]
+		\centering
+		\resizebox{0.6\textwidth}{!}{%
+		\begin{tabular}{|c|c|c|}
+		\hline
+		\textbf{Model} 	& \textbf{Avg Score} & \textbf{Improvement\footnotemark} \\ \hline
+		\textbf{DQN}   	&    3209.1                 &    /                   							\\ \hline
+		\textbf{DDQN}  &    3586.9                 &   $+11.77\%$                    \\ \hline
+		\textbf{DDDQN} &   4029.4                 &  $+12.33\%$                    	\\ \hline
+		\end{tabular}
+	}
+		\caption{Result obtained during the evaluation of the models on the complex track.}
+		\label{tab:table-test}
+	\end{table}
+	\footnotetext{Improvement with respect to the previous model. Calculation similar to table \ref{tab:table-train}}
+	
+	For each model 10 consecutive runs are preformed then the result are averaged and the confidence intervals calculated.
 
 \end{flushleft}
 
