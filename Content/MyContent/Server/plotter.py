@@ -3,8 +3,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
-model = 2
-run = 1
+model = 0
+run = 4
 # losses = pd.read_csv(f'run.losses_{model}_{run}.csv')
 rewards = pd.read_csv(f'run.rewards_{model}_{run}.csv')
 
@@ -23,7 +23,8 @@ if(plot_losses is True):
 	#ax.plot(x,y,linewidth=.05, marker='o', markersize=0.5)
 	ax.plot(x,y_avg,linewidth=1,c='r')
 else:
-	for i in range(5):
+	# for i in range(5):
+	for i in range(2):
 		colors = []
 		for r in rewards['IsClockwise']:
 			if(r==0):
@@ -32,7 +33,8 @@ else:
 				c = 'b'
 			colors.append(c)
 		fig, axs = plt.subplots(2,figsize=(24,8), sharex=True)
-		rolling = 1 + i*2
+		# rolling = 1 + i*2
+		rolling = 1 + i * 8
 		rewards['rolling_avg_reward'] = rewards['totalReward'].rolling(rolling).mean()
 		rewards['rolling_avg_speed'] = rewards['averageSpeed'].rolling(rolling).mean()
 		x = np.arange(len(rewards))

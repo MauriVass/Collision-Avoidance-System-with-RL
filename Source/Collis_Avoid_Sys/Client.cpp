@@ -19,8 +19,8 @@ void AClient::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	//AClient::UrlAddress = "192.168.1.6:5000/";						//Laptop
-	AClient::UrlAddress = "192.168.1.12:5000/";						//Desktop
+	//Add the IP address of the Python server
+	AClient::UrlAddress = "X.X.X.X:port/";//Desktop
 }
 
 
@@ -31,6 +31,9 @@ void AClient::Tick(float DeltaTime)
 
 }
 
+/*
+Send initial information to the server
+*/
 void AClient::SendMetadata(int numSensors, int numActions, float negativeReward, int modelSpecification, bool prioritize)
 {
 	FString data = FString::FromInt(numSensors) + ":" + FString::FromInt(numActions) + ":" + FString::SanitizeFloat(negativeReward) + ":" + FString::FromInt(modelSpecification) + ":" + (prioritize ? "True" : "False");
@@ -101,7 +104,6 @@ void AClient::GetPrediction(FHttpRequestPtr request, FHttpResponsePtr Response, 
 
 		//1 action
 		AClient::Agent->SetAction(FCString::Atoi(*result[0]));
-		//AClient::Agent->SetConfidence(FCString::Atof(*result[1]));
 	}
 }
 

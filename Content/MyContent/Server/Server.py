@@ -12,6 +12,7 @@ RANDOM_SEED = 21
 tf.random.set_seed(RANDOM_SEED)
 np.random.seed(RANDOM_SEED)
 
+#Duelling Double Deep Q-Network
 class DDDQN_template(tf.keras.Model):
 	def __init__(self,num_actions):
 		super(DDDQN_template, self).__init__(name='')
@@ -65,19 +66,12 @@ class Network():
 		self.tau = 0.001
 		self.optimizer = tf.optimizers.Adam(self.lr)
 		
-		#self.filepath = 'experiences.csv'
 		self.file = '' #initialize after
 		self.experiences_prepros = []
 
 		# self.prioritize = True
 		self.number_prioritize_experiences_batch = 2
 		self.prioritize_experiences = []
-
-		# self.prioritize = True
-		# self.negative_hit_reward = -10
-		# self.readExperiencesFromFile()
-		# t1 = time.time()
-		# print(f'Reading {time.time()-t1}')
 
 		self.minNumExperiences = self.batchsize * 50
 		self.maxNumExperiences = 5*10**4
@@ -90,7 +84,7 @@ class Network():
 		self.t1 =0
 		self.t2=0
 
-		self.debug = False
+		self.debug = True
 		self.prev_time = 0
 		self.max_time = 0.5
 		self.skipped = 0
@@ -109,26 +103,26 @@ class Network():
 
 		self.policyNetwork = self.ModelTemplate()
 
-		#if(self.model_specification==1):
 		if(self.model_specification!=0):
 			self.targetNetwork = self.ModelTemplate()
 			self.copyNN()
 
 		print(self.policyNetwork.summary())
 
-		#if(len(self.experiences_prepros) self.batchsize):
-		t1 = time.time()
-		experiences = self.getBatchExperiences()
-		states = tf.convert_to_tensor(experiences['s']) #The current state
-		actions = np.asarray(experiences['a']) #The action performed (chosen randomly or by net)
-		rewards = np.asarray(experiences['r']) #The reward got
-		next_states = tf.convert_to_tensor(experiences['ns']) #The next state
-		dones = np.asarray(experiences['done']) #State of the game (ended or not)if(self.model_specification==0):
-		value_next = np.max(self.policyNetwork(next_states),axis=1) #Max next values according to the Target Network
-		print(f'\t first getBatchExperiences: {(time.time()-t1):.4f}')
+		if(len(self.experiences_prepros) > self.batchsize):
+			t1 = time.time()
+			experiences = self.getBatchExperiences()
+			states = tf.convert_to_tensor(experiences['s']) #The current state
+			actions = np.asarray(experiences['a']) #The action performed (chosen randomly or by net)
+			rewards = np.asarray(experiences['r']) #The reward got
+			next_states = tf.convert_to_tensor(experiences['ns']) #The next state
+			dones = np.asarray(experiences['done']) #State of the game (ended or not)if(self.model_specification==0):
+			value_next = np.max(self.policyNetwork(next_states),axis=1) #Max next values according to the Target Network
+			print(f'\t first getBatchExperiences: {(time.time()-t1):.4f}')
 
 	def ModelTemplate(self):
 		if(self.model_specification!=2):
+			#Deep Q-Network and Double too, they have the same architecture
 			model = tf.keras.Sequential([
 							tf.keras.layers.Flatten(),
 							tf.keras.layers.Dense(64, activation='relu', kernel_initializer='RandomNormal'),
@@ -262,11 +256,6 @@ class Network():
 			variables = self.policyNetwork.trainable_variables
 			gradients = tape.gradient(loss, variables)
 			gradients, _ = tf.clip_by_global_norm(gradients, 2.0)
-			# print('variables', type(variables), np.array(variables).shape)
-			# print('wv', tape.watched_variables())
-			# print('gradients', type(gradients), np.array(gradients).shape)
-			# print(gradients)
-			# time.sleep(3)
 
 			self.optimizer.apply_gradients(zip(gradients, variables))
 			if(self.debug):
@@ -279,7 +268,6 @@ class Network():
 				self.copyNN(soft=True)
 				self.t2 = time.time()
 				t = self.t2-self.t1
-				#print(f'\t\t\tTime from last update: {():.4f}')
 				self.f.write(f'{t}\n')
 				self.t1 = self.t2
 				if(self.debug):
@@ -317,7 +305,7 @@ class Network():
 		self.policyNetwork.save(f'Models/{path}')
 		return path
 	def loadModel(self,name):
-		self.policyNetwork = tf.keras.models.load_model(f"Models/{name}")
+		self.policyNetwork.load_weights(f"Models/{name}")
 		if(self.model_specification!=0):
 			self.copyNN()
 		print(self.policyNetwork.summary())
@@ -338,7 +326,7 @@ class Network():
 
 network = Network()
 if(network.debug):
-	network.Initialization(32, 5,-5, 1, False)
+	network.Initialization(32, 5,-5, 2, False)
 
 
 @app.route('/')
@@ -378,17 +366,11 @@ def FIT():
 def PREDICT():
 	time_start = time.time()
 	msg = request.data.decode("utf-8") 
-	# print(type(msg),msg)
 	input = np.array(msg.split(':')).astype(int)
-	# print('PREDICT')
-	#print(input)
 	output = network.predictPN(input)
 
 	a = np.argmax(output)
 	output = str(a)
-	#print('pred net', output, action)
-	# # print('target net', self.net.predictTN(input))
-	# out = '/'.join([str(o) for o in output.numpy()[0]])
 	time_end = time.time()
 	print(f'Predict: elapsed time: {(time_end-time_start):.4f}')
 	return output
@@ -428,7 +410,6 @@ def RESTART():
 	return 'restart'
 
 app.run(host='0.0.0.0')
-# network.closeFile()
 network.writeExperiencesToFile()
 network.f.close()
 

@@ -16,13 +16,10 @@ void ADeepAgent::BeginPlay() {
 	PrimaryActorTick.bCanEverTick = true;
 
 	GetWorld()->GetFirstPlayerController()->bShowMouseCursor = true;
+
+	//Get the component responsible for the sensors' starting position
 	TArray<USceneComponent*> Childrens;
 	this->GetMesh()->GetChildrenComponents(true, Childrens);
-	/*UE_LOG(LogTemp, Error, TEXT("Number Children %d"), Childrens.Num());
-	for (int i = 0; i < Childrens.Num(); i++)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Children name %d %s"),i, *Childrens[i]->GetName());
-	}*/
 	if (Childrens.Num() > 0)
 		ADeepAgent::SensorPosition = Cast<UStaticMeshComponent>(Childrens[0]);
 
@@ -51,20 +48,22 @@ void ADeepAgent::BeginPlay() {
 	//0-> Deep Q-Network
 	//1-> Double Deep Q-Network
 	//2-> Dueling Deep Q-Network
-	ADeepAgent::ModelSpecification = 2;
+	ADeepAgent::ModelSpecification = 1;
 
+	//Add some delay so that the server can elaborate and reply to the client
 	ADeepAgent::timer = 0;
 	ADeepAgent::TickTime = 0.028; 
 	if(ADeepAgent::ModelSpecification == 2)
 		ADeepAgent::TickTime = 0.03;
 
+	//Prioritize the negative experiences during training
 	bool prioritize = false;
 	ADeepAgent::Client->SendMetadata(ADeepAgent::NumberSensor, ADeepAgent::NumberActions, ADeepAgent::NegativeReward, ADeepAgent::ModelSpecification, prioritize);
 	ADeepAgent::RestartGame();
 	UE_LOG(LogTemp, Error, TEXT("Begin"));
 
-	//todo: remove full-path
-	ADeepAgent::SaveDirectory = FString("C:/Users/mauri/Desktop/Mauri/software_per_programmazione/progetti/UnrealEngine/Collis_Avoid_Sys/CollisionAvoidanceSystem/Content/MyContent/Server");
+	//Add you path where to save the rewards .csv file
+	ADeepAgent::SaveDirectory = FString("add here");
 	ADeepAgent::FileName = FString("run.rewards_");
 	ADeepAgent::FileName.AppendInt(ADeepAgent::ModelSpecification);
 	ADeepAgent::FileName.Append("_.csv");
@@ -88,9 +87,6 @@ void ADeepAgent::Tick(float DeltaTime) {
 		}
 		ADeepAgent::PerformAction(ADeepAgent::Action);
 	}
-
-	//UE_LOG(LogTemp, Error, TEXT("Speed: %f"), ADeepAgent::GetMesh()->GetPhysicsLinearVelocity().Size());
-	//UE_LOG(LogTemp, Error, TEXT("Line trace has hit: %f"), DeltaTime);
 }
 
 void ADeepAgent::SetAction(int action)
@@ -138,12 +134,10 @@ TArray<float> ADeepAgent::GetInput() {
 	Rot = ADeepAgent::SensorPosition->GetComponentRotation();
 	ADeepAgent::totalDistance = 0;
 
+	//Array of rays
 	TArray<FHitResult, TFixedAllocator<ADeepAgent::NumberSensor>> Hit;
-	//for (int i = 0; i < ADeepAgent::NumberSensor; i++)
-	{
-		FHitResult hit;
-		Hit.Init(hit, ADeepAgent::NumberSensor);
-	}
+	FHitResult hit;
+	Hit.Init(hit, ADeepAgent::NumberSensor);
 	FCollisionQueryParams FParams;
 
 	float maxDistance = 1000;
@@ -152,6 +146,7 @@ TArray<float> ADeepAgent::GetInput() {
 	for (int i = 0; i < ADeepAgent::NumberSensor; i++)
 	{
 		FRotator angle = FRotator::ZeroRotator;
+		//Rays are equally spaced over a ADeepAgent::AngleExtension range
 		angle.Yaw = -ADeepAgent::AngleExtension / 2 + ADeepAgent::AngleExtension / (ADeepAgent::NumberSensor - 1) * i;
 		FVector direction = (Rot + angle).Vector() * maxDistance;
 		FVector end = Start + direction;
@@ -160,19 +155,16 @@ TArray<float> ADeepAgent::GetInput() {
 
 		AActor* ActorHit = Hit[i].GetActor();
 
-		float lifeTime = ADeepAgent::TickTime*5;
-		float value = Hit[i].Distance > 0 ? Hit[i].Distance / maxDistance : 1; //if ADeepAgent::IsStateSpaceDescrete is True
+		float lifeTime = ADeepAgent::TickTime*3;
+		float value = Hit[i].Distance > 0 ? Hit[i].Distance / maxDistance : 1;
 		if (ActorHit) {
 			DrawDebugLine(GetWorld(), Start, end, FColor::Red, false, lifeTime, 0, 5);
 			if (ADeepAgent::IsStateSpaceDescrete)
 				value = 0;
-			//ADeepAgent::totalDistance += Hit[i].Distance - maxDistance*3/4;
-			//UE_LOG(LogTemp, Error, TEXT("Line trace has hit: %d %s"),i, *(ActorHit->GetName()));
 
 			ADeepAgent::TargetVector_all += direction * Hit[i].Distance / maxDistance;
 		}
 		else {
-			//ADeepAgent::totalDistance += maxDistance;
 			DrawDebugLine(GetWorld(), Start, end, FColor::Green, false, lifeTime, 0, 5);
 			if (ADeepAgent::IsStateSpaceDescrete)
 				value = 1;
@@ -237,6 +229,8 @@ float ADeepAgent::GetAngle()
 
 void ADeepAgent::RewardFunction(TArray<float> currentState)
 {
+	//Different reward fuctions tried
+
 	//float ADeepAgent::Reward = 0.1;
 
 	//##### Reward by magnitude velocity #####
@@ -262,7 +256,6 @@ void ADeepAgent::RewardFunction(TArray<float> currentState)
 	//float ADeepAgent::Reward = (ADeepAgent::totalDistance) /10000.0;
 
 	//##### Sum of green rays #####
-	//ADeepAgent::TargetVector /= ADeepAgent::TargetVector.Size();
 	FVector start = ADeepAgent::SensorPosition->GetComponentLocation();
 	FVector carDirection = ADeepAgent::SensorPosition->GetForwardVector();
 
@@ -282,7 +275,7 @@ void ADeepAgent::RewardFunction(TArray<float> currentState)
 	float sign = FVector::CrossProduct(carDirection , ADeepAgent::TargetVector).Z; //// ADeepAgent::TargetVector.Size()
 	ADeepAgent::Angle = sign > 0 ? ADeepAgent::Angle : -ADeepAgent::Angle;
 
-	//UE_LOG(LogTemp, Error, TEXT("%f %f"), sign, ADeepAgent::Angle);
+	//The agent is rewarded more when it drives to the safest direction
 	float rewardAngle = -1;
 	if ((ADeepAgent::Angle > 0 && ADeepAgent::Action > 2) ||
 		(ADeepAgent::Angle < 0 && ADeepAgent::Action < 2) ||
@@ -296,15 +289,13 @@ void ADeepAgent::RewardFunction(TArray<float> currentState)
 		}
 	}
 	rewardAngle /= 10;
-	//rewardAngle = 0;
+	//The reward is proportional to the speed too
+	// -250 and /1000 are encouraging factors
 	float rewardSpeed = (ADeepAgent::GetMesh()->GetPhysicsLinearVelocity().Size() - 250) / 1000;
-	//Convert to km/h -> ADeepAgent::GetMesh()->GetPhysicsLinearVelocity().Size()/50*3.6 
 	
-	float rewardDistance = 0; // ADeepAgent::MinDistance;
-	//UE_LOG(LogTemp, Error, TEXT("%f"), rewardDistance);
+	float rewardDistance = 0; 
 	ADeepAgent::Reward = rewardAngle + rewardSpeed + rewardDistance;
 
-	//UE_LOG(LogTemp, Error, TEXT("%f %f %f"),ADeepAgent::Reward, ADeepAgent::GetMesh()->GetComponentVelocity().Size(), );
 	if (ADeepAgent::IsGameEnded) {
 		ADeepAgent::Reward = ADeepAgent::NegativeReward;
 	}
@@ -312,6 +303,8 @@ void ADeepAgent::RewardFunction(TArray<float> currentState)
 
 void ADeepAgent::PerformAction(int action)
 {
+	//Different actions space where tested too
+
 	//1) 3 actions
 	/*switch (ADeepAgent::Action)
 	{
@@ -373,12 +366,11 @@ void ADeepAgent::PerformAction(int action)
 	default:
 		break;
 	}
-
-	//2 actions
-	/*ADeepAgent::MovementComponent->SetThrottleInput(ADeepAgent::ThrottleAction+0.2);
-	ADeepAgent::MovementComponent->SetSteeringInput(ADeepAgent::SteerAction);*/
 }
 
+/*
+Repeated every tick
+*/
 void ADeepAgent::Step()
 {
 	//CURRENT STATE FROM INPUT SENSORS
@@ -403,11 +395,7 @@ void ADeepAgent::Step()
 			ADeepAgent::Epsilon = ADeepAgent::MinEpsilon;
 			ADeepAgent::NumberFitSteps = 2;
 		}
-		//else ADeepAgent::Epsilon = 0;
-		/*if (GEngine)
-			GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Yellow, FString::Printf(TEXT("Epsilon: %f"), ADeepAgent::Epsilon) );*/
 		UE_LOG(LogTemp, Error, TEXT("Random Action chosen: %d"), ADeepAgent::Action);
-		//UE_LOG(LogTemp, Error, TEXT("Random Action chosen: %f %f"), ADeepAgent::ThrottleAction, ADeepAgent::SteerAction);
 	}
 
 	//PERFORM ACTION
@@ -462,13 +450,12 @@ void ADeepAgent::RestartGame()
 {
 	ADeepAgent::MovementComponent->StopMovementImmediately();
 
-	//Calculate new location
+	//Calculate new location, add some randomness
 	FVector pos = ADeepAgent::initialTransform.GetLocation();
 	float offset = 150;
 	float scaling_factor = 1.6;
 	pos.X += FMath::FRandRange(-offset* scaling_factor, offset * scaling_factor);
 	pos.Y += FMath::FRandRange(-offset, offset);
-	//this->GetMesh()->SetAllPhysicsPosition(pos);
 
 	//Calculate new rotation
 	bool changeDirection = ADeepAgent::Clockwise; // FMath::RandBool();
@@ -482,8 +469,7 @@ void ADeepAgent::RestartGame()
 		//using 359 it works as expected -> worst thing ever, you should be ashamed of yourself UE4
 		rot = rot + FQuat(FRotator(0,359,0));
 	}
-	/*float randRotation = FMath::FRandRange(-10.0, 10.0);
-	rot = rot + FQuat(FRotator(0, randRotation, 0));*/
+	
 	//Set location and rotation
 	this->GetMesh()->SetWorldLocationAndRotation(pos,rot,false,nullptr,ETeleportType::TeleportPhysics);// > AddLocalRotation(rot); //->SetAllPhysicsRotation( rot );
 
@@ -494,11 +480,10 @@ void ADeepAgent::RestartGame()
 	ADeepAgent::AverageSpeed /= ADeepAgent::NumberSteps;
 	if(ADeepAgent::Episode>0)
 		ADeepAgent::WriteToFile(ADeepAgent::Episode, ADeepAgent::NumberSteps, ADeepAgent::CumulativeReward, ADeepAgent::AverageSpeed, ADeepAgent::IsGameEnded, ADeepAgent::Clockwise, true);
-	ADeepAgent::Episode++;
+	
 	ADeepAgent::NumberSteps = 0;
 	ADeepAgent::CumulativeReward = 0;
 	ADeepAgent::AverageSpeed = 0;
-	//ADeepAgent::timer = ADeepAgent::TickTime*100;
 	ADeepAgent::IsGameEnded = false;
 	UE_LOG(LogTemp, Error, TEXT("Restart"));
 }
