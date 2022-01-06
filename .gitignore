@@ -1,8 +1,9 @@
-Plots/
-time_elapsed
-updates
-*.png
-plotter.py
+#Report
+Report/*.aux
+Report/*.log
+Report/*.gz
+Report/*.toc
+*.psd
 
 # Visual Studio 2015 user specific files
 .vs/
