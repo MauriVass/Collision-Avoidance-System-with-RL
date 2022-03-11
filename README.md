@@ -8,9 +8,10 @@
     2. **[Agent](#agent)**  
     3. **[State](#state)**  
     4. **[Policy](#policy)**  
-    5. **[Models Used](#models-used)**  
-    6. **[Reward Function](#reward-function)**  
-    7. **[Implementation](#implementation)**
+    5. **[Actions](#actions)**  
+    6. **[Models Used](#models-used)**  
+    7. **[Reward Function](#reward-function)**  
+    8. **[Implementation](#implementation)**
 3. **[Results](#results)**
     1. **[Deep Q-network](#deep-q-network)**  
     2. **[Double Deep Q-network](#double-deep-q-network)**  
